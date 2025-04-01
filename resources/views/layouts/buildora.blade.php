@@ -8,12 +8,10 @@
     <!-- FontAwesome van externe CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Tailwind CSS Browser Script (voor Tailwind's browser-specifieke functionaliteit) -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
     @vite([
-        'resources/vendor/buildora/js/buildora.js',
         'resources/vendor/buildora/css/buildora.css',
+        'resources/vendor/buildora/js/buildora.js',
     ])
 
     @yield('head')
