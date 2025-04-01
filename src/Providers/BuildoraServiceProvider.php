@@ -40,6 +40,7 @@ class BuildoraServiceProvider extends ServiceProvider
             \Ginkelsoft\Buildora\Commands\MakeBuildoraResource::class,
             \Ginkelsoft\Buildora\Commands\CreateUser::class,
             \Ginkelsoft\Buildora\Commands\MakeBuildoraWidget::class,
+            \Ginkelsoft\Buildora\Commands\BuildoraInstallCommand::class,
         ]);
 
         // Publish configuration file
