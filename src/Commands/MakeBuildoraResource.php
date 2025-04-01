@@ -5,11 +5,6 @@ namespace Ginkelsoft\Buildora\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use Ginkelsoft\Buildora\Fields\Field;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
-use Ginkelsoft\Buildora\Fields\Types\HasManyField;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToManyField;
-use Ginkelsoft\Buildora\Fields\Types\HasOneField;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -80,7 +75,7 @@ use Ginkelsoft\\Buildora\\Actions\\RowAction;
 
 class {$resourceName} extends BuildoraResource
 {
-    protected static string \$model = \{$modelClass}::class;
+    protected static string \$model = $modelClass::class;
 
     public function defineFields(): array
     {
