@@ -1,6 +1,6 @@
 console.log("Buildora.js loaded!");
 
-import Alpine from '/vendor/ginkelsoft/buildora/node_modules/alpinejs';
+import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 Alpine.start();
