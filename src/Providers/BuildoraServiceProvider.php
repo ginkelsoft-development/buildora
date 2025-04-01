@@ -59,6 +59,7 @@ class BuildoraServiceProvider extends ServiceProvider
             __DIR__ . '/../../resources/js' => resource_path('vendor/buildora/js'),
         ], 'buildora-assets');
 
+
         // Blade directives
         Blade::if('fontawesome', fn () => config('buildora.enable_fontawesome', true));
 
