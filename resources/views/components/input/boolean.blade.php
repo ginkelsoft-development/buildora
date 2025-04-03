@@ -1,7 +1,8 @@
 @php
     $fieldId = 'field-' . Str::slug($field->name);
-    $value = old($field->name, $field->value() ?? false);
+    $value = old($field->name, $value ?? false);
     $options = $field->getOptions();
+
 @endphp
 
 <div class="space-y-2">
@@ -12,7 +13,7 @@
                    id="{{ $fieldId . '-' . $optionValue }}"
                    value="{{ $optionValue }}"
                    class="text-blue-500 focus:ring-2 focus:ring-blue-400 transition"
-                    {{ array_key_exists($value, $options) && (string) $optionValue === (string) $value ? 'checked' : '' }}>
+                    {{ array_key_exists((string)(int)$value, $options) && (string) $optionValue === (string)(int) $value ? 'checked' : '' }}>
 
             <label for="{{ $fieldId . '-' . $optionValue }}" class="text-sm text-gray-700 dark:text-gray-200">
                 {{ $optionLabel }}
