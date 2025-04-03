@@ -10,6 +10,7 @@ use Ginkelsoft\Buildora\Fields\Field;
  */
 class DateField extends Field
 {
+    protected string $displayFormat = 'd-m-Y H:i';
     /**
      * Create a new DateField instance.
      *
@@ -21,9 +22,7 @@ class DateField extends Field
     {
         parent::__construct($name, $label, $type);
         $this->label($label)
-            ->sortable()
-            ->hideFromCreate()
-            ->hideFromEdit();
+            ->sortable();
     }
 
     /**
@@ -37,5 +36,33 @@ class DateField extends Field
     public static function make(string $name = 'created_at', ?string $label = 'Created At', string $type = 'date'): self
     {
         return new self($name, $label, $type);
+    }
+    public function value(mixed $value = null): mixed
+    {
+        if (func_num_args() === 0) {
+            return $this->value;
+        }
+
+        $this->value = $value;
+        return $this;
+    }
+
+    public function formattedValue(): ?string
+    {
+        if (! $this->value) {
+            return null;
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($this->value)->format($this->displayFormat);
+        } catch (\Exception) {
+            return $this->value;
+        }
+    }
+
+    public function format(string $format): static
+    {
+        $this->displayFormat = $format;
+        return $this;
     }
 }
