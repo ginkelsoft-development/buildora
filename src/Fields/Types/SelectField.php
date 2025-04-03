@@ -82,9 +82,35 @@ class SelectField extends Field
     /**
      * Set the field value directly.
      */
-    public function setValue(mixed $value): self
+    public function setValue(mixed $model): self
     {
-        $this->value = $value;
+        $rawValue = $model instanceof Model ? $model->{$this->name} : $model;
+
+        // Als het een enum instance is: meteen gebruiken
+        if ($rawValue instanceof BackedEnum) {
+            $this->value = method_exists($rawValue, 'label') ? $rawValue->label() : $rawValue->name;
+            return $this;
+        }
+
+        // Als het een enum class is (via options)
+        if (is_string($this->options) && enum_exists($this->options)) {
+            $enumClass = $this->options;
+
+            /** @var BackedEnum|null $case */
+            $case = $enumClass::tryFrom($rawValue);
+            if ($case) {
+                $this->value = method_exists($case, 'label') ? $case->label() : $case->name;
+            } else {
+                $this->value = $rawValue;
+            }
+
+            return $this;
+        }
+
+        // Als het een gewone key in een array is
+        $options = $this->getOptions();
+        $this->value = $options[$rawValue] ?? $rawValue;
+
         return $this;
     }
 }
