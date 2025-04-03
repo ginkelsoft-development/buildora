@@ -37,13 +37,21 @@ class DateField extends Field
     {
         return new self($name, $label, $type);
     }
-    public function value(mixed $value = null): mixed
+
+    public function setValue(mixed $model): self
     {
-        if (func_num_args() === 0) {
-            return $this->value;
+        if ($model instanceof \Illuminate\Database\Eloquent\Model && $model->exists) {
+            $raw = $model->{$this->name};
+
+            try {
+                $this->value = \Illuminate\Support\Carbon::parse($raw)->format($this->displayFormat);
+            } catch (\Exception) {
+                $this->value = $raw;
+            }
+        } else {
+            $this->value = null;
         }
 
-        $this->value = $value;
         return $this;
     }
 

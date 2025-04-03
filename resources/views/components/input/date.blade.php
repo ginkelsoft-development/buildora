@@ -2,7 +2,8 @@
     use Illuminate\Support\Str;
 
     $fieldId = 'field-' . Str::slug($field->name);
-    $value = old($field->name, $field->value() ?? '');
+    $field->format('Y-m-d');
+    $value = old($field->name, $field->formattedValue() ?? '');
 @endphp
 
 <div class="form-group">
