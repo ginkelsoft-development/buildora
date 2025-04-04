@@ -34,7 +34,7 @@
                 @method('PUT')
             @endif
 
-            <div class="flex-1 space-y-6">
+            <div class="grid grid-cols-12 gap-6">
                 @foreach($fields as $field)
                     @if(!$field->isVisible('create') && !isset($item))
                         @continue
@@ -46,26 +46,36 @@
 
                     @php
                         $value = old($field->name, $item->{$field->name} ?? '');
+
+                        // Responsive column span support
+                        $colSpans = $field->getColumnSpan(); // always an array
+                        $colClasses = collect($colSpans)->map(
+                            fn($cols, $breakpoint) => $breakpoint === 'default'
+                                ? "col-span-{$cols}"
+                                : "{$breakpoint}:col-span-{$cols}"
+                        )->implode(' ');
                     @endphp
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <label for="{{ $field->name }}" class="font-semibold text-gray-700 dark:text-gray-300">
+                    {{-- Force new row if requested --}}
+                    @if(method_exists($field, 'shouldStartNewRow') && $field->shouldStartNewRow())
+                        <div class="col-span-12"></div>
+                    @endif
+
+                    <div class="{{ $colClasses }}">
+                        <label for="{{ $field->name }}" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
                             {{ $field->label }}
                         </label>
 
-                        <div class="col-span-2">
-                            @if(!$field instanceof \Ginkelsoft\Buildora\Fields\Types\ViewField)
-                                @component("buildora::components.input.{$field->type}", ['field' => $field, 'value' => $value])
-                                @endcomponent
-                            @else
-                                {!! $field->detailPage() !!}
-                            @endif
-                        </div>
+                        @if(!$field instanceof \Ginkelsoft\Buildora\Fields\Types\ViewField)
+                            @component("buildora::components.input.{$field->type}", ['field' => $field, 'value' => $value])
+                            @endcomponent
+                        @else
+                            {!! $field->detailPage() !!}
+                        @endif
                     </div>
                 @endforeach
             </div>
 
-            <!-- ✅ Sticky footer-knoppen -->
             <div class="flex justify-between mt-auto pt-6 border-t border-gray-200">
                 <x-buildora::button.back :model="$model"/>
                 <x-buildora::button.save/>
