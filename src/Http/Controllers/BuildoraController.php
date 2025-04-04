@@ -175,16 +175,17 @@ class BuildoraController extends Controller
     public function show(string $model, int|string $id)
     {
         $resource = ResourceResolver::resolve($model);
-        $query = $resource::query();
-
-        $item = $query->findOrFail($id);
+        $item = $resource::query()->findOrFail($id);
         $resource->fill($item);
 
-        return view('buildora::show', [
+        $customView = $resource->getDetailView();
+
+        return view('buildora::wrapped-detail', [
             'resource' => $resource,
             'item' => $item,
             'fields' => $resource->getFields(),
             'model' => $model,
+            'view' => $customView ?? 'buildora::show',
         ]);
     }
 
