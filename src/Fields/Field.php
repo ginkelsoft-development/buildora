@@ -10,6 +10,8 @@ namespace Ginkelsoft\Buildora\Fields;
  */
 class Field
 {
+    protected bool $startNewRow = false;
+    protected array $columnSpan = ['default' => 12];
     protected bool $isSearchable = false;
     protected string $searchable;
     public string $name;
@@ -202,18 +204,41 @@ class Field
         return $this->helpText;
     }
 
-    // Shorthand methods for visibility toggles
+    public function columnSpan(int|array $value): static
+    {
+        if (is_array($value)) {
+            $this->columnSpan = $value;
+        } else {
+            $this->columnSpan = ['default' => $value];
+        }
+
+        return $this;
+    }
+
+    public function getColumnSpan(): array
+    {
+        return $this->columnSpan;
+    }
+
+    public function startNewRow(bool $value = true): static
+    {
+        $this->startNewRow = $value;
+        return $this;
+    }
+
+    public function shouldStartNewRow(): bool
+    {
+        return $this->startNewRow;
+    }
 
     public function showInTable(): self { return $this->show('table'); }
     public function showInCreate(): self { return $this->show('create'); }
     public function showInEdit(): self { return $this->show('edit'); }
-    public function showInDetail(): self { return $this->show('detail'); }
     public function showInExport(): self { return $this->show('export'); }
 
     public function hideFromTable(): self { return $this->hide('table'); }
     public function hideFromCreate(): self { return $this->hide('create'); }
     public function hideFromEdit(): self { return $this->hide('edit'); }
-    public function hideFromDetail(): self { return $this->hide('detail'); }
     public function hideFromExport(): self { return $this->hide('export'); }
 
     /**
