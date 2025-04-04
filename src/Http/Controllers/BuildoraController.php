@@ -172,6 +172,22 @@ class BuildoraController extends Controller
             ->with('success', ucfirst($model) . ' updated successfully.');
     }
 
+    public function show(string $model, int|string $id)
+    {
+        $resource = ResourceResolver::resolve($model);
+        $query = $resource::query();
+
+        $item = $query->findOrFail($id);
+        $resource->fill($item);
+
+        return view('buildora::show', [
+            'resource' => $resource,
+            'item' => $item,
+            'fields' => $resource->getFields(),
+            'model' => $model,
+        ]);
+    }
+
     /**
      * Delete a resource instance.
      *
