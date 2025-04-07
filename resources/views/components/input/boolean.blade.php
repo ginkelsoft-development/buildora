@@ -14,7 +14,6 @@
                    value="{{ $optionValue }}"
                    class="text-blue-500 focus:ring-2 focus:ring-blue-400 transition"
                     {{ array_key_exists((string)(int)$value, $options) && (string) $optionValue === (string)(int) $value ? 'checked' : '' }}>
-
             <label for="{{ $fieldId . '-' . $optionValue }}" class="text-sm text-gray-700 dark:text-gray-200">
                 {{ $optionLabel }}
             </label>

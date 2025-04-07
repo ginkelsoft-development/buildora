@@ -63,7 +63,8 @@ class DataFetcher
 
         /** @var Model $modelInstance */
         $modelInstance = call_user_func([$this->resourceClass, 'make'])->getModelInstance();
-        $databaseColumns = Schema::getColumnListing($modelInstance->getTable());
+        $connectionName = $modelInstance->getConnectionName();
+        $databaseColumns = Schema::connection($connectionName)->getColumnListing($modelInstance->getTable());
 
         // 🔎 Apply search conditions
         if (!empty($search)) {
@@ -98,7 +99,7 @@ class DataFetcher
                 $query->orderBy($sortColumnName, $sortDirection);
             }
         }
-        
+
         return $query->paginate($perPage, 'page', $page);
     }
 }

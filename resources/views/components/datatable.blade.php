@@ -1,3 +1,7 @@
+@props([
+    'endpoint' => request()->url() . '/datatable/json',
+])
+
 <div x-data="dataTable()" x-init="init()" class="mx-auto">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
@@ -129,7 +133,7 @@
 </div>
 
 <script>
-    function dataTable() {
+    function dataTable(customEndpoint = null) {
         function debounce(func, wait, immediate) {
             let timeout;
             return function () {
@@ -153,7 +157,7 @@
             sortDirection: 'asc',
             pagination: { current_page: 1, per_page: 25, total: 0, last_page: 1 },
             paginationOptions: [10, 25, 50, 100], // <- ✅ init waarde toegevoegd
-            endpoint: '{{ url()->current() . "/datatable/json" }}',
+            endpoint: '{{$endpoint}}',
             debouncedFetchData: null,
             selectedRows: [],
             selectedBulkAction: '',

@@ -31,16 +31,27 @@ class BooleanField extends Field
         return new self($name, $label, $type);
     }
 
-    /**
-     * Set or get the value of the field.
-     */
     public function value(mixed $value = null): mixed
     {
         if (func_num_args() === 0) {
-            return is_bool($this->value) ? (string)(int)$this->value : (string)$this->value;
+            return (string)(int) filter_var($this->value, FILTER_VALIDATE_BOOLEAN);
         }
 
         $this->value = $value;
+        return $this;
+    }
+
+    public function setValue(mixed $model): self
+    {
+        $rawValue = $model instanceof \Illuminate\Database\Eloquent\Model
+            ? $model->{$this->name}
+            : $model;
+
+        // Zorg dat het een boolean is (of castbaar)
+        $boolKey = filter_var($rawValue, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        // fallback op originele waarde als parsing faalt
+        $this->value = $this->options[$boolKey] ?? $rawValue;
 
         return $this;
     }
