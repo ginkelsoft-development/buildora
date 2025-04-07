@@ -184,7 +184,7 @@ class BuildoraController extends Controller
             'resource' => $resource,
             'item' => $item,
             'fields' => $resource->getFields(),
-            'model' => $model,
+            'model' => $item,
             'view' => $customView ?? 'buildora::show',
         ]);
     }

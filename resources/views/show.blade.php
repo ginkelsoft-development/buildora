@@ -43,8 +43,25 @@
         @endforeach
     </div>
 
-    <div class="mt-8">
-        <x-buildora::button.back :model="$model"/>
-    </div>
+
+    @php
+        use Ginkelsoft\Buildora\Layouts\Panel;
+
+        $panels = collect($resource->getRelationResources())
+            ->filter(fn ($layout) => $layout instanceof Panel);
+    @endphp
+
+    @if ($panels->isNotEmpty())
+        @foreach ($panels as $panel)
+
+            <x-buildora::relation.panel
+                :relation="$panel"
+                :model="$model"
+                :resource="$resource"
+            />
+        @endforeach
+    @endif
+
+
 
 @endsection

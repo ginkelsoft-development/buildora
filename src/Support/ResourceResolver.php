@@ -36,4 +36,28 @@ class ResourceResolver
 
         return $instance;
     }
+
+    public static function resolveFromMethod(object $model, string $method): BuildoraResource
+    {
+        if (! method_exists($model, $method)) {
+            throw new \Exception("Method [{$method}] does not exist on model [" . get_class($model) . "]");
+        }
+
+        $relation = $model->{$method}();
+
+        if (! $relation instanceof \Illuminate\Database\Eloquent\Relations\Relation) {
+            throw new \Exception("Method [{$method}] is not a valid Eloquent relation.");
+        }
+
+        $relatedModel = $relation->getRelated();
+        $base = class_basename($relatedModel);
+
+        $resourceClass = "App\\Buildora\\Resources\\{$base}Buildora";
+
+        if (! class_exists($resourceClass)) {
+            throw new \Exception("Buildora resource [{$resourceClass}] not found.");
+        }
+
+        return app($resourceClass);
+    }
 }

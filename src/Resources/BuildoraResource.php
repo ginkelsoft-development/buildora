@@ -13,9 +13,11 @@ use Exception;
  */
 abstract class BuildoraResource
 {
+    protected ?Model $parentModel = null;
     protected string $modelClass;
     protected array $fields;
     protected ?string $detailView = null;
+    protected array $relationResources = [];
 
     /**
      * BuildoraResource constructor.
@@ -49,10 +51,33 @@ abstract class BuildoraResource
      * @param Model $model
      * @return $this
      */
-    public function fill($model): self
+    public function fill(Model $model): self
     {
-        $this->fields = FieldManager::prepare($this->fields, $model);
+        foreach ($this->fields as $field) {
+            if (method_exists($field, 'setParentModel')) {
+                $field->setParentModel($model);
+            }
+
+            if (method_exists($field, 'setValue')) {
+                $field->setValue($model);
+            } else {
+                $field->value = $model->{$field->name} ?? null;
+            }
+        }
+
         return $this;
+    }
+
+    public function setFields(array $fields): void
+    {
+        foreach ($fields as $field) {
+            if (! $field instanceof Field) {
+                $type = is_object($field) ? get_class($field) : gettype($field);
+                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
+            }
+        }
+
+        $this->fields = $fields;
     }
 
     /**
@@ -120,19 +145,18 @@ abstract class BuildoraResource
      */
     abstract public function defineFields(): array;
 
-    /**
-     * Get all fields for this resource.
-     *
-     * @return Field[]
-     */
     public function getFields(): array
     {
-        return collect($this->fields)->map(function ($field) {
-            if (! $field instanceof Field) {
-                throw new Exception("Invalid field type in resource: " . get_class($field));
+        $fields = $this->fields ?? [];
+
+        foreach ($fields as $field) {
+            if (! $field instanceof \Ginkelsoft\Buildora\Fields\Field) {
+                $type = is_object($field) ? get_class($field) : gettype($field);
+                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
             }
-            return $field;
-        })->toArray();
+        }
+
+        return $fields;
     }
 
     /**
@@ -186,4 +210,43 @@ abstract class BuildoraResource
     {
         return $this->detailView;
     }
+
+
+    public function setParentModel(Model $model): static
+    {
+        $this->parentModel = $model;
+        return $this;
+    }
+
+    public function getParentModel(): ?Model
+    {
+        return $this->parentModel;
+    }
+
+    /**
+     * Haal de relationele layouts (zoals panels of tabs) op.
+     */
+    public function getRelationResources(): array
+    {
+        return $this->relationResources ?: $this->defineRelationResources();
+    }
+
+    /**
+     * Overschrijf relationele layouts handmatig (bijv. via controller).
+     */
+    public function setRelationResources(array $resources): void
+    {
+        $this->relationResources = $resources;
+    }
+
+    public function definePanels(): array
+    {
+        return [];
+    }
+
+    public function uriKey(): string
+    {
+        return strtolower(str_replace('Buildora', '', class_basename(static::class)));
+    }
+
 }

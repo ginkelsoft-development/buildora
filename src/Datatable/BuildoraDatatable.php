@@ -10,42 +10,63 @@ use Illuminate\Support\Facades\Request;
 use Ginkelsoft\Buildora\Datatable\ColumnBuilder;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class BuildoraDatatable
 {
-    protected BuildoraResource $resource;
-
     public array $columns = [];
     protected array $data = [];
     protected array $pagination = [];
     protected bool $initialized = false;
+    protected bool $isRelationMode = false;
 
-    /**
-     * BuildoraDatatable constructor.
-     *
-     * @param string $resourceName
-     * @throws BuildoraException
-     */
-    public function __construct(string $resourceName)
+    protected BuildoraResource $resource;
+
+    public function __construct(BuildoraResource|string $resource)
     {
-        $this->resource = ResourceResolver::resolve($resourceName);
+        $this->resource = is_string($resource)
+            ? ResourceResolver::resolve($resource)
+            : $resource;
+
+        // Alleen kolommen bouwen, geen fetch!
         $this->columns = ColumnBuilder::build($this->resource);
     }
 
-    /**
-     * Initialize and fetch datatable state.
-     *
-     * @param string $search
-     * @param string $sortBy
-     * @param string $sortDirection
-     * @param int|null $perPage
-     * @param int $page
-     * @return void
-     */
+    public static function fromRelation(Relation $relation, BuildoraResource $resource): self
+    {
+        $datatable = new self($resource); // Kolommen worden in __construct wel opgebouwd
+        $datatable->fetchDataUsingRelation($relation);
+        $datatable->isRelationMode = true;
+        return $datatable;
+    }
+
+    public function fetchDataUsingRelation(Relation $relation): void
+    {
+        $perPage = Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
+        $page = Request::input('page', 1);
+
+        $paginator = $relation->paginate($perPage, ['*'], 'page', $page);
+
+        $this->data = array_map(function ($record) {
+            $resource = clone $this->resource;
+            $resource->fill($record);
+            return RowFormatter::format($resource, $this->resource);
+        }, $paginator->items());
+
+        $this->columns = ColumnBuilder::build($this->resource);
+        $this->initialized = true;
+
+        $this->pagination = [
+            'total' => $paginator->total(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+        ];
+    }
+
     protected function initialize(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
     {
-        if ($this->initialized) {
-            $this->fetchData($search, $sortBy, $sortDirection, $perPage, $page);
+        if ($this->initialized || $this->isRelationMode) {
             return;
         }
 
@@ -53,16 +74,6 @@ class BuildoraDatatable
         $this->initialized = true;
     }
 
-    /**
-     * Fetch datatable records and apply pagination.
-     *
-     * @param string $search
-     * @param string $sortBy
-     * @param string $sortDirection
-     * @param int|null $perPage
-     * @param int $page
-     * @return void
-     */
     protected function fetchData(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
     {
         $perPage = $perPage ?? Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
@@ -83,26 +94,11 @@ class BuildoraDatatable
         ];
     }
 
-    /**
-     * Get the visible datatable columns.
-     *
-     * @return array
-     */
     public function getColumns(): array
     {
         return $this->columns;
     }
 
-    /**
-     * Get a JSON-ready array for the frontend.
-     *
-     * @param string $search
-     * @param string $sortBy
-     * @param string $sortDirection
-     * @param int|null $perPage
-     * @param int $page
-     * @return array
-     */
     public function getJsonResponse(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): array
     {
         $page = Request::input('page', $page);
@@ -119,11 +115,6 @@ class BuildoraDatatable
         ];
     }
 
-    /**
-     * Get all searchable columns from the resource.
-     *
-     * @return array
-     */
     public function getSearchableColumns(): array
     {
         if (method_exists($this->resource, 'getSearchableColumns')) {

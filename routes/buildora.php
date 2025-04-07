@@ -7,6 +7,7 @@ use Ginkelsoft\Buildora\Http\Controllers\BuildoraExportController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
 use Ginkelsoft\Buildora\Http\Controllers\Install\InstallController;
+use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +103,9 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
 
             Route::delete('{resource}/{id}', [BuildoraController::class, 'destroy'])
                 ->name('buildora.destroy');
+
+            Route::get('{resource}/{id}/relation/{relation}', RelationDatatableController::class)
+                ->name('buildora.relation.index');
 
             Route::get('{resource}/datatable/json', [BuildoraDatatableController::class, 'json'])
                 ->name('buildora.datatable.json');
