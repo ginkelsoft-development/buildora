@@ -18,6 +18,7 @@ abstract class BuildoraResource
     protected array $fields;
     protected ?string $detailView = null;
     protected array $relationResources = [];
+
     /**
      * BuildoraResource constructor.
      *
@@ -210,6 +211,7 @@ abstract class BuildoraResource
         return $this->detailView;
     }
 
+
     public function setParentModel(Model $model): static
     {
         $this->parentModel = $model;
@@ -246,4 +248,5 @@ abstract class BuildoraResource
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
+
 }
