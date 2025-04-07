@@ -97,6 +97,9 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
             Route::put('{resource}/{id}', [BuildoraController::class, 'update'])
                 ->name('buildora.update');
 
+            Route::get('{resource}/{id}', [BuildoraController::class, 'show'])
+                ->name('buildora.show');
+
             Route::delete('{resource}/{id}', [BuildoraController::class, 'destroy'])
                 ->name('buildora.destroy');
 

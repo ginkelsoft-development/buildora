@@ -30,6 +30,7 @@ class Field
         'create' => true,
         'edit' => true,
         'export' => true,
+        'detail' => true,
     ];
 
     public mixed $value = null;
@@ -220,6 +221,7 @@ class Field
         return $this->columnSpan;
     }
 
+
     public function startNewRow(bool $value = true): static
     {
         $this->startNewRow = $value;
@@ -231,15 +233,12 @@ class Field
         return $this->startNewRow;
     }
 
-    public function showInTable(): self { return $this->show('table'); }
-    public function showInCreate(): self { return $this->show('create'); }
-    public function showInEdit(): self { return $this->show('edit'); }
-    public function showInExport(): self { return $this->show('export'); }
 
     public function hideFromTable(): self { return $this->hide('table'); }
     public function hideFromCreate(): self { return $this->hide('create'); }
     public function hideFromEdit(): self { return $this->hide('edit'); }
     public function hideFromExport(): self { return $this->hide('export'); }
+    public function hideFromDetail(): self { return $this->hide('detail'); }
 
     /**
      * Convert the field into an array representation.

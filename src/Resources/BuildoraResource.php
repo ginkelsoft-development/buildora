@@ -15,6 +15,7 @@ abstract class BuildoraResource
 {
     protected string $modelClass;
     protected array $fields;
+    protected ?string $detailView = null;
 
     /**
      * BuildoraResource constructor.
@@ -173,5 +174,16 @@ abstract class BuildoraResource
     public static function query(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
     {
         return QueryFactory::make(new static());
+    }
+
+    public function setDetailView(string $view): static
+    {
+        $this->detailView = $view;
+        return $this;
+    }
+
+    public function getDetailView(): ?string
+    {
+        return $this->detailView;
     }
 }
