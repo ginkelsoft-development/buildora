@@ -1,0 +1,86 @@
+@extends('buildora::layouts.buildora')
+
+@section('content')
+
+    <x-buildora::widgets :resource="$resource" :visibility="isset($item) ? 'edit' : 'create'"/>
+
+    @if ($errors->any())
+        <div x-data="{ show: true }" x-show="show" x-transition.duration.300ms
+             class="mt-4 bg-red-400 text-white p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <x-buildora-icon icon="fa fa-exclamation-circle" class="text-white text-xl"/>
+                <div>
+                    <strong class="font-semibold">There were some issues with your submission:</strong>
+                    <ul class="mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <button @click="show = false" class="text-white ml-4 hover:text-gray-300">
+                <x-buildora-icon icon="fa fa-times"/>
+            </button>
+        </div>
+    @endif
+
+    <div class="bg-white p-8 rounded-lg shadow-sm flex flex-col min-h-[400px]">
+        <form method="POST"
+              enctype="multipart/form-data"
+              action="{{ isset($item) ? route('buildora.update', [$model, $item->id]) : route('buildora.store', $model) }}"
+              class="space-y-6 flex-1 flex flex-col">
+            @csrf
+            @if(isset($item))
+                @method('PUT')
+            @endif
+
+            <div class="grid grid-cols-12 gap-6">
+                @foreach($fields as $field)
+                    @if(!$field->isVisible('create') && !isset($item))
+                        @continue
+                    @endif
+
+                    @if(!$field->isVisible('edit') && isset($item))
+                        @continue
+                    @endif
+
+                    @php
+                        $value = old($field->name, $item->{$field->name} ?? '');
+
+                        // Responsive column span support
+                        $colSpans = $field->getColumnSpan(); // always an array
+                        $colClasses = collect($colSpans)->map(
+                            fn($cols, $breakpoint) => $breakpoint === 'default'
+                                ? "col-span-{$cols}"
+                                : "{$breakpoint}:col-span-{$cols}"
+                        )->implode(' ');
+                    @endphp
+
+                    {{-- Force new row if requested --}}
+                    @if(method_exists($field, 'shouldStartNewRow') && $field->shouldStartNewRow())
+                        <div class="col-span-12"></div>
+                    @endif
+
+                    <div class="{{ $colClasses }}">
+                        <label for="{{ $field->name }}" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            {{ $field->label }}
+                        </label>
+
+                        @if(!$field instanceof \Ginkelsoft\Buildora\Fields\Types\ViewField)
+                            @component("buildora::components.input.{$field->type}", ['field' => $field, 'value' => $value])
+                            @endcomponent
+                        @else
+                            {!! $field->detailPage() !!}
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="flex justify-between mt-auto pt-6 border-t border-gray-200">
+                <x-buildora::button.back :model="$model"/>
+                <x-buildora::button.save/>
+            </div>
+        </form>
+    </div>
+
+@endsection('content')
