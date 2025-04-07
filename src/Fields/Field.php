@@ -221,6 +221,7 @@ class Field
         return $this->columnSpan;
     }
 
+
     public function startNewRow(bool $value = true): static
     {
         $this->startNewRow = $value;
@@ -231,6 +232,7 @@ class Field
     {
         return $this->startNewRow;
     }
+
 
     public function hideFromTable(): self { return $this->hide('table'); }
     public function hideFromCreate(): self { return $this->hide('create'); }
