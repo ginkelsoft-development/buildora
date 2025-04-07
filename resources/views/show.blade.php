@@ -43,6 +43,7 @@
         @endforeach
     </div>
 
+
     @php
         use Ginkelsoft\Buildora\Layouts\Panel;
 
@@ -61,8 +62,6 @@
         @endforeach
     @endif
 
-    <div class="mt-8">
-        <x-buildora::button.back :model="$model"/>
-    </div>
+
 
 @endsection
