@@ -19,21 +19,58 @@ class NavigationBuilder
         $includeResources = $navigation['include_resources'] ?? true;
         unset($navigation['include_resources']);
 
+        // Verzamel alle resources die al handmatig zijn toegevoegd
+        $manualResources = collect($navigation)
+            ->flatMap(function ($item) {
+                if (!is_array($item)) return [];
+                if (isset($item['params']['resource'])) {
+                    return [$item['params']['resource']];
+                }
+                if (isset($item['children'])) {
+                    return collect($item['children'])
+                        ->pluck('params.resource')
+                        ->filter()
+                        ->all();
+                }
+                return [];
+            })
+            ->map(fn($slug) => Str::kebab($slug))
+            ->values()
+            ->all();
+
         if ($includeResources) {
             $resources = ResourceScanner::getResources();
 
-            if (!empty($resources)) {
+            $filtered = array_filter($resources, function ($resource) use ($manualResources) {
+                $slug = Str::kebab(str_replace('Buildora', '', $resource['resource']));
+                return !in_array($slug, $manualResources);
+            });
+
+            if (!empty($filtered)) {
                 $resourceNav = [
                     'label' => 'Resources',
                     'icon' => 'fa fa-database',
-                    'children' => array_map(fn($resource) => [
-                        'label' => Str::title(str_replace('Buildora', '', $resource['resource'])),
-                        'icon' => 'fa fa-table',
-                        'route' => 'buildora.index',
-                        'params' => [
-                            'resource' => Str::kebab(str_replace('Buildora', '', $resource['resource']))
-                        ],
-                    ], $resources),
+                    'children' => array_map(function ($resource) {
+                        $class = 'App\\Buildora\\Resources\\' . ucfirst($resource['name']) . 'Buildora';
+
+                        $label = Str::title(str_replace('Buildora', '', $resource['resource']));
+
+                        if (class_exists($class)) {
+                            $instance = new $class;
+                            if (method_exists($instance, 'title')) {
+                                $label = $instance->title();
+                            }
+                        }
+
+                        return [
+                            'label' => $label,
+                            'icon' => 'fa fa-table',
+                            'route' => 'buildora.index',
+                            'params' => [
+                                'resource' => Str::kebab(str_replace('Buildora', '', $resource['resource']))
+                            ],
+                        ];
+                    }, $filtered),
                 ];
 
                 $navigation[] = $resourceNav;

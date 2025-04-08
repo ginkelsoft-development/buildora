@@ -23,8 +23,8 @@ class RowFormatter
         $row = [];
 
         foreach ($resource->getFields() as $field) {
-            if (! $field instanceof \Ginkelsoft\Buildora\Fields\Field) {
-                throw new \Ginkelsoft\Buildora\Exceptions\BuildoraException(
+            if (! $field instanceof Field) {
+                throw new BuildoraException(
                     "Ongeldig veld in " . get_class($resource) . ": verwacht Field, kreeg " . (is_object($field) ? get_class($field) : gettype($field))
                 );
             }
@@ -37,9 +37,11 @@ class RowFormatter
                 $field->value = $view;
             }
 
-            $row[$field->name] = is_array($field->value)
-                ? implode(', ', $field->value)
-                : $field->value;
+            $rawValue = $field->displayValue ?? $field->value;
+
+            $row[$field->name] = is_array($rawValue)
+                ? implode(', ', $rawValue)
+                : $rawValue;
         }
 
         // Voeg acties toe
