@@ -17,11 +17,15 @@
         </div>
     @endif
 
+    <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+        {{ $resource->title() }}
+    </h1>
+
     <div class="flex justify-end mb-4">
         <a href="{{ route('buildora.create', ['resource' => $model]) }}"
            class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 ease-in-out">
             <x-buildora-icon icon="fa fa-plus" class="mr-2" />
-            Create {{ ucfirst($model) }}
+            Create {{ $resource->title() }}
         </a>
     </div>
 

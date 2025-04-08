@@ -1,6 +1,7 @@
 @extends('buildora::layouts.buildora')
 
 @section('content')
+
     @include($view, [
         'resource' => $resource,
         'item' => $item,
