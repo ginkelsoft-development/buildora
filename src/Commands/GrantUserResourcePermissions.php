@@ -8,7 +8,7 @@ use App\Models\User;
 
 class GrantUserResourcePermissions extends Command
 {
-    protected $signature = 'permission:grant-resource
+    protected $signature = 'buildora:permission:grant-resource
                             {user_id : The ID of the user}
                             {resource : The resource name (e.g. "user")}';
 

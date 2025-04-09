@@ -44,6 +44,7 @@ class BuildoraServiceProvider extends ServiceProvider
             \Ginkelsoft\Buildora\Commands\MakeBuildoraWidget::class,
             \Ginkelsoft\Buildora\Commands\GeneratePermissionsCommand::class,
             \Ginkelsoft\Buildora\Commands\GrantUserResourcePermissions::class,
+            \Ginkelsoft\Buildora\Commands\InstallBuildoraCommand::class,
         ]);
 
         // Publish configuration file
@@ -52,9 +53,9 @@ class BuildoraServiceProvider extends ServiceProvider
         ], 'buildora-config');
 
         // Publish view templates
-        $this->publishes([
+        /*$this->publishes([
             __DIR__ . '/../../resources/views' => resource_path('views/vendor/buildora'),
-        ], 'buildora-views');
+        ], 'buildora-views');*/
 
         // Publish JS and CSS assets
         $this->publishes([
@@ -80,6 +81,15 @@ class BuildoraServiceProvider extends ServiceProvider
         });
 
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+
+        $composerPath = dirname(__DIR__, 2) . '/composer.json';
+
+        if (file_exists($composerPath)) {
+            $composer = json_decode(file_get_contents($composerPath), true);
+            $version = $composer['extra']['buildora-version'] ?? 'dev';
+
+            config(['buildora.version' => $version]);
+        }
     }
 
     /**
