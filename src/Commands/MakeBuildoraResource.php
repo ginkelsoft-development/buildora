@@ -8,33 +8,11 @@ use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
 
-/**
- * Class MakeBuildoraResource
- *
- * This command automatically generates a BuildoraResource class
- * based on the specified model's fillable attributes and relationships.
- */
 class MakeBuildoraResource extends Command
 {
-    /**
-     * The console command signature.
-     *
-     * @var string
-     */
     protected $signature = 'buildora:resource {name?}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Generate a new Buildora Resource for a model';
 
-    /**
-     * Handle the execution of the command.
-     *
-     * @return void
-     */
     public function handle(): void
     {
         $name = $this->argument('name') ?? $this->ask('Welke modelnaam wil je gebruiken?');
@@ -60,26 +38,43 @@ class MakeBuildoraResource extends Command
             File::makeDirectory($resourceDirectory, 0755, true);
         }
 
+        $fields = $this->generateFieldsArray($modelClass);
+        $relations = $this->detectModelRelations(new $modelClass);
+
         $stub = <<<PHP
 <?php
 
 namespace App\Buildora\Resources;
 
-use Ginkelsoft\Buildora\Resources\BuildoraResource;
-use Ginkelsoft\Buildora\Fields\Field;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
-use Ginkelsoft\Buildora\Fields\Types\HasManyField;
 use Ginkelsoft\Buildora\Fields\Types\BelongsToManyField;
-use Ginkelsoft\Buildora\Fields\Types\HasOneField;
-use Ginkelsoft\\Buildora\\Actions\\RowAction;
+use Ginkelsoft\Buildora\Fields\Types\EmailField;
+use Ginkelsoft\Buildora\Fields\Types\IDField;
+use Ginkelsoft\Buildora\Fields\Types\PasswordField;
+use Ginkelsoft\Buildora\Fields\Types\TextField;
+use Ginkelsoft\Buildora\Resources\BuildoraResource;
+use Ginkelsoft\Buildora\Actions\RowAction;
+use Spatie\Permission\Models\Permission;
 
 class {$resourceName} extends BuildoraResource
 {
-    protected static string \$model = $modelClass::class;
+    protected static string \$model = {$modelClass}::class;
+
+    public function title(): string
+    {
+        return '{$modelName}';
+    }
+
+    public function searchResultConfig(): array
+    {
+        return [
+            'label' => '{$modelName}',
+            'columns' => [],
+        ];
+    }
 
     public function defineFields(): array
     {
-        return {$this->generateFieldsArray($modelClass)};
+        return {$fields};
     }
 
     public function validationRules(): array
@@ -95,13 +90,19 @@ class {$resourceName} extends BuildoraResource
     public function defineRowActions(): array
     {
         return [
+            RowAction::make('View', 'fas fa-eye', 'route', 'buildora.show')
+                ->method('GET')
+                ->params(['id' => 'id']),
+
             RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
                 ->method('GET')
+                ->permission('{$name}.edit')
                 ->params(['id' => 'id']),
 
             RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
                 ->method('DELETE')
                 ->params(['id' => 'id'])
+                ->permission('{$name}.delete')
                 ->confirm('Are you sure you want to delete this item?'),
         ];
     }
@@ -115,6 +116,11 @@ class {$resourceName} extends BuildoraResource
     {
         return [];
     }
+
+    public function definePanels(): array
+    {
+        return [];
+    }
 }
 PHP;
 
@@ -124,12 +130,6 @@ PHP;
         $this->info("Buildora Resource {$resourceName} created successfully.");
     }
 
-    /**
-     * Generate field declarations based on fillable and relationships.
-     *
-     * @param string \$modelClass
-     * @return string
-     */
     private function generateFieldsArray(string $modelClass): string
     {
         $modelInstance = new $modelClass;
@@ -138,28 +138,25 @@ PHP;
         $fields = [];
 
         if ($primaryKey === 'id') {
-            $fields[] = "Field::make('id', 'ID', 'number')->readonly()->hideFromTable()->hideFromExport()";
+            $fields[] = "IDField::make('id', 'ID')->readonly()->hideFromTable()->hideFromExport()";
         }
 
         foreach ($fillable as $field) {
             $type = $this->resolveFieldType($field, $modelInstance);
-            $fields[] = "Field::make('{$field}', '" . ucfirst(str_replace('_', ' ', $field)) . "', '{$type}')";
-        }
+            $fieldLabel = ucfirst(str_replace('_', ' ', $field));
 
-        foreach ($this->detectModelRelations($modelInstance) as $relationField) {
-            $fields[] = $relationField;
+            if ($field === 'email') {
+                $fields[] = "EmailField::make('{$field}', '{$fieldLabel}')";
+            } elseif ($field === 'password') {
+                $fields[] = "PasswordField::make('{$field}', '{$fieldLabel}')->hideFromTable()";
+            } else {
+                $fields[] = "TextField::make('{$field}', '{$fieldLabel}')";
+            }
         }
 
         return '[' . PHP_EOL . '            ' . implode(',' . PHP_EOL . '            ', $fields) . PHP_EOL . '        ]';
     }
 
-    /**
-     * Determine field type based on model cast type.
-     *
-     * @param string $field
-     * @param object $model
-     * @return string
-     */
     private function resolveFieldType(string $field, object $model): string
     {
         $castType = method_exists($model, 'getAttributeCastType')
@@ -178,12 +175,6 @@ PHP;
         };
     }
 
-    /**
-     * Detect Eloquent relationships and map them to Buildora Fields.
-     *
-     * @param object $model
-     * @return array<int, string>
-     */
     private function detectModelRelations(object $model): array
     {
         $fields = [];
@@ -199,17 +190,11 @@ PHP;
                     $relationName = $method->getName();
                     $label = ucfirst(str_replace('_', ' ', $relationName));
 
-                    if ($relation instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
-                        $fields[] = "BelongsToField::make('{$relationName}', '{$label}')";
-                    } elseif ($relation instanceof \Illuminate\Database\Eloquent\Relations\HasOne) {
-                        $fields[] = "HasOneField::make('{$relationName}', '{$label}')->hideFromTable()";
-                    } elseif ($relation instanceof \Illuminate\Database\Eloquent\Relations\HasMany) {
-                        $fields[] = "HasManyField::make('{$relationName}', '{$label}')->hideFromTable()";
-                    } elseif ($relation instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
+                    if ($relation instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
                         $fields[] = "BelongsToManyField::make('{$relationName}', '{$label}')->hideFromTable()";
                     }
                 } catch (\Throwable) {
-                    // Not a valid relationship method
+                    // Skip non-relations
                 }
             }
         }
