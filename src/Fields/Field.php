@@ -20,6 +20,7 @@ class Field
     protected ?string $helpText = null;
     public bool $sortable = false;
     public bool $readonly = false;
+    public mixed $displayValue = null;
 
     /**
      * Visibility context array:
@@ -231,6 +232,19 @@ class Field
     public function shouldStartNewRow(): bool
     {
         return $this->startNewRow;
+    }
+
+    public function getDisplayValue(mixed $model): string
+    {
+        $value = $model->{$this->name} ?? null;
+
+        // Leeg? Streepje
+        if (is_null($value)) {
+            return '-';
+        }
+
+        // HTML-escaped als standaard
+        return e($value);
     }
 
 

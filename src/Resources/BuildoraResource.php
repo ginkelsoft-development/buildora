@@ -35,6 +35,24 @@ abstract class BuildoraResource
         FieldValidator::validate($this->fields, $modelInstance);
     }
 
+    public function title(): string
+    {
+        return class_basename($this->modelClass);
+    }
+
+    /**
+     * Configuratie voor zoekresultaten.
+     *
+     * @return array{label: string|array|callable, columns: string[]}
+     */
+    public function searchResultConfig(): array
+    {
+        return [
+            'label' => ['voornaam', 'achternaam'],
+            'columns' => ['voornaam', 'achternaam', 'emailadres'],
+        ];
+    }
+
     /**
      * Create a new static instance of the resource.
      *
@@ -62,6 +80,12 @@ abstract class BuildoraResource
                 $field->setValue($model);
             } else {
                 $field->value = $model->{$field->name} ?? null;
+            }
+
+            if (method_exists($field, 'getDisplayValue')) {
+                $field->displayValue = $field->getDisplayValue($model);
+            } else {
+                $field->displayValue = $field->value;
             }
         }
 
@@ -211,7 +235,6 @@ abstract class BuildoraResource
         return $this->detailView;
     }
 
-
     public function setParentModel(Model $model): static
     {
         $this->parentModel = $model;
@@ -244,9 +267,13 @@ abstract class BuildoraResource
         return [];
     }
 
+    public function defineTabs(): array
+    {
+        return [];
+    }
+
     public function uriKey(): string
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
-
 }

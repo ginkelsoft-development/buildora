@@ -3,18 +3,17 @@
 namespace Ginkelsoft\Buildora\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Ginkelsoft\Buildora\Support\ResourceScanner;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
+use Ginkelsoft\Buildora\Support\ResourceScanner;
 
 class GlobalSearchController extends Controller
 {
     /**
      * Handle the global search query and return matching results across all Buildora resources.
      *
-     * @param Request $request The incoming HTTP request containing the search term (`q`).
-     * @return JsonResponse A JSON response containing the matched results.
+     * @param Request $request
+     * @return JsonResponse
      */
     public function __invoke(Request $request): JsonResponse
     {
@@ -23,7 +22,7 @@ class GlobalSearchController extends Controller
 
         foreach (ResourceScanner::getResources() as $resourceMeta) {
             if (!isset($resourceMeta['name'])) {
-                continue; // ⛔️ Skip if no name is defined
+                continue;
             }
 
             $resourceClass = 'App\\Buildora\\Resources\\' . ucfirst($resourceMeta['name']) . 'Buildora';
@@ -32,37 +31,45 @@ class GlobalSearchController extends Controller
                 continue;
             }
 
+            /** @var \Ginkelsoft\Buildora\Resources\BuildoraResource $resource */
             $resource = new $resourceClass();
             $model = $resource->getModelInstance();
-            $columns = $model->getFillable();
+
+            // Gebruik gedefinieerde zoekconfiguratie
+            $config = method_exists($resource, 'searchResultConfig')
+                ? $resource->searchResultConfig()
+                : ['label' => 'id', 'columns' => $model->getFillable()];
+
+            $columns = $config['columns'] ?? [];
+            $labelConfig = $config['label'] ?? 'id';
 
             if (empty($columns)) {
                 continue;
             }
 
-            // Optional: filter only searchable text-based columns
-            $textColumns = array_filter($columns, function ($column) use ($model) {
-                $cast = $model->getCasts()[$column] ?? 'string';
-                return in_array($cast, ['string', 'text']);
-            });
-
-            if (empty($textColumns)) {
-                continue;
-            }
-
+            // Zoekquery op de opgegeven kolommen
             $query = $model::query();
-            $query->where(function ($q) use ($textColumns, $term) {
-                foreach ($textColumns as $col) {
-                    $q->orWhere($col, 'like', "%{$term}%");
+            $query->where(function ($q) use ($columns, $term) {
+                foreach ($columns as $col) {
+                    $q->orWhere($col, 'like', '%' . $term . '%');
                 }
             });
 
-            $query->limit(5)->get()->each(function ($item) use (&$results, $resourceMeta, $textColumns) {
-                $firstLabelColumn = $textColumns[0] ?? 'id';
-                $label = $item->{$firstLabelColumn} ?? $item->id;
+            $query->limit(5)->get()->each(function ($item) use (&$results, $resourceMeta, $resource, $labelConfig) {
+                // Genereer label
+                if (is_callable($labelConfig)) {
+                    $label = $labelConfig($item);
+                } elseif (is_array($labelConfig)) {
+                    $label = collect($labelConfig)
+                        ->map(fn($col) => $item->{$col} ?? '')
+                        ->filter()
+                        ->implode(' ');
+                } else {
+                    $label = $item->{$labelConfig} ?? 'ID ' . $item->id;
+                }
 
                 $results[] = [
-                    'label' => $label . ' (' . $resourceMeta['name'] . ')',
+                    'label' => $label . ' (' . $resource->title() . ')',
                     'url' => route('buildora.edit', [
                         'resource' => $resourceMeta['name'],
                         'id' => $item->id,

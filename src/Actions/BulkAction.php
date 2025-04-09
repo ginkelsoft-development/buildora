@@ -10,6 +10,7 @@ namespace Ginkelsoft\Buildora\Actions;
  */
 class BulkAction
 {
+    protected ?string $permission = null;
     /**
      * The label that will be shown in the UI for the action.
      */
@@ -78,6 +79,28 @@ class BulkAction
     public function getLabel(): string
     {
         return $this->label;
+    }
+
+    /**
+     * Explicitly set the permission required for this action.
+     *
+     * @param string $permission
+     * @return self
+     */
+    public function permission(string $permission): self
+    {
+        $this->permission = $permission;
+        return $this;
+    }
+
+    /**
+     * Get the permission for this action.
+     *
+     * @return string|null
+     */
+    public function getPermission(): ?string
+    {
+        return $this->permission;
     }
 
     /**

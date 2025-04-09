@@ -36,8 +36,13 @@ class BreadcrumbBuilder
             $label = ucfirst(str_replace(['-', '_'], ' ', $segment));
 
             // Override with the resource label if available
-            if ($resource = self::findResourceBySegment($segment)) {
-                $label = $resource['label'] ?? $label;
+            if ($resourceMeta = self::findResourceBySegment($segment)) {
+                $class = 'App\\Buildora\\Resources\\' . ucfirst($resourceMeta['name']) . 'Buildora';
+
+                if (class_exists($class)) {
+                    $resource = new $class;
+                    $label = method_exists($resource, 'title') ? $resource->title() : $resourceMeta['label'] ?? $label;
+                }
             }
 
             $breadcrumbs[] = [

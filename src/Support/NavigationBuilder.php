@@ -19,28 +19,74 @@ class NavigationBuilder
         $includeResources = $navigation['include_resources'] ?? true;
         unset($navigation['include_resources']);
 
+        // Verzamel handmatig gedefinieerde resources om duplicatie te vermijden
+        $manualResources = collect($navigation)
+            ->flatMap(function ($item) {
+                if (!is_array($item)) return [];
+                if (isset($item['params']['resource'])) {
+                    return [$item['params']['resource']];
+                }
+                if (isset($item['children'])) {
+                    return collect($item['children'])
+                        ->pluck('params.resource')
+                        ->filter()
+                        ->all();
+                }
+                return [];
+            })
+            ->map(fn($slug) => Str::kebab($slug))
+            ->values()
+            ->all();
+
+        // Automatisch Buildora resources toevoegen (tenzij uitgesloten)
         if ($includeResources) {
             $resources = ResourceScanner::getResources();
 
-            if (!empty($resources)) {
+            $filtered = array_filter($resources, function ($resource) use ($manualResources) {
+                $slug = Str::kebab(str_replace('Buildora', '', $resource['resource']));
+
+                // Sla handmatige items over
+                if (in_array($slug, $manualResources)) {
+                    return false;
+                }
+
+                // Check permissie: alleen tonen als user mag "resource.view"
+                return auth()->check() && auth()->user()->can("{$slug}.view");
+            });
+
+            if (!empty($filtered)) {
                 $resourceNav = [
                     'label' => 'Resources',
                     'icon' => 'fa fa-database',
-                    'children' => array_map(fn($resource) => [
-                        'label' => Str::title(str_replace('Buildora', '', $resource['resource'])),
-                        'icon' => 'fa fa-table',
-                        'route' => 'buildora.index',
-                        'params' => [
-                            'resource' => Str::kebab(str_replace('Buildora', '', $resource['resource']))
-                        ],
-                    ], $resources),
+                    'children' => array_map(function ($resource) {
+                        $class = 'App\\Buildora\\Resources\\' . ucfirst($resource['name']) . 'Buildora';
+
+                        $label = Str::title(str_replace('Buildora', '', $resource['resource']));
+
+                        if (class_exists($class)) {
+                            $instance = new $class;
+                            if (method_exists($instance, 'title')) {
+                                $label = $instance->title();
+                            }
+                        }
+
+                        return [
+                            'label' => $label,
+                            'icon' => 'fa fa-table',
+                            'route' => 'buildora.index',
+                            'params' => [
+                                'resource' => Str::kebab(str_replace('Buildora', '', $resource['resource']))
+                            ],
+                        ];
+                    }, $filtered),
                 ];
 
                 $navigation[] = $resourceNav;
             }
         }
 
-        return $navigation;
+        // ⛔ Filter alles op rechten (ook handmatig gedefinieerde items)
+        return self::filterNavigationByPermissions($navigation);
     }
 
     /**
@@ -89,5 +135,33 @@ class NavigationBuilder
         }
 
         return collect($item['children'])->contains(fn($child) => self::isActive($child));
+    }
+
+    /**
+     * Recursively filter navigation items based on permissions.
+     *
+     * @param array<string, mixed> $items
+     * @return array<string, mixed>
+     */
+    protected static function filterNavigationByPermissions(array $items): array
+    {
+        return collect($items)->filter(function ($item) {
+            // Check direct resource
+            if (isset($item['params']['resource'])) {
+                $resource = $item['params']['resource'];
+                $permission = "{$resource}.view";
+                if (!auth()->check() || !auth()->user()->can($permission)) {
+                    return false;
+                }
+            }
+
+            // Check children recursively
+            if (isset($item['children']) && is_array($item['children'])) {
+                $item['children'] = self::filterNavigationByPermissions($item['children']);
+                return count($item['children']) > 0;
+            }
+
+            return true;
+        })->values()->all();
     }
 }

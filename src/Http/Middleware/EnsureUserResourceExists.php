@@ -22,10 +22,10 @@ class EnsureUserResourceExists
     {
         if (! class_exists('App\\Buildora\\Resources\\UserBuildora')) {
             if (! $request->is('buildora/install*')) {
-                return redirect()->route('buildora.install')->with(
+                /*return redirect()->route('buildora.install')->with(
                     'info',
                     'You must complete the Buildora installation before accessing this area.'
-                );
+                );*/
             }
         }
 

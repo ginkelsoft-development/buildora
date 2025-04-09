@@ -7,12 +7,13 @@ use Illuminate\View\Component;
 
 class Widgets extends Component
 {
+
     /**
      * The Buildora resource instance.
      *
      * @var mixed
      */
-    public $resource;
+    protected mixed $resource;
 
     /**
      * The visibility context (e.g., 'index', 'detail').
@@ -21,16 +22,13 @@ class Widgets extends Component
      */
     public string $visibility;
 
-    /**
-     * Create a new component instance.
-     *
-     * @param mixed $resource
-     * @param string $visibility
-     */
-    public function __construct($resource, string $visibility = 'index')
+    public mixed $model;
+
+    public function __construct($resource, string $visibility = 'index', $model = null)
     {
         $this->resource = $resource;
         $this->visibility = $visibility;
+        $this->model = $model;
     }
 
     /**
@@ -40,6 +38,21 @@ class Widgets extends Component
      */
     public function render(): View|string
     {
-        return view('buildora::components.widgets');
+        return view('buildora::components.widgets', [
+            'resource' => $this->resource,
+            'visibility' => $this->visibility,
+            'model' => $this->model,
+        ]);
+    }
+
+    public function getResource(): mixed
+    {
+        return $this->resource;
+    }
+
+    public function setResource(mixed $resource): static
+    {
+        $this->resource = $resource;
+        return $this;
     }
 }
