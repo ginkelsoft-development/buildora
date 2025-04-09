@@ -68,5 +68,8 @@
     class="fixed bottom-8 right-8 w-16 h-16 bg-slate-400 text-white p-4 rounded-lg shadow-lg hover:bg-slate-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-slate-500">
     <i class="fa-solid fa-arrow-up"></i> <!-- FontAwesome up icon -->
 </button>
+<div class="text-xs text-gray-500 text-center py-4">
+    Buildora v{{ config('buildora.version', 'dev') }}
+</div>
 </body>
 </html>
