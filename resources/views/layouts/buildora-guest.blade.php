@@ -20,5 +20,8 @@
 <body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
 @yield('content')
 
+<div class="text-xs text-white text-center py-4">
+    Buildora v{{ config('buildora.version', 'dev') }}
+</div>
 </body>
 </html>
