@@ -21,13 +21,15 @@
         {{ $resource->title() }}
     </h1>
 
-    <div class="flex justify-end mb-4">
-        <a href="{{ route('buildora.create', ['resource' => $model]) }}"
-           class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 ease-in-out">
-            <x-buildora-icon icon="fa fa-plus" class="mr-2" />
-            Create {{ $resource->title() }}
-        </a>
-    </div>
+    @can(Str::kebab($model) . '.create')
+        <div class="flex justify-end mb-4">
+            <a href="{{ route('buildora.create', ['resource' => $model]) }}"
+               class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200 ease-in-out">
+                <x-buildora-icon icon="fa fa-plus" class="mr-2" />
+                Create {{ $resource->title() }}
+            </a>
+        </div>
+    @endcan
 
     <x-buildora::datatable :columns="$columns"/>
 @endsection

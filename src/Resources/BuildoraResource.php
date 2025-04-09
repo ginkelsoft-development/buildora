@@ -251,7 +251,7 @@ abstract class BuildoraResource
      */
     public function getRelationResources(): array
     {
-        return $this->relationResources ?: $this->defineRelationResources();
+        return $this->relationResources ?: $this->definePanels();
     }
 
     /**

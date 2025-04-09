@@ -12,6 +12,7 @@ use Ginkelsoft\Buildora\Support\UrlBuilder;
  */
 class RowAction
 {
+    protected ?string $permission = null;
     /** @var string The label displayed for the action */
     public string $label;
 
@@ -97,6 +98,28 @@ class RowAction
     {
         $this->confirmMessage = $message;
         return $this;
+    }
+
+    /**
+     * Explicitly set the permission required for this action.
+     *
+     * @param string $permission
+     * @return self
+     */
+    public function permission(string $permission): self
+    {
+        $this->permission = $permission;
+        return $this;
+    }
+
+    /**
+     * Get the permission for this action.
+     *
+     * @return string|null
+     */
+    public function getPermission(): ?string
+    {
+        return $this->permission;
     }
 
     /**

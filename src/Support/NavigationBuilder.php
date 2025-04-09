@@ -19,7 +19,7 @@ class NavigationBuilder
         $includeResources = $navigation['include_resources'] ?? true;
         unset($navigation['include_resources']);
 
-        // Verzamel alle resources die al handmatig zijn toegevoegd
+        // Verzamel handmatig gedefinieerde resources om duplicatie te vermijden
         $manualResources = collect($navigation)
             ->flatMap(function ($item) {
                 if (!is_array($item)) return [];
@@ -38,12 +38,20 @@ class NavigationBuilder
             ->values()
             ->all();
 
+        // Automatisch Buildora resources toevoegen (tenzij uitgesloten)
         if ($includeResources) {
             $resources = ResourceScanner::getResources();
 
             $filtered = array_filter($resources, function ($resource) use ($manualResources) {
                 $slug = Str::kebab(str_replace('Buildora', '', $resource['resource']));
-                return !in_array($slug, $manualResources);
+
+                // Sla handmatige items over
+                if (in_array($slug, $manualResources)) {
+                    return false;
+                }
+
+                // Check permissie: alleen tonen als user mag "resource.view"
+                return auth()->check() && auth()->user()->can("{$slug}.view");
             });
 
             if (!empty($filtered)) {
@@ -77,7 +85,8 @@ class NavigationBuilder
             }
         }
 
-        return $navigation;
+        // ⛔ Filter alles op rechten (ook handmatig gedefinieerde items)
+        return self::filterNavigationByPermissions($navigation);
     }
 
     /**
@@ -126,5 +135,33 @@ class NavigationBuilder
         }
 
         return collect($item['children'])->contains(fn($child) => self::isActive($child));
+    }
+
+    /**
+     * Recursively filter navigation items based on permissions.
+     *
+     * @param array<string, mixed> $items
+     * @return array<string, mixed>
+     */
+    protected static function filterNavigationByPermissions(array $items): array
+    {
+        return collect($items)->filter(function ($item) {
+            // Check direct resource
+            if (isset($item['params']['resource'])) {
+                $resource = $item['params']['resource'];
+                $permission = "{$resource}.view";
+                if (!auth()->check() || !auth()->user()->can($permission)) {
+                    return false;
+                }
+            }
+
+            // Check children recursively
+            if (isset($item['children']) && is_array($item['children'])) {
+                $item['children'] = self::filterNavigationByPermissions($item['children']);
+                return count($item['children']) > 0;
+            }
+
+            return true;
+        })->values()->all();
     }
 }
