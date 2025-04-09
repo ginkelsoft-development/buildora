@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Ginkelsoft\Buildora\Http\Middleware\BuildoraAuthenticate;
 use Ginkelsoft\Buildora\Http\Middleware\EnsureUserResourceExists;
+use Ginkelsoft\Buildora\Http\Middleware\CheckBuildoraPermission;
 
 /**
  * Class BuildoraServiceProvider
@@ -34,13 +35,15 @@ class BuildoraServiceProvider extends ServiceProvider
         // Register middleware aliases
         $this->app['router']->aliasMiddleware('buildora.auth', BuildoraAuthenticate::class);
         $this->app['router']->aliasMiddleware('buildora.ensure-user-resource', EnsureUserResourceExists::class);
+        $this->app['router']->aliasMiddleware('buildora.can', CheckBuildoraPermission::class);
 
         // Register package commands
         $this->commands([
             \Ginkelsoft\Buildora\Commands\MakeBuildoraResource::class,
             \Ginkelsoft\Buildora\Commands\CreateUser::class,
             \Ginkelsoft\Buildora\Commands\MakeBuildoraWidget::class,
-            \Ginkelsoft\Buildora\Commands\BuildoraInstallCommand::class,
+            \Ginkelsoft\Buildora\Commands\GeneratePermissionsCommand::class,
+            \Ginkelsoft\Buildora\Commands\GrantUserResourcePermissions::class,
         ]);
 
         // Publish configuration file
@@ -75,6 +78,8 @@ class BuildoraServiceProvider extends ServiceProvider
         View::composer('*', function ($view): void {
             $view->with('breadcrumbs', BreadcrumbBuilder::generate());
         });
+
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
     }
 
     /**

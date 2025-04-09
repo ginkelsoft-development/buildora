@@ -15,7 +15,11 @@ class ActionManager
      */
     public static function resolveRowActions(array $actions, object $resource): array
     {
-        return array_map(fn($action) => $action->toArray($resource), $actions);
+        return collect($actions)
+            ->filter(fn($action) => self::canAccessAction($action))
+            ->map(fn($action) => $action->toArray($resource))
+            ->values()
+            ->all();
     }
 
     /**
@@ -26,16 +30,41 @@ class ActionManager
      */
     public static function resolveBulkActions(array $actions): array
     {
-        return collect($actions)->map(function ($action): BulkAction {
-            if (! $action instanceof BulkAction) {
-                return BulkAction::make(
-                    $action['label'] ?? 'Unnamed Action',
-                    $action['route'] ?? '#',
-                    $action['parameters'] ?? []
-                )->method($action['method'] ?? 'GET');
-            }
+        return collect($actions)
+            ->filter(fn($action) => self::canAccessAction($action))
+            ->map(function ($action): BulkAction {
+                if (! $action instanceof BulkAction) {
+                    return BulkAction::make(
+                        $action['label'] ?? 'Unnamed Action',
+                        $action['route'] ?? '#',
+                        $action['parameters'] ?? []
+                    )->method($action['method'] ?? 'GET');
+                }
 
-            return $action;
-        })->toArray();
+                return $action;
+            })
+            ->toArray();
+    }
+
+    /**
+     * Check if the user can access a given action.
+     *
+     * @param mixed $action
+     * @return bool
+     */
+    protected static function canAccessAction(mixed $action): bool
+    {
+        if (! auth()->check()) {
+            return false;
+        }
+
+        if (method_exists($action, 'getPermission')) {
+            $permission = $action->getPermission();
+            if ($permission) {
+                return auth()->user()->can($permission);
+            }
+        }
+
+        return true;
     }
 }

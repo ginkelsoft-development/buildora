@@ -3,6 +3,7 @@
 namespace Ginkelsoft\Buildora\Http\Controllers;
 
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
+use Ginkelsoft\Buildora\Fields\Types\PasswordField;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -82,6 +83,16 @@ class BuildoraController extends Controller
                     $fields[] = $field->name;
                 }
             }
+
+            if ($field instanceof PasswordField) {
+                $value = $finalData[$field->name] ?? null;
+
+                if (blank($value)) {
+                    unset($finalData[$field->name]);
+                } else {
+                    $finalData[$field->name] = bcrypt($value);
+                }
+            }
         }
 
         $filteredData = array_intersect_key($finalData, array_flip($fields));
@@ -152,18 +163,23 @@ class BuildoraController extends Controller
                 $disk = $field->getDisk() ?? 'public';
                 $path = $uploadedFile->store($field->getPath() ?? 'uploads', $disk);
                 $finalData[$field->name] = $path;
-
                 if (!in_array($field->name, $fields)) {
                     $fields[] = $field->name;
+                }
+            }
+
+            if ($field instanceof PasswordField) {
+                $value = $finalData[$field->name] ?? null;
+
+                if (blank($value)) {
+                    unset($finalData[$field->name]);
+                } else {
+                    $finalData[$field->name] = bcrypt($value);
                 }
             }
         }
 
         $filteredData = array_intersect_key($finalData, array_flip($fields));
-
-        if (empty($filteredData)) {
-            return redirect()->back()->with('error', "No valid fields to save. Check 'fields()' in $model resource.");
-        }
 
         $item->update($filteredData);
         $this->handleRelationships($item, $request->all());

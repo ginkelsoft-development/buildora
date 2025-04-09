@@ -9,10 +9,12 @@
             {{ class_basename($item::class) }} #{{ $item->id }}
         </h1>
 
-        <a href="{{ route('buildora.edit', ['resource' => $resource->uriKey(), 'id' => $item->id]) }}"
-           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow">
-            <x-buildora-icon icon="fas fa-edit" class="mr-2"></x-buildora-icon>  Bewerk
-        </a>
+        @can($resource->uriKey() . '.edit')
+            <a href="{{ route('buildora.edit', ['resource' => $resource->uriKey(), 'id' => $item->id]) }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow">
+                <x-buildora-icon icon="fas fa-edit" class="mr-2"></x-buildora-icon>  Bewerk
+            </a>
+        @endcan
     </div>
 
     <div class="grid grid-cols-12 gap-6">
