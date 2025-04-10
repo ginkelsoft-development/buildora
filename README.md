@@ -1,196 +1,179 @@
-# 📘 Buildora Resource Package
+# Buildora
 
-Buildora is a Laravel package that allows you to dynamically define and manage CRUD resources, datatables, actions, filters and widgets using a clean and fluent API.
-
----
-
-## ✅ Requirements
-
-- PHP 8.1 or higher
-- Laravel 10 or higher
-- TailwindCSS (already integrated)
+Buildora is a Laravel package for building admin panels, resources, forms, datatables, widgets and actions — fully based on Eloquent models and a minimal amount of configuration.
 
 ---
 
-## 📦 Installation
+## 1. Requirements
 
-Install the package via Composer (if private/local, adjust path):
+- Laravel 10, 11 or 12
+- PHP 8.2+
+- Tailwind CSS (via CDN or Vite)
+- Laravel Jetstream (optional)
+- `spatie/laravel-permission` (recommended)
+
+---
+
+## 2. Installation via Composer
 
 ```bash
 composer require ginkelsoft/buildora
 ```
 
-Publish views and configuration:
+If you are using a local path-based package:
+
+```json
+"repositories": [
+  {
+    "type": "path",
+    "url": "packages/ginkelsoft/buildora",
+    "options": {
+      "symlink": true
+    }
+  }
+]
+```
+
+Then:
 
 ```bash
-php artisan vendor:publish --provider="Ginkelsoft\Buildora\BuildoraServiceProvider"
+composer require ginkelsoft/buildora:*
 ```
 
 ---
 
-## 🧱 Defining a Resource
+## 3. Publish the config (optional)
 
-Place your resource in `app/Buildora/Resources`. Example:
+If Buildora provides configuration, you can publish it with:
+
+```bash
+php artisan vendor:publish --tag=buildora-config
+```
+
+---
+
+## 4. Run the interactive installer
+
+```bash
+php artisan buildora:install
+```
+
+This command will:
+
+- Detect Laravel version
+- Run migrations
+- Add necessary traits to your User model
+- Generate Buildora resources for all your models
+- Generate permissions (if Spatie is installed)
+- Create a default admin user
+
+---
+
+## 5. Command: `buildora:resource`
+
+Generate a Buildora resource class based on an Eloquent model:
+
+```bash
+php artisan buildora:resource User
+```
+
+This will create a file like:
+`app/Buildora/Resources/UserBuildora.php`
+
+You can customize fields, filters, actions, and views inside this class.
+
+---
+
+## 6. Command: `buildora:widget`
+
+Create a dashboard widget:
+
+```bash
+php artisan buildora:widget StatsWidget
+```
+
+This will generate:
+
+- `app/Buildora/Widgets/StatsWidget.php`
+
+Each widget implements a `render()` method and can return a Blade view or raw HTML.
+
+---
+
+## 7. Field types
+
+Buildora supports multiple field types. Each field can be configured using a fluent API:
+
+Examples:
 
 ```php
-use Ginkelsoft\Buildora\Resources\BuildoraResource;
-use Ginkelsoft\Buildora\Fields\Field;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
+TextField::make('name')->sortable()
+EmailField::make('email')->readonly()
+PasswordField::make('password')->hideFromIndex()
+NumberField::make('price')->step(0.01)
+CurrencyField::make('amount', '€')
+DateTimeField::make('created_at')->readonly()
+BelongsToField::make('company_id')->relation('company')
+```
 
-class PostBuildora extends BuildoraResource
+You can add new field types by extending the `Field` base class and implementing the `render()` method.
+
+---
+
+## 8. Widgets
+
+Widgets can be used on dashboards or as panels on detail pages.
+
+```php
+class TotalUsersWidget extends Widget
 {
-    protected static string $model = \App\Models\Post::class;
-
-    public function defineFields(): array
+    public function render(): string
     {
-        return [
-            Field::make('id', 'ID', 'number')->readonly()->hideFromTable(),
-            Field::make('title', 'Title'),
-            Field::make('content', 'Content', 'textarea'),
-            BelongsToField::make('user')->relatedTo(\App\Models\User::class),
-        ];
+        $count = User::count();
+
+        return view('widgets.total-users', compact('count'))->render();
     }
 }
 ```
 
----
-
-## 🥉 Available Field Types
-
-- `Field::make()` for:
-    - `text`
-    - `textarea`
-    - `number`
-    - `email`
-    - `password`
-    - `readonly`
-    - `json`
-    - `date`
-    - `datetime`
-    - `boolean`
-- Relationship fields:
-    - `BelongsToField`
-    - `HasManyField`
-    - `BelongsToManyField`
-    - `HasOneField`
-
-Each field supports chaining options like:
+Widgets are registered in your resource via:
 
 ```php
-->label('Custom Label')
-->sortable()
-->readonly()
-->hideFromCreate()
-->hideFromEdit()
-```
-
----
-
-## ⚡ Row Actions
-
-Define row actions in your resource:
-
-```php
-use Ginkelsoft\Buildora\Actions\RowAction;
-
-public function defineRowActions(): array
+public function defineWidgets(): array
 {
     return [
-        RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
-            ->method('GET')
-            ->params(['id' => 'id']),
-
-        RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
-            ->method('DELETE')
-            ->params(['id' => 'id'])
-            ->confirm('Are you sure?'),
+        TotalUsersWidget::make()->columnSpan(6),
     ];
 }
 ```
 
 ---
 
-## 📄 Bulk Actions
+## 9. Panels
 
-Define bulk actions with the `BulkAction` class:
+Panels are relation-based data sections shown on the detail page of a resource.
 
 ```php
-use Ginkelsoft\Buildora\Actions\BulkAction;
-
-public function defineBulkActions(): array
+public function definePanels(): array
 {
     return [
-        BulkAction::make('Export as Excel', 'buildora.export', ['format' => 'xlsx'])
-            ->method('GET'),
-
-        BulkAction::make('Export as CSV', 'buildora.export', ['format' => 'csv'])
-            ->method('GET'),
+        Panel::make('orders')
+            ->label('Recent Orders')
+            ->resource(OrderBuildora::class)
+            ->relation('orders'),
     ];
 }
 ```
 
+This will show a datatable of related `orders` on the detail page.
+
 ---
-
-## 📊 Widgets
-
-Widgets are custom view components that can be rendered per page type (`index`, `create`, `edit`, `detail`).
-
-Create a widget class in `app/Buildora/Widgets`:
 
 ```php
-namespace App\Buildora\Widgets;
-
-use Ginkelsoft\Buildora\Widgets\BuildoraWidget;
-use Illuminate\View\View;
-
-class StatsWidget extends BuildoraWidget
-{
-    public function render(): View
-    {
-        return view('widgets.stats');
-    }
-
-    public function pageVisibility(): array
-    {
-        return ['index'];
-    }
-}
 ```
 
----
 
-## 🛠️ Artisan Commands
 
-### 🔹 Create a Resource:
-```bash
-php artisan buildora:resource
+```php
 ```
-You'll be asked for the model name. This will auto-generate a resource based on its fillable and relationships.
-
-### 🔹 Create a Widget:
-```bash
-php artisan buildora:widget
-```
-You'll be asked:
-- Widget class name
-- View path (e.g. `widgets.stats`)
-
-This will create the class in `app/Buildora/Widgets` and a Blade view in `resources/views/widgets`.
-
----
-
-## 📌 Routing
-
-Buildora registers a route group under `/buildora`, e.g.
-
-- `/buildora/user`
-- `/buildora/post`
-
-You can link to these from the sidebar.
-
----
-
-## 🔒 Permissions & Middleware
-
-You can apply your own auth/role logic via middleware or extend Buildora controllers.
 
