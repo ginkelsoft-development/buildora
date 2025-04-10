@@ -5,7 +5,7 @@ namespace Ginkelsoft\Buildora\Providers;
 use Ginkelsoft\Buildora\View\Components\BuildoraIcon;
 use Ginkelsoft\Buildora\View\Components\BuildoraLayout;
 use Ginkelsoft\Buildora\View\Components\BuildoraGuestLayout;
-use Ginkelsoft\Buildora\Support\BreadcrumbBuilder;
+use Ginkelsoft\Buildora\Support\BuildoraBreadcrumbBuilder;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -79,7 +79,7 @@ class BuildoraServiceProvider extends ServiceProvider
 
         // Share breadcrumbs with all views
         View::composer('*', function ($view): void {
-            $view->with('breadcrumbs', BreadcrumbBuilder::generate());
+            $view->with('buildoraBreadcrumbs', BuildoraBreadcrumbBuilder::generate());
         });
 
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');

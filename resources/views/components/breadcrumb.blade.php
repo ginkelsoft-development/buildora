@@ -6,17 +6,17 @@
             </a>
         </li>
 
-        @foreach($breadcrumbs as $index => $breadcrumb)
+        @foreach($buildoraBreadcrumbs as $index => $item)
             <li class="flex items-center">
                 <x-buildora-icon icon="fa fa-chevron-right" class="text-gray-400 text-xs mx-2"/>
 
-                @if($index < count($breadcrumbs) - 1)
-                    <a href="{{ $breadcrumb['url'] }}" class="hover:text-gray-700 dark:hover:text-gray-200">
-                        {{ $breadcrumb['label'] }}
+                @if($index < count($buildoraBreadcrumbs) - 1)
+                    <a href="{{ $item['url'] }}" class="hover:text-gray-700 dark:hover:text-gray-200">
+                        {{ $item['label'] }}
                     </a>
                 @else
                     <span class="text-gray-700 dark:text-gray-300 font-semibold">
-                        {{ $breadcrumb['label'] }}
+                        {{ $item['label'] }}
                     </span>
                 @endif
             </li>
