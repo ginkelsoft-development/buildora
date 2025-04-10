@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
  *
  * Generates breadcrumb navigation for Buildora routes.
  */
-class BreadcrumbBuilder
+class BuildoraBreadcrumbBuilder
 {
     /**
      * Generate breadcrumbs based on the current URL and available Buildora resources.
@@ -20,7 +20,7 @@ class BreadcrumbBuilder
      */
     public static function generate(): array
     {
-        $breadcrumbs = [];
+        $buildoraBreadcrumbs = [];
         $segments = Request::segments();
         $path = '';
 
@@ -45,13 +45,13 @@ class BreadcrumbBuilder
                 }
             }
 
-            $breadcrumbs[] = [
+            $buildoraBreadcrumbs[] = [
                 'label' => $label,
                 'url' => $isLast ? null : url($path),
             ];
         }
 
-        return $breadcrumbs;
+        return $buildoraBreadcrumbs;
     }
 
     /**
