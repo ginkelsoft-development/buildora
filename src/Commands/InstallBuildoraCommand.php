@@ -25,6 +25,10 @@ class InstallBuildoraCommand extends Command
         $this->checkUserModel();
         $this->runMigrations();
         $this->ensureUserModelTraits();
+
+        // 🔁 Reload User model to ensure traits take effect
+        require_once app_path('Models/User.php');
+
         $this->generateUserResource();
         $this->generateOtherModelResources();
         $this->generatePermissions();
