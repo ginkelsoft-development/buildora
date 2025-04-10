@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class GlobalSearch extends Component
+class BuildoraGlobalSearch extends Component
 {
     /**
      * Render the component view.
