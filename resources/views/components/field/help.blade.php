@@ -8,8 +8,6 @@
                 aria-label="Help">
             <i class="fas fa-info-circle text-base"></i>
         </button>
-
-        <!-- Tooltip -->
         <div x-show="show"
              x-transition
              class="absolute right-0 top-[75%] w-64 p-3 bg-yellow-50 text-sm text-gray-800 border border-yellow-300 rounded-lg shadow z-50">

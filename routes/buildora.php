@@ -12,6 +12,16 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
     ->group(function () {
 
+        Route::post('/switch-locale', function (\Illuminate\Http\Request $request) {
+            $locale = $request->input('locale');
+
+            if (in_array($locale, ['en', 'nl', 'es', 'de', 'fy'])) {
+                session(['locale' => $locale]);
+            }
+
+            return back();
+        })->name('locale.switch');
+
         /*
         |--------------------------------------------------------------------------
         | Dashboard & Global Search

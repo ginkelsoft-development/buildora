@@ -11,7 +11,7 @@
            readonly
            :value="options[selectedKey] || ''"
            class="border shadow-sm border-gray-300 dark:border-gray-700 p-2 rounded-lg w-full bg-white-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-           placeholder="Selecteer een waarde..."
+           placeholder="{{ __buildora('Select a value...') }}"
            @click="toggleDropdown()" />
 
     <div x-show="dropdownVisible"
@@ -21,7 +21,7 @@
         <div class="p-2">
             <input type="text"
                    class="border border-gray-300 dark:border-gray-700 p-2 rounded-lg w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                   placeholder="Zoek..." x-model="searchTerm"
+                   placeholder="{{ __buildora('Search...') }}" x-model="searchTerm"
             />
         </div>
 

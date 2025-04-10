@@ -1,20 +1,17 @@
 <div x-data="globalSearch()" class="relative w-full max-w-2xl mx-auto">
     <div class="relative">
-        <!-- 🔍 Zoekveld -->
         <input type="text"
                x-model="query"
                @input.debounce.300ms="search"
-               placeholder="Zoeken in alle resources..."
+               placeholder="{{ __buildora('Search...') }}"
                class="w-full border border-gray-300 dark:border-gray-600 rounded-full pl-12 pr-5 py-2.5 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 text-base"
         />
 
-        <!-- 🔍 Icon -->
         <div class="absolute inset-y-0 left-4 flex items-center text-gray-400 pointer-events-none">
             <i class="fas fa-search"></i>
         </div>
     </div>
 
-    <!-- 📋 Zoekresultaten -->
     <div x-show="results.length > 0"
          x-transition
          @click.away="results = []"
@@ -51,7 +48,6 @@
                     const json = await response.json();
                     this.results = json.results ?? [];
                 } catch (e) {
-                    console.error('Zoekfout', e);
                     this.results = [];
                 }
             }
