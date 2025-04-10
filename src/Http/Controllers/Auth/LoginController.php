@@ -42,7 +42,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials are invalid.',
+            'email' => __buildora('The provided credentials are invalid.'),
         ]);
     }
 

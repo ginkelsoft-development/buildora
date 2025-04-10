@@ -10,7 +10,7 @@
             <input type="text"
                    x-model="search"
                    @input="debouncedFetchData()"
-                   placeholder="Search..."
+                   placeholder="{{ __buildora('Search...') }}"
                    class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 bg-gray-50 transition">
         </div>
 
@@ -19,7 +19,7 @@
             <select x-show="bulkActions.length > 0"
                     x-model="selectedBulkAction"
                     class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 transition">
-                <option value="">Select Action</option>
+                <option value="">{{ __buildora('Select Action') }}</option>
                 <template x-for="action in bulkActions" :key="action.url">
                     <option :value="action.url" x-text="action.label"></option>
                 </template>
@@ -27,7 +27,7 @@
 
             <button @click="executeBulkAction"
                     class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                Apply
+                {{ __buildora('Apply') }}
             </button>
         </div>
     </div>
@@ -61,14 +61,14 @@
                     </th>
                 </template>
                 <th class="py-3 px-4 uppercase tracking-wider text-sm font-semibold text-right bg-slate-400">
-                    Actions
+                    {{ __buildora('Actions') }}
                 </th>
             </tr>
             </thead>
             <tbody>
             <tr x-show="isLoading">
                 <td colspan="100%" class="text-center py-4">
-                    <i class="fas fa-spinner fa-spin text-blue-600 text-xl"></i> Laden...
+                    <i class="fas fa-spinner fa-spin text-blue-600 text-xl"></i> {{ __buildora('Loading...') }}
                 </td>
             </tr>
             <template x-for="(row, rowIndex) in data" :key="rowIndex">
@@ -100,12 +100,12 @@
     <!-- 📄 Paginering -->
     <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
         <div class="text-sm text-gray-600">
-            Pagina <span x-text="pagination.current_page"></span> van <span x-text="pagination.last_page"></span>
+            {{ __buildora('Page') }} <span x-text="pagination.current_page"></span> {{ __buildora('From') }} <span x-text="pagination.last_page"></span>
         </div>
         <div class="flex flex-wrap items-center gap-4">
             <!-- Per pagina -->
             <div class="flex items-center space-x-2">
-                <label for="perPage" class="text-sm text-gray-500">Per pagina:</label>
+                <label for="perPage" class="text-sm text-gray-500">{{ __buildora('Per page') }}:</label>
                 <select id="perPage"
                         x-model="pagination.per_page"
                         @change="updatePerPage"
@@ -120,12 +120,12 @@
                 <button @click="prevPage"
                         :disabled="isLoading || pagination.current_page === 1"
                         class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                    Vorige
+                    {{ __buildora('Previous') }}
                 </button>
                 <button @click="nextPage"
                         :disabled="isLoading || pagination.current_page === pagination.last_page"
                         class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                    Volgende
+                    {{ __buildora('Next') }}
                 </button>
             </div>
         </div>
@@ -223,10 +223,7 @@
                         headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
                     }).then(response => {
                         if (response.ok) {
-                            alert('Deleted successfully');
                             this.fetchData();
-                        } else {
-                            alert('Delete failed');
                         }
                     });
                 }
@@ -253,16 +250,14 @@
 
             executeBulkAction() {
                 if (!this.selectedBulkAction) {
-                    alert('Selecteer een actie');
                     return;
                 }
                 if (this.selectedRows.length === 0) {
-                    alert('Selecteer minstens één rij');
                     return;
                 }
                 const action = this.bulkActions.find(a => a.url === this.selectedBulkAction);
                 if (!action) return;
-                if (action.method === 'DELETE' && !confirm('Weet je zeker dat je de geselecteerde records wilt verwijderen?')) return;
+                if (action.method === 'DELETE' && !confirm('{{ __buildora('Are you sure you want to delete the selected records?') }}')) return;
 
                 window.location.href = action.url + '?' + new URLSearchParams({ ids: this.selectedRows }).toString();
             },
