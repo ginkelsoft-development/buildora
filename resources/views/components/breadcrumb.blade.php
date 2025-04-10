@@ -2,7 +2,7 @@
     <ul class="flex items-center space-x-2">
         <li>
             <a href="{{ route('buildora.dashboard') }}" class="hover:text-gray-700 dark:hover:text-gray-200">
-                <x-buildora-icon icon="fa fa-home" class="text-gray-400"/> Dashboard
+                <x-buildora-icon icon="fa fa-home" class="text-gray-400"/> {{ __buildora('Dashboard') }}
             </a>
         </li>
 

@@ -12,6 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use Ginkelsoft\Buildora\Http\Middleware\BuildoraAuthenticate;
 use Ginkelsoft\Buildora\Http\Middleware\EnsureUserResourceExists;
 use Ginkelsoft\Buildora\Http\Middleware\CheckBuildoraPermission;
+use Ginkelsoft\Buildora\Http\Middleware\SetLocale;
 
 /**
  * Class BuildoraServiceProvider
@@ -36,6 +37,7 @@ class BuildoraServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('buildora.auth', BuildoraAuthenticate::class);
         $this->app['router']->aliasMiddleware('buildora.ensure-user-resource', EnsureUserResourceExists::class);
         $this->app['router']->aliasMiddleware('buildora.can', CheckBuildoraPermission::class);
+        $this->app['router']->aliasMiddleware('buildora.can', SetLocale::class);
 
         // Register package commands
         $this->commands([
@@ -102,7 +104,12 @@ class BuildoraServiceProvider extends ServiceProvider
         // Register other Buildora service providers
         $this->app->register(\Ginkelsoft\Buildora\Providers\BuildoraDatatableServiceProvider::class);
 
-        // Load Buildora routes
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'buildora');
+
+        if (file_exists(__DIR__ . '/../helpers.php')) {
+            require_once __DIR__ . '/../helpers.php';
+        }
+
         $this->loadRoutesFrom(__DIR__ . '/../../routes/buildora.php');
         $this->loadRoutesFrom(__DIR__ . '/../../routes/auth.php');
 

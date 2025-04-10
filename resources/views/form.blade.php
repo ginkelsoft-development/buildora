@@ -10,7 +10,7 @@
             <div class="flex items-center gap-2">
                 <x-buildora-icon icon="fa fa-exclamation-circle" class="text-white text-xl"/>
                 <div>
-                    <strong class="font-semibold">There were some issues with your submission:</strong>
+                    <strong class="font-semibold">{{ __buildora('There were some issues with your submission') }}:</strong>
                     <ul class="mt-2">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

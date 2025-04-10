@@ -98,14 +98,14 @@ class BuildoraController extends Controller
         $filteredData = array_intersect_key($finalData, array_flip($fields));
 
         if (empty($filteredData)) {
-            return redirect()->back()->with('error', "No valid fields to save. Check 'fields()' in $model resource.");
+            return redirect()->back()->with('error', __buildora('No valid fields to save. Check fields in resource.', [':model' => $model]));
         }
 
         $createdItem = $modelInstance::create($filteredData);
         $this->handleRelationships($createdItem, $request->all());
 
         return redirect()->route('buildora.index', ['resource' => $model])
-            ->with('success', ucfirst($model) . ' created successfully.');
+            ->with('success', ucfirst($model) . ' ' . __buildora('created successfully.'));
     }
 
     /**
@@ -185,7 +185,7 @@ class BuildoraController extends Controller
         $this->handleRelationships($item, $request->all());
 
         return redirect()->route('buildora.index', ['resource' => $model])
-            ->with('success', ucfirst($model) . ' updated successfully.');
+            ->with('success', ucfirst($model) . ' ' . __buildora('updated successfully.'));
     }
 
     public function show(string $model, int|string $id)
@@ -219,13 +219,13 @@ class BuildoraController extends Controller
 
         if (!$item) {
             return redirect()->route('buildora.index', ['model' => $model])
-                ->with('error', ucfirst($model) . ' not found or already deleted.');
+                ->with('error', ucfirst($model) . ' ' . __buildora('not found or already deleted.'));
         }
 
         $item->delete();
 
         return redirect()->route('buildora.index', ['model' => $model])
-            ->with('success', ucfirst($model) . ' deleted successfully.');
+            ->with('success', ucfirst($model) . ' ' . __buildora('deleted successfully.'));
     }
 
     /**

@@ -33,6 +33,30 @@
         </div>
 
         <x-buildora::global-search />
+
+        <form method="POST" action="{{ route('locale.switch') }}" class="inline-block">
+            @csrf
+            <div class="relative inline-block">
+                <select
+                    name="locale"
+                    onchange="this.form.submit()"
+                    class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-1.5 px-3 pr-8 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    @foreach(['en' => 'English', 'nl' => 'Nederlands', 'es' => 'Español', 'de' => 'Deutsch', 'fy' => 'Frysk'] as $code => $language)
+                        <option value="{{ $code }}" @selected(app()->getLocale() === $code)>
+                            {{ $language }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                        <path d="M5.516 7.548l4.484 4.484 4.484-4.484-1.06-1.06L10 9.91 6.576 6.488z" />
+                    </svg>
+                </div>
+            </div>
+        </form>
+        </form>
     </header>
 
     <!-- Breadcrumbs strak onder de header -->
