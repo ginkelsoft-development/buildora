@@ -53,19 +53,7 @@ class BuildoraServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../config/buildora.php' => config_path('buildora.php'),
         ], 'buildora-config');
-
-        // Publish view templates
-        /*$this->publishes([
-            __DIR__ . '/../../resources/views' => resource_path('views/vendor/buildora'),
-        ], 'buildora-views');*/
-
-        // Publish JS and CSS assets
-        $this->publishes([
-            __DIR__ . '/../../resources/css' => resource_path('vendor/buildora/css'),
-            __DIR__ . '/../../resources/js' => resource_path('vendor/buildora/js'),
-        ], 'buildora-assets');
-
-
+        
         // Blade directives
         Blade::if('fontawesome', fn () => config('buildora.enable_fontawesome', true));
 
