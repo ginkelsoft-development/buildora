@@ -1,16 +1,20 @@
 {
   "name": "buildora",
   "version": "1.0.0",
-  "description": "## Installation",
+  "description": "Buildora resource engine",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "vite build --config vite.config.js",
+    "dev": "vite dev --config vite.config.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Ginkelsoft",
+  "license": "MIT",
   "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.1",
+    "vite": "^6.2.6"
   },
-  "dependencies": {
-  }
+  "type": "module"
 }

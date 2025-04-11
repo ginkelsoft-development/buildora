@@ -85,6 +85,8 @@ class NavigationBuilder
             }
         }
 
+
+
         // ⛔ Filter alles op rechten (ook handmatig gedefinieerde items)
         return self::filterNavigationByPermissions($navigation);
     }
