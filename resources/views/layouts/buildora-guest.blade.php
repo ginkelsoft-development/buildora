@@ -9,10 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    @vite([
-        'resources/vendor/buildora/css/buildora.css',
-        'resources/vendor/buildora/js/buildora.js',
-    ])
+
+    {{ Ginkelsoft\Buildora\Buildora::css() }}
+    {{ Ginkelsoft\Buildora\Buildora::js() }}
 
     @yield('head')
 </head>
