@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraDashboardController;
-use Ginkelsoft\Buildora\Http\Controllers\BuildoraDatatableController;
+use Ginkelsoft\Buildora\Http\Controllers\BuildoraDataTableController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraExportController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
@@ -40,7 +40,7 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
         */
         Route::prefix('resource')->group(function () {
 
-            Route::get('{resource}', [BuildoraDatatableController::class, 'index'])
+            Route::get('{resource}', [BuildoraDataTableController::class, 'index'])
                 ->middleware('buildora.can:view')
                 ->name('buildora.index');
 
@@ -72,7 +72,7 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->middleware('buildora.can:view')
                 ->name('buildora.relation.index');
 
-            Route::get('{resource}/datatable/json', [BuildoraDatatableController::class, 'json'])
+            Route::get('{resource}/datatable/json', [BuildoraDataTableController::class, 'json'])
                 ->middleware('buildora.can:view')
                 ->name('buildora.datatable.json');
 
