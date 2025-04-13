@@ -177,3 +177,14 @@ This will show a datatable of related `orders` on the detail page.
 ```php
 ```
 
+## 10. Theme customization
+
+Buildora uses CSS variables for theming. By default, it includes a clean base theme with support for light and dark mode.  
+If you want to customize the theme colors, **you can override the default theme**.
+
+### Overriding the default theme
+
+To override the default colors, first publish the theme file:
+
+```bash
+php artisan vendor:publish --tag=buildora-theme
