@@ -6,19 +6,19 @@
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
         <div class="relative w-full max-w-sm">
-            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
             <input type="text"
                    x-model="search"
                    @input="debouncedFetchData()"
                    placeholder="{{ __buildora('Search...') }}"
-                   class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 bg-gray-50 transition">
+                   class="w-full pl-12 pr-4 py-2 border border-border rounded-full shadow-sm focus:ring-2 focus:ring-ring focus:outline-none focus:border-ring bg-white dark:bg-white text-foreground transition">
         </div>
 
         <!-- ⚡ Bulk Actions -->
         <div class="flex space-x-3 items-center" x-show="selectedRows.length > 0">
             <select x-show="bulkActions.length > 0"
                     x-model="selectedBulkAction"
-                    class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-100 transition">
+                    class="px-4 py-2 border border-border rounded-lg shadow-sm bg-base text-foreground hover:bg-muted transition">
                 <option value="">{{ __buildora('Select Action') }}</option>
                 <template x-for="action in bulkActions" :key="action.url">
                     <option :value="action.url" x-text="action.label"></option>
@@ -26,33 +26,33 @@
             </select>
 
             <button @click="executeBulkAction"
-                    class="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    class="px-5 py-2 bg-primary text-primary-foreground rounded-lg shadow hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition">
                 {{ __buildora('Apply') }}
             </button>
         </div>
     </div>
 
     <div class="overflow-y-auto rounded-xl">
-        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-            <thead class="bg-slate-400 text-white text-left">
+        <table class="min-w-full bg-base border border-border rounded-lg">
+            <thead class="bg-muted text-foreground text-left">
             <tr>
-                <th class="py-3 px-4 bg-slate-400">
+                <th class="py-3 px-4 bg-muted">
                     <input type="checkbox" @click="toggleAllSelection($event)">
                 </th>
                 <template x-for="(col, index) in columns" :key="index">
                     <th @click="toggleSort(col)"
-                        class="py-3 px-4 uppercase tracking-wider text-sm font-semibold select-none text-left bg-slate-400"
+                        class="py-3 px-4 bg-muted"
                         :class="{ 'cursor-pointer': col.sortable, 'cursor-default': !col.sortable }">
                         <div class="flex justify-between items-center w-full">
                             <span x-text="col.label"></span>
                             <span class="ml-2">
                                 <template x-if="col.sortable">
                                     <span>
-                                        <i class="fas fa-sort text-gray-300"
+                                        <i class="fas fa-sort text-muted-foreground"
                                            x-show="sortBy !== col.name"></i>
-                                        <i class="fas fa-sort-up"
+                                        <i class="fas fa-sort-up text-muted-foreground"
                                            x-show="sortBy === col.name && sortDirection === 'asc'"></i>
-                                        <i class="fas fa-sort-down"
+                                        <i class="fas fa-sort-down text-muted-foreground"
                                            x-show="sortBy === col.name && sortDirection === 'desc'"></i>
                                     </span>
                                 </template>
@@ -60,7 +60,7 @@
                         </div>
                     </th>
                 </template>
-                <th class="py-3 px-4 uppercase tracking-wider text-sm font-semibold text-right bg-slate-400">
+                <th class="py-3 px-4 bg-muted">
                     {{ __buildora('Actions') }}
                 </th>
             </tr>
@@ -72,8 +72,8 @@
                 </td>
             </tr>
             <template x-for="(row, rowIndex) in data" :key="rowIndex">
-                <tr class="border-b border-gray-200 hover:bg-gray-100 transition even:bg-gray-50 odd:bg-white">
-                    <td class="py-2 px-4">
+                <tr class="border-b border-border hover:bg-muted transition even:bg-muted/50 odd:bg-base">
+                    <td class="py-2 px-4 text-foreground">
                         <input type="checkbox" :value="row.id" x-model="selectedRows">
                     </td>
                     <template x-for="(col, colIndex) in columns" :key="colIndex">

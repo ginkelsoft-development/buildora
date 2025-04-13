@@ -8,19 +8,17 @@
     <!-- FontAwesome van externe CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    {{ Ginkelsoft\Buildora\Buildora::css() }}
+    {{ Ginkelsoft\Buildora\Buildora::css() }} {{-- laat deze staan --}}
     {{ Ginkelsoft\Buildora\Buildora::js() }}
 
     @yield('head')
 </head>
 
-<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white min-h-screen font-sans antialiased">
 @yield('content')
 
-<div class="text-xs text-white text-center py-4">
+<footer class="text-xs text-white text-center py-4">
     Buildora v{{ config('buildora.version', 'dev') }}
-</div>
+</footer>
 </body>
 </html>
