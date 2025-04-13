@@ -1,21 +1,22 @@
-<nav class="text-sm font-medium text-gray-500 dark:text-gray-400">
+<nav class="text-sm font-medium text-muted-foreground">
     <ul class="flex items-center space-x-2">
         <li>
-            <a href="{{ route('buildora.dashboard') }}" class="hover:text-gray-700 dark:hover:text-gray-200">
-                <x-buildora-icon icon="fa fa-home" class="text-gray-400"/> {{ __buildora('Dashboard') }}
+            <a href="{{ route('buildora.dashboard') }}" class="hover:text-foreground transition-colors">
+                <x-buildora-icon icon="fa fa-home" class="text-muted-foreground" />
+                {{ __buildora('Dashboard') }}
             </a>
         </li>
 
         @foreach($buildoraBreadcrumbs as $index => $item)
             <li class="flex items-center">
-                <x-buildora-icon icon="fa fa-chevron-right" class="text-gray-400 text-xs mx-2"/>
+                <x-buildora-icon icon="fa fa-chevron-right" class="text-muted-foreground text-xs mx-2" />
 
                 @if($index < count($buildoraBreadcrumbs) - 1)
-                    <a href="{{ $item['url'] }}" class="hover:text-gray-700 dark:hover:text-gray-200">
+                    <a href="{{ $item['url'] }}" class="hover:text-foreground transition-colors">
                         {{ $item['label'] }}
                     </a>
                 @else
-                    <span class="text-gray-700 dark:text-gray-300 font-semibold">
+                    <span class="text-foreground font-semibold">
                         {{ $item['label'] }}
                     </span>
                 @endif

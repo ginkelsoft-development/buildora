@@ -26,8 +26,18 @@ class Buildora
             throw new BuildoraException('Unable to load the Buildora dashboard CSS.');
         }
 
+        $theme = @file_get_contents(resource_path('buildora/buildora-theme.css'));
+
+        if ($theme == true) {
+            $theme = '<style>' . $theme . '</style>';
+        }
+        else {
+            $theme = '';
+        }
+
         return new HtmlString(<<<HTML
             <style>{$light}</style>
+            {$theme}
             HTML);
     }
 

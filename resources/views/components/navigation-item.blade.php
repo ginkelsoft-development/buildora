@@ -6,19 +6,19 @@
     $isActive = NavigationBuilder::isActive($item);
     $isParentActive = NavigationBuilder::isParentActive($item);
 
-    $active = $isActive ? 'bg-gray-700 text-blue-500 font-semibold' : 'text-gray-700 dark:text-gray-200';
-    $parent = $isParentActive ? 'bg-gray-700' : '';
+    $active = $isActive ? 'bg-muted text-primary font-semibold' : 'text-foreground';
+    $parent = $isParentActive ? 'bg-muted' : '';
 @endphp
 
 <li x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }" class="relative">
     @if ($hasChildren)
         <button @click="open = !open"
-                class="w-full flex items-center justify-between p-2 rounded-lg {{ $parent }} hover:bg-gray-700 hover:text-white transition duration-200">
+                class="w-full flex items-center justify-between p-2 rounded-lg {{ $parent }} hover:bg-muted/70 text-foreground transition duration-200">
             <span class="flex items-center gap-2">
-                <x-buildora-icon icon="{{ $item['icon'] }}" class="text-gray-400" />
-                <span class="text-sm text-gray-200">{{ $item['label'] }}</span>
+                <x-buildora-icon icon="{{ $item['icon'] }}" class="text-muted-foreground" />
+                <span class="text-sm text-foreground">{{ $item['label'] }}</span>
             </span>
-            <i class="fa fa-chevron-down text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+            <i class="fa fa-chevron-down text-muted-foreground transform transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
         </button>
 
         <ul x-show="open" x-collapse class="ml-4 mt-2 space-y-2">
@@ -28,9 +28,9 @@
         </ul>
     @else
         <a href="{{ $url }}"
-           class="flex items-center gap-2 p-2 rounded-lg {{ $active }} hover:bg-gray-700 hover:text-white transition duration-200">
-            <x-buildora-icon icon="{{ $item['icon'] }}" class="text-gray-400" />
-            <span class="text-sm text-gray-200">{{ $item['label'] }}</span>
+           class="flex items-center gap-2 p-2 rounded-lg {{ $active }} hover:bg-muted/70 transition duration-200">
+            <x-buildora-icon icon="{{ $item['icon'] }}" class="text-muted-foreground" />
+            <span class="text-sm text-foreground">{{ $item['label'] }}</span>
         </a>
     @endif
 </li>

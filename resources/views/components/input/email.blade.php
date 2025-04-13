@@ -1,14 +1,13 @@
 <div class="relative">
     <input
-        type="email"
-        name="{{ $field->name }}"
-        id="{{ $field->name }}"
-        class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 pr-12 text-gray-900 dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 transition shadow-sm"
-        value="{{ old($field->name, $value ?? '') }}"
+            type="email"
+            name="{{ $field->name }}"
+            id="{{ $field->name }}"
+            class="w-full border border-border rounded-lg p-3 pr-12 bg-input text-foreground focus:ring-2 focus:ring-ring transition shadow-sm"
+            value="{{ old($field->name, $value ?? '') }}"
     >
 
     @include('buildora::components.field.help')
 </div>
 
-{{-- Validatie foutmelding --}}
 @include('buildora::components.field.error', ['field' => $field])

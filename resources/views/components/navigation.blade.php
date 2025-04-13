@@ -1,18 +1,17 @@
 @auth
     <!-- Gebruikersweergave -->
-    <div class="mt-8 pb-6 border-b border-gray-700 px-4">
-        <div class="w-full flex flex-col items-center text-white">
+    <div class="mt-8 pb-6 border-b border-border px-4">
+        <div class="w-full flex flex-col items-center text-foreground">
             <img
-                src="{{ auth()->user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
-                alt="{{ auth()->user()->name }}"
-                class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-600"
+                    src="{{ auth()->user()->profile_photo_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                    alt="{{ auth()->user()->name }}"
+                    class="w-16 h-16 rounded-full object-cover ring-2 ring-muted"
             >
             <span class="mt-2 text-sm font-semibold text-center">
                 {{ auth()->user()->name }}
             </span>
         </div>
     </div>
-
 @endauth
 
 <ul class="space-y-3 mt-6">
@@ -26,7 +25,7 @@
         <form method="POST" action="{{ route('buildora.logout') }}">
             @csrf
             <button type="submit"
-                    class="w-full flex items-center justify-center px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition">
+                    class="w-full flex items-center justify-center px-4 py-2 text-sm text-destructive-foreground bg-destructive hover:opacity-90 rounded-lg transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                      viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
