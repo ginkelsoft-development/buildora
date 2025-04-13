@@ -49,11 +49,15 @@ class BuildoraServiceProvider extends ServiceProvider
             \Ginkelsoft\Buildora\Commands\InstallBuildoraCommand::class,
         ]);
 
+        $this->publishes([
+            __DIR__ . '/../../resources/css/buildora-theme.css' => resource_path('buildora/buildora-theme.css'),
+        ], 'buildora-theme');
+
         // Publish configuration file
         $this->publishes([
             __DIR__ . '/../../config/buildora.php' => config_path('buildora.php'),
         ], 'buildora-config');
-        
+
         // Blade directives
         Blade::if('fontawesome', fn () => config('buildora.enable_fontawesome', true));
 

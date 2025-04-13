@@ -9,32 +9,31 @@
 
 <div class="relative">
     <div class="form-group">
-        <div x-data='singleSelector(@json($options), @json($selectedKey))' class="relative">
+        <div x-data='singleSelector(@json($options), @json($selectedKey))' class="relative space-y-1">
             <input type="hidden" name="{{ $fieldName }}" :value="selectedKey">
 
             <input type="text"
                    readonly
                    :value="options[selectedKey] || ''"
                    id="{{ $fieldId }}"
-                   class="border shadow-sm border-gray-300 dark:border-gray-700 p-2 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                   placeholder="Selecteer een waarde..."
-                   @click="toggleDropdown()"/>
+                   class="w-full border border-border rounded-lg p-2 bg-muted text-foreground shadow-sm focus:ring-2 focus:ring-ring focus:outline-none"
+                   placeholder="{{ __buildora('Select a value...') }}"
+                   @click="toggleDropdown()" />
 
             <div x-show="dropdownVisible"
                  @click.away="closeDropdown"
-                 class="absolute left-0 right-0 bg-white dark:bg-gray-900 shadow-lg mt-1 rounded-lg border border-gray-300 dark:border-gray-700 max-h-60 overflow-auto z-10"
+                 class="absolute left-0 right-0 bg-base shadow-lg mt-1 rounded-lg border border-border max-h-60 overflow-auto z-10"
             >
                 <div class="p-2">
                     <input type="text"
-                           class="border border-gray-300 dark:border-gray-700 p-2 rounded-lg w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                           placeholder="Zoek..." x-model="searchTerm"
+                           class="w-full border border-border p-2 rounded-lg bg-muted text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+                           placeholder="{{ __buildora('Search...') }}" x-model="searchTerm"
                     />
                 </div>
 
                 <div class="overflow-auto max-h-40">
-
                     <template x-for="[key, label] in filteredOptions" :key="key">
-                        <div class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                        <div class="p-2 hover:bg-muted/70 text-foreground cursor-pointer"
                              @click="selectTag(key)">
                             <span x-text="label"></span>
                         </div>
@@ -45,6 +44,7 @@
 
         @include('buildora::components.field.help')
     </div>
+
     @include('buildora::components.field.error', ['field' => $field])
 </div>
 

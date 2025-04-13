@@ -6,25 +6,25 @@
 
     @if ($errors->any())
         <div x-data="{ show: true }" x-show="show" x-transition.duration.300ms
-             class="mt-4 bg-red-400 text-white p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
+             class="mt-4 bg-destructive text-destructive-foreground p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <x-buildora-icon icon="fa fa-exclamation-circle" class="text-white text-xl"/>
+                <x-buildora-icon icon="fa fa-exclamation-circle" class="text-destructive-foreground text-xl"/>
                 <div>
                     <strong class="font-semibold">{{ __buildora('There were some issues with your submission') }}:</strong>
-                    <ul class="mt-2">
+                    <ul class="mt-2 list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-            <button @click="show = false" class="text-white ml-4 hover:text-gray-300">
+            <button @click="show = false" class="text-destructive-foreground ml-4 hover:opacity-75">
                 <x-buildora-icon icon="fa fa-times"/>
             </button>
         </div>
     @endif
 
-    <div class="bg-white p-8 rounded-lg shadow-sm flex flex-col min-h-[400px]">
+    <div class="bg-base text-foreground p-8 rounded-lg shadow-sm flex flex-col min-h-[400px] border border-border">
         <form method="POST"
               enctype="multipart/form-data"
               action="{{ isset($item) ? route('buildora.update', [$model, $item->id]) : route('buildora.store', $model) }}"
@@ -46,9 +46,7 @@
 
                     @php
                         $value = old($field->name, $item->{$field->name} ?? '');
-
-                        // Responsive column span support
-                        $colSpans = $field->getColumnSpan(); // always an array
+                        $colSpans = $field->getColumnSpan();
                         $colClasses = collect($colSpans)->map(
                             fn($cols, $breakpoint) => $breakpoint === 'default'
                                 ? "col-span-{$cols}"
@@ -56,13 +54,12 @@
                         )->implode(' ');
                     @endphp
 
-                    {{-- Force new row if requested --}}
                     @if(method_exists($field, 'shouldStartNewRow') && $field->shouldStartNewRow())
                         <div class="col-span-12"></div>
                     @endif
 
                     <div class="{{ $colClasses }}">
-                        <label for="{{ $field->name }}" class="block font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        <label for="{{ $field->name }}" class="block font-semibold text-foreground mb-1">
                             {{ $field->label }}
                         </label>
 
@@ -76,7 +73,7 @@
                 @endforeach
             </div>
 
-            <div class="flex justify-between mt-auto pt-6 border-t border-gray-200">
+            <div class="flex justify-between mt-auto pt-6 border-t border-border">
                 <x-buildora::button.back :model="$model"/>
                 <x-buildora::button.save/>
             </div>
