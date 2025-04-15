@@ -34,7 +34,7 @@
                 @method('PUT')
             @endif
 
-            <div class="grid grid-cols-12 gap-6">
+            <div class="grid grid-cols-12 gap-6 w-full max-w-screen-lg mx-auto">
                 @foreach($fields as $field)
                     @if(!$field->isVisible('create') && !isset($item))
                         @continue
@@ -46,12 +46,14 @@
 
                     @php
                         $value = old($field->name, $item->{$field->name} ?? '');
-                        $colSpans = $field->getColumnSpan();
-                        $colClasses = collect($colSpans)->map(
-                            fn($cols, $breakpoint) => $breakpoint === 'default'
-                                ? "col-span-{$cols}"
-                                : "{$breakpoint}:col-span-{$cols}"
-                        )->implode(' ');
+                        $spans = is_array($field->getColumnSpan()) ? $field->getColumnSpan() : ['default' => $field->getColumnSpan()];
+
+$colClasses = collect($spans)->map(function ($cols, $breakpoint) {
+
+    return $breakpoint === 'default'
+        ? "col-span-{$cols}"
+        : "{$breakpoint}:col-span-{$cols}";
+})->implode(' ');
                     @endphp
 
                     @if(method_exists($field, 'shouldStartNewRow') && $field->shouldStartNewRow())
