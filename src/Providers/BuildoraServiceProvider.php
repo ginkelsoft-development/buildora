@@ -47,6 +47,7 @@ class BuildoraServiceProvider extends ServiceProvider
             \Ginkelsoft\Buildora\Commands\GeneratePermissionsCommand::class,
             \Ginkelsoft\Buildora\Commands\GrantUserResourcePermissions::class,
             \Ginkelsoft\Buildora\Commands\InstallBuildoraCommand::class,
+            \Ginkelsoft\Buildora\Commands\BuildoraSyncPermissionsCommand::class,
         ]);
 
         $this->publishes([

@@ -24,6 +24,47 @@
         <input type="hidden" name="{{ $name }}[]" :value="tag"/>
     </template>
 
+
+    <script>
+        function tagSelector(options, selectedTags) {
+            return {
+                options: Object.fromEntries(Object.entries(options).map(([k, v]) => [String(k), v])),
+                selectedTags: selectedTags.map(String),
+                dropdownVisible: false,
+                searchTerm: '',
+
+                toggleDropdown() {
+                    this.dropdownVisible = !this.dropdownVisible;
+                },
+
+                closeDropdown() {
+                    this.dropdownVisible = false;
+                },
+
+                addTag(key) {
+                    key = String(key);
+                    if (!this.selectedTags.includes(key)) {
+                        this.selectedTags.push(key);
+                    }
+                    this.closeDropdown();
+                },
+
+                removeTag(key) {
+                    key = String(key);
+                    this.selectedTags = this.selectedTags.filter(tag => tag !== key);
+                },
+
+                get filteredOptions() {
+                    const search = this.searchTerm.toLowerCase();
+                    return Object.entries(this.options).filter(
+                        ([key, label]) =>
+                            label.toLowerCase().includes(search) && !this.selectedTags.includes(key)
+                    );
+                },
+            };
+        }
+    </script>
+
     <div x-show="dropdownVisible"
          @click.away="closeDropdown"
          class="absolute left-0 right-0 bg-base shadow-lg mt-1 rounded-lg border border-border max-h-60 overflow-auto z-10"
