@@ -50,7 +50,18 @@ class NavigationBuilder
                     return false;
                 }
 
-                // Check permissie: alleen tonen als user mag "resource.view"
+                // Controleer of de resource een geldige class is
+                $class = 'App\\Buildora\\Resources\\' . ucfirst($resource['name']) . 'Buildora';
+                if (!class_exists($class)) {
+                    return false;
+                }
+
+                $instance = app($class);
+
+                if (method_exists($instance, 'showInNavigation') && !$instance->showInNavigation()) {
+                    return false;
+                }
+
                 return auth()->check() && auth()->user()->can("{$slug}.view");
             });
 

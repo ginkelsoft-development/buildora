@@ -177,12 +177,7 @@ This will show a datatable of related `orders` on the detail page.
 ```php
 ```
 
-## 10. Sync User permissions
-```php
-php artisan buildora:sync-permissions
-```
-
-## 11. Theme customization
+## 10. Theme customization
 
 Buildora uses CSS variables for theming. By default, it includes a clean base theme with support for light and dark mode.  
 If you want to customize the theme colors, **you can override the default theme**.
