@@ -53,6 +53,11 @@ abstract class BuildoraResource
         ];
     }
 
+    public function showInNavigation(): bool
+    {
+        return true;
+    }
+
     /**
      * Create a new static instance of the resource.
      *
@@ -275,14 +280,5 @@ abstract class BuildoraResource
     public function uriKey(): string
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
-    }
-
-    public static function registerPermissions(): void
-    {
-        $modelName = str(static::$model)->classBasename()->lower();
-
-        foreach (['view', 'create', 'edit', 'delete'] as $action) {
-            \Spatie\Permission\Models\Permission::findOrCreate("$modelName.$action");
-        }
     }
 }
