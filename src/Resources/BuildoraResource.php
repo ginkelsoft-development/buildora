@@ -272,11 +272,6 @@ abstract class BuildoraResource
         return [];
     }
 
-    public function defineTabs(): array
-    {
-        return [];
-    }
-
     public function uriKey(): string
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));

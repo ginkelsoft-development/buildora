@@ -77,16 +77,6 @@ class {$resourceName} extends BuildoraResource
         return {$fields};
     }
 
-    public function validationRules(): array
-    {
-        return [];
-    }
-
-    public function defineFilters(): array
-    {
-        return [];
-    }
-
     public function defineRowActions(): array
     {
         return [
