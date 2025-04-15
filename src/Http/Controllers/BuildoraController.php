@@ -64,9 +64,10 @@ class BuildoraController extends Controller
             ->map(fn($field) => $field->name)
             ->toArray();
 
-        $validationRules = method_exists($resource, 'validationRules')
-            ? $resource->validationRules()
-            : [];
+        $validationRules = collect($resource->resolveFields($modelInstance))
+            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($modelInstance)])
+            ->filter()
+            ->toArray();
 
         $validatedData = $request->validate($validationRules);
         $allowedRequestData = $request->only($fields);
@@ -149,9 +150,10 @@ class BuildoraController extends Controller
             ->map(fn($field) => $field->name)
             ->toArray();
 
-        $validationRules = method_exists($resource, 'validationRules')
-            ? $resource->validationRules()
-            : [];
+        $validationRules = collect($resource->resolveFields($modelInstance))
+            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($modelInstance)])
+            ->filter()
+            ->toArray();
 
         $validatedData = $request->validate($validationRules);
         $allowedRequestData = $request->only($fields);
