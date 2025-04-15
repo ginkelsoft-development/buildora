@@ -1,8 +1,9 @@
 @props([
     'endpoint' => request()->url() . '/datatable/json',
+    'componentKey' => Str::random(8)
 ])
 
-<div x-data="dataTable()" x-init="init()" class="mx-auto">
+<div x-data="dataTable({{ json_encode($endpoint) }})" x-init="init()" class="mx-auto" :key="{{ json_encode($componentKey) }}">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
         <div class="relative w-full max-w-sm">
@@ -157,7 +158,7 @@
             sortDirection: 'asc',
             pagination: { current_page: 1, per_page: 25, total: 0, last_page: 1 },
             paginationOptions: [10, 25, 50, 100], // <- ✅ init waarde toegevoegd
-            endpoint: '{{$endpoint}}',
+            endpoint: customEndpoint,
             debouncedFetchData: null,
             selectedRows: [],
             selectedBulkAction: '',
