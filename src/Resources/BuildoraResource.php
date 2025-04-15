@@ -276,4 +276,13 @@ abstract class BuildoraResource
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
+
+    public static function registerPermissions(): void
+    {
+        $modelName = str(static::$model)->classBasename()->lower();
+
+        foreach (['view', 'create', 'edit', 'delete'] as $action) {
+            \Spatie\Permission\Models\Permission::findOrCreate("$modelName.$action");
+        }
+    }
 }
