@@ -27,8 +27,9 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
         | Dashboard & Global Search
         |--------------------------------------------------------------------------
         */
-        Route::get('/', [BuildoraDashboardController::class, 'index'])
-            ->name('buildora.dashboard');
+        Route::get('/dashboard/{name?}', BuildoraDashboardController::class)
+            ->name('buildora.dashboard')
+            ->middleware(['web', 'auth']);
 
         Route::get('/global-search', GlobalSearchController::class)
             ->name('buildora.global.search');
