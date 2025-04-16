@@ -81,6 +81,28 @@ return [
         'previewable' => ['jpg', 'jpeg', 'png', 'pdf'], // Extensions that can be shown inline
     ],
 
+    'dashboards' => [
+        'enabled' => true,
+        'label' => 'Dashboards',
+        'icon' => 'fa fa-gauge',
+        'children' => [
+            'main' => [
+                'label' => 'Main',
+                'route' => 'buildora.dashboard',
+                'params' => ['name' => 'main'],
+                'permission' => 'dashboard.view',
+                'widgets' => [],
+            ],
+            'marketing' => [
+                'label' => 'Marketing',
+                'route' => 'buildora.dashboard',
+                'params' => ['name' => 'marketing'],
+                'permission' => 'dashboard.view',
+                'widgets' => [],
+            ],
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Navigation Configuration

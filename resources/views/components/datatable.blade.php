@@ -73,21 +73,21 @@
                 </td>
             </tr>
             <template x-for="(row, rowIndex) in data" :key="rowIndex">
-                <tr class="border-b border-border hover:bg-muted transition even:bg-muted/50 odd:bg-base">
+                <tr class="border-b border-border hover:bg-muted transition odd:bg-base even:bg-muted dark:odd:bg-base dark:even:bg-muted/70" :class="rowIndex % 2 === 0 ? 'bg-base' : 'bg-muted'" >
                     <td class="py-2 px-4 text-foreground">
                         <input type="checkbox" :value="row.id" x-model="selectedRows">
                     </td>
                     <template x-for="(col, colIndex) in columns" :key="colIndex">
-                        <td x-html="formatCell(row, col.name)" class="py-2 px-4 text-gray-700"></td>
+                        <td x-html="formatCell(row, col.name)" class="py-2 px-4 text-foreground"></td>
                     </template>
-                    <td class="py-2 px-4 text-gray-700 text-right">
+                    <td class="py-2 px-4 text-right text-foreground">
                         <template x-for="(action, actionIndex) in row.actions" :key="actionIndex">
                             <button @click="handleAction(action, row)"
                                     class="px-2 py-1 mx-1 text-white rounded"
                                     :class="{
-                                        'bg-slate-400 hover:bg-slate-600': action.method === 'GET',
-                                        'bg-red-500 hover:bg-red-600': action.method === 'DELETE'
-                                    }">
+                            'bg-slate-400 hover:bg-slate-600': action.method === 'GET',
+                            'bg-red-500 hover:bg-red-600': action.method === 'DELETE'
+                        }">
                                 <i :class="action.icon"></i>
                             </button>
                         </template>

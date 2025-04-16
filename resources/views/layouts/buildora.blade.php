@@ -24,6 +24,8 @@
 <body class="bg-base text-foreground font-sans antialiased"
       x-data="{ showScrollButton: false, scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) } }"
       x-init="window.addEventListener('scroll', () => { showScrollButton = window.scrollY > 200 })">
+
+
 <div id="app" x-data="{ openSidebar: true }">
     {{-- HEADER --}}
     <header class="bg-base text-base-foreground p-4 px-8 flex justify-between items-center border-b border-border"
@@ -40,8 +42,6 @@
         <form method="POST" action="{{ route('locale.switch') }}" class="flex items-center gap-4">
             @csrf
 
-            {{-- TAAL SELECTIE DROPDOWN --}}
-            {{-- TAAL SELECTIE DROPDOWN --}}
             <div x-data="{ openLang: false }" class="relative mr-2">
                 <button @click="openLang = !openLang"
                         type="button"
