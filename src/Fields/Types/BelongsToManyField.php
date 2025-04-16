@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class BelongsToManyField extends Field
 {
     protected ?string $relatedModel = null;
-    protected string $returnColumn = 'id';
-    protected string $displayColumn = 'name';
+    public string $returnColumn = 'id';
+    public string $displayColumn = 'name';
     protected ?Model $parentModel = null;
 
     /**

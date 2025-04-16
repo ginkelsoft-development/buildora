@@ -115,10 +115,28 @@ return [
     */
     'navigation' => [
         [
-            'label' => 'Dashboard',
-            'icon' => 'fa-gauge',
-            'route' => 'buildora.dashboard',
+            'label' => 'Settings',
+            'icon' => 'fas fa-cog',
+            'children' => [
+                [
+                    'label' => 'Gebruikers',
+                    'icon' => 'fas fa-user',
+                    'route' => 'buildora.index',
+                    'params' => [
+                        'resource' => 'user',
+                    ]
+                ],
+                [
+                    'label' => 'Permissies',
+                    'icon' => 'fas fa-key',
+                    'route' => 'buildora.index',
+                    'params' => [
+                        'resource' => 'permission',
+                    ]
+                ],
+            ],
         ],
-        'include_resources' => true, // Automatically include all registered resources
+
+        'include_resources' => true, // Laat overige resources automatisch toevoegen
     ],
 ];

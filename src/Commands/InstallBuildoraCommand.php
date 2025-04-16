@@ -124,6 +124,9 @@ class InstallBuildoraCommand extends Command
         $this->line("\nStep 7/9: Creating Buildora resource for User...");
         Artisan::call('buildora:resource', ['name' => 'user']);
         $this->line("→ User resource created");
+
+        Artisan::call('buildora:make-permission-resource');
+        $this->line("→ Permission resource created");
     }
 
     protected function generateOtherModelResources(): void
