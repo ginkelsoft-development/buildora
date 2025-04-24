@@ -22,6 +22,8 @@ class BuildoraSyncPermissionsCommand extends Command
             return self::FAILURE;
         }
 
+        $hasLabelColumn = \Schema::hasColumn('permissions', 'label');
+
         /** @var SplFileInfo[] $files */
         $files = File::allFiles($resourcePath);
 
@@ -33,25 +35,38 @@ class BuildoraSyncPermissionsCommand extends Command
                 continue;
             }
 
-            try {
-                $resource = new $class();
-                $modelClass = get_class($resource->getModelInstance());
-            } catch (\Throwable $e) {
-                $this->warn("Skipping $class — instantiation failed: " . $e->getMessage());
-                continue;
-            }
+            // Special case: PermissionBuildora => use known model name
+            if ($class === 'App\\Buildora\\Resources\\PermissionBuildora') {
+                $modelName = 'permission';
+            } else {
+                try {
+                    $resource = new $class();
+                    $modelClass = get_class($resource->getModelInstance());
+                } catch (\Throwable $e) {
+                    $this->warn("Skipping $class — instantiation failed: " . $e->getMessage());
+                    continue;
+                }
 
-            if (!$modelClass || !class_exists($modelClass)) {
-                $this->warn("Skipping resource without valid model: $class");
-                continue;
-            }
+                if (!$modelClass || !class_exists($modelClass)) {
+                    $this->warn("Skipping resource without valid model: $class");
+                    continue;
+                }
 
-            $modelName = str(class_basename($modelClass))->lower();
+                $modelName = str(class_basename($modelClass))->lower();
+            }
 
             foreach (['view', 'create', 'edit', 'delete'] as $action) {
-                $permission = "$modelName.$action";
-                Permission::findOrCreate($permission);
-                $this->line("✓ Registered: <comment>$permission</comment>");
+                $permissionName = "$modelName.$action";
+                $permission = Permission::findOrCreate($permissionName);
+
+                if ($hasLabelColumn && empty($permission->label)) {
+                    $generatedLabel = ucfirst($action) . ' ' . str_replace('_', ' ', str($modelName)->headline());
+                    $permission->label = $generatedLabel;
+                    $permission->save();
+                    $this->line("✓ Registered: <comment>$permissionName</comment> with label <info>$generatedLabel</info>");
+                } else {
+                    $this->line("✓ Registered: <comment>$permissionName</comment>");
+                }
             }
         }
 
