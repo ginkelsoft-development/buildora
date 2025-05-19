@@ -39,7 +39,7 @@
 
         <x-buildora::global-search />
 
-        <form method="POST" action="{{ route('locale.switch') }}" class="flex items-center gap-4">
+        <form method="POST" action="{{ route('buildora.locale.switch') }}" class="flex items-center gap-4">
             @csrf
 
             <div x-data="{ openLang: false }" class="relative mr-2">
@@ -47,12 +47,12 @@
                         type="button"
                         class="appearance-none bg-base dark:bg-primary border border-border text-foreground dark:text-primary-foreground py-1.5 px-3 pr-2 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary flex items-center gap-2"
                 >
-                    {{ ['en' => 'English', 'nl' => 'Nederlands', 'es' => 'Español', 'de' => 'Deutsch', 'fy' => 'Frysk'][app()->getLocale()] }}
+                    {{ ['en' => 'English', 'nl' => 'Nederlands', 'es' => 'Español', 'de' => 'Deutsch', 'fy' => 'Frysk'][buildora_session_get('locale', 'nl')] }}
                     <svg class="h-4 w-4 ml-1 text-muted-foreground fill-current" viewBox="0 0 20 20">
                         <path d="M5.516 7.548l4.484 4.484 4.484-4.484-1.06-1.06L10 9.91 6.576 6.488z" />
                     </svg>
                 </button>
-
+{{var_dump(buildora_session_get('locale'))}}
                 <div x-show="openLang"
                      x-transition
                      @click.outside="openLang = false"
@@ -62,12 +62,12 @@
                     <ul class="py-1 text-sm">
                         @foreach(['en' => 'English', 'nl' => 'Nederlands', 'es' => 'Español', 'de' => 'Deutsch', 'fy' => 'Frysk'] as $code => $language)
                             <li>
-                                <form method="POST" action="{{ route('locale.switch') }}">
+                                <form method="POST" action="{{ route('buildora.locale.switch') }}">
                                     @csrf
                                     <input type="hidden" name="locale" value="{{ $code }}">
                                     <button type="submit"
                                             class="w-full text-left px-4 py-2 hover:bg-muted flex items-center gap-2
-                                @if(app()->getLocale() === $code) font-semibold @endif"
+                                @if(buildora_session_get('locale', 'nl') === $code) font-semibold @endif"
                                     >
                                         <i class="fa-solid fa-language w-4"></i> {{ $language }}
                                     </button>
