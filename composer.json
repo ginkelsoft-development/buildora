@@ -1,0 +1,44 @@
+{
+    "name": "ginkelsoft/buildora",
+    "description": "A dynamic Laravel package for automatic resource and form generation.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ginkelsoft\\Buildora\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ginkelsoft",
+            "email": "info@ginkelsoft.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "laravel/framework": "^10.0|^11.0|^12.0",
+        "livewire/livewire": "^3.0",
+        "maatwebsite/excel": "^3.1",
+        "spatie/laravel-permission": "^6.16"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/ginkelsoft/buildora",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "extra": {
+        "buildora-version": "1.0.19",
+        "laravel": {
+            "providers": [
+                "Ginkelsoft\\Buildora\\Providers\\BuildoraServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.15"
+    }
+}

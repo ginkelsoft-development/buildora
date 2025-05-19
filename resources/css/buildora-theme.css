@@ -1,0 +1,58 @@
+@layer base {
+    :root {
+        --color-base: 250 245 255;
+        --color-base-foreground: 36 0 70;
+
+        --color-primary: 128 90 213;                  /* paars */
+        --color-primary-foreground: 255 255 255;
+
+        --color-secondary: 237 233 254;               /* lichtpaars */
+        --color-secondary-foreground: 59 7 100;
+
+        --color-muted: 243 232 255;
+        --color-muted-foreground: 94 53 177;
+
+        --color-destructive: 220 38 38;
+        --color-destructive-foreground: 255 255 255;
+
+        --color-border: 221 214 254;
+        --color-input: 255 255 255;
+        --color-ring: 168 85 247;
+        --color-background: 255 255 255;
+        --color-foreground: 36 0 70;
+
+        --font-sans: 'Inter', sans-serif;
+        --font-mono: 'SFMono-Regular', monospace;
+
+        --radius-sm: 0.125rem;
+        --radius: 0.5rem;
+        --radius-lg: 1rem;
+
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    }
+
+    .dark {
+        --color-base: 46 16 101;
+        --color-base-foreground: 237 233 254;
+
+        --color-primary: 165 108 255;
+        --color-primary-foreground: 255 255 255;
+
+        --color-secondary: 91 33 182;
+        --color-secondary-foreground: 243 232 255;
+
+        --color-muted: 69 32 134;
+        --color-muted-foreground: 233 213 255;
+
+        --color-destructive: 239 68 68;
+        --color-destructive-foreground: 255 255 255;
+
+        --color-border: 124 58 237;
+        --color-input: 69 32 134;
+        --color-ring: 216 180 254;
+        --color-background: 17 24 39;
+        --color-foreground: 255 255 255;
+    }
+}
