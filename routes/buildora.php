@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraDashboardController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraDataTableController;
@@ -12,15 +13,16 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
     ->group(function () {
 
-        Route::post('/switch-locale', function (\Illuminate\Http\Request $request) {
+        Route::post('/switch-locale', function (Request $request) {
+
             $locale = $request->input('locale');
 
             if (in_array($locale, ['en', 'nl', 'es', 'de', 'fy'])) {
-                session(['locale' => $locale]);
+                buildora_session_put('locale', $locale);
             }
 
             return back();
-        })->name('locale.switch');
+        })->name('buildora.locale.switch');
 
         /*
         |--------------------------------------------------------------------------
