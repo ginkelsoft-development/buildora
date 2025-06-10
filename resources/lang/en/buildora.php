@@ -3,7 +3,7 @@
 return [
     'Welcome' => 'Welcome',
     'Log in to continue' => 'Log in to continue',
-    'E-mailaddress' => 'E-mailadress',
+    'E-mailaddress' => 'E-mail address',
     'Password' => 'Password',
     'Forgot your password?' => 'Forgot your password?',
     'Login' => 'Login',
