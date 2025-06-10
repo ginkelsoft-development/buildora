@@ -15,10 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BelongsToField extends Field
 {
     protected ?string $relatedModel = null;
-    protected string $returnColumn = 'id';
-    protected string $displayColumn = 'name';
+    public string $returnColumn = 'id';
+    public string $displayColumn = 'name';
     protected ?Model $parentModel = null;
-    public bool $createInForm = false;
 
     /**
      * BelongsToField constructor.
@@ -100,6 +99,7 @@ class BelongsToField extends Field
     {
         $this->returnColumn = $returnColumn;
         $this->displayColumn = $displayColumn;
+
         return $this;
     }
 
@@ -139,11 +139,22 @@ class BelongsToField extends Field
      */
     public function getOptions(): array
     {
+        dd("BelongsToField [{$this->name}] pluck set to: {$this->returnColumn} => {$this->displayColumn}");
         $relatedModel = $this->getRelatedModel();
         $table = (new $relatedModel)->getTable();
 
         return $relatedModel::query()
             ->pluck("{$table}.{$this->displayColumn}", "{$table}.{$this->returnColumn}")
             ->toArray();
+    }
+
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), [
+            'options' => $this->getOptions(),
+            'returnColumn' => $this->returnColumn,
+            'displayColumn' => $this->displayColumn,
+            'relatedModel' => $this->relatedModel,
+        ]);
     }
 }
