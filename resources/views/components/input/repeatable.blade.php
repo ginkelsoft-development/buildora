@@ -15,7 +15,13 @@
         class="space-y-6"
 >
     <template x-for="(row, index) in rows" :key="index">
-        <div class="relative bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4">
+        <div class="relative bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4"
+             x-bind:data-repeatable-index="index"
+             x-effect="$el.querySelectorAll('[name]').forEach(el => {
+                 if (el.name && el.name.includes('\${index}')) {
+                     el.name = el.name.replaceAll('\${index}', index);
+                 }
+             })">
             <button type="button"
                     @click="removeRow(index)"
                     class="absolute top-3 right-3 text-gray-400 hover:text-red-600"
