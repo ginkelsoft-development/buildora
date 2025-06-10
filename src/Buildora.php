@@ -16,7 +16,7 @@ use Illuminate\Support\Js;
 class Buildora
 {
     /**
-     * Get the CSS for the Horizon dashboard.
+     * Get the CSS for the Buildora dashboard.
      *
      * @return Illuminate\Contracts\Support\Htmlable
      */
@@ -42,7 +42,7 @@ class Buildora
     }
 
     /**
-     * Get the JS for the Horizon dashboard.
+     * Get the JS for the Buildora dashboard.
      *
      * @return \Illuminate\Contracts\Support\Htmlable
      */
