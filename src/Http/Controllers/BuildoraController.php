@@ -49,10 +49,7 @@ class BuildoraController extends Controller
             ->map(fn($field) => $field->getStoreColumn())
             ->toArray();
 
-        $validationRules = $resolvedFields
-            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($modelInstance)])
-            ->filter()
-            ->toArray();
+        $validationRules = $this->buildValidationRules($resolvedFields, $request);
 
         $validatedData = $request->validate($validationRules);
 
@@ -125,10 +122,7 @@ class BuildoraController extends Controller
             ->map(fn($field) => $field->getStoreColumn())
             ->toArray();
 
-        $validationRules = $resolvedFields
-            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($item)])
-            ->filter()
-            ->toArray();
+        $validationRules = $this->buildValidationRules($resolvedFields, $request);
 
         $validatedData = $request->validate($validationRules);
         $allowedRequestData = $request->only($storeColumns);
