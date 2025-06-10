@@ -220,13 +220,13 @@ class BuildoraController extends Controller
         $item = $resource->getModelInstance()->find($id);
 
         if (!$item) {
-            return redirect()->route('buildora.index', ['model' => $model])
+            return redirect()->route('buildora.index', ['resource' => $model])
                 ->with('error', ucfirst($model) . ' ' . __buildora('not found or already deleted.'));
         }
 
         $item->delete();
 
-        return redirect()->route('buildora.index', ['model' => $model])
+        return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('deleted successfully.'));
     }
 
