@@ -30,6 +30,12 @@ class BuildoraController extends Controller
         $resourceName = ResourceResolver::resolve($model);
         $fields = $resource->resolveFields($modelInstance);
 
+        foreach ($fields as $field) {
+            if ($field instanceof RepeatableField && empty($field->value)) {
+                $field->value = null;
+            }
+        }
+
         return view("buildora::form", [
             'model' => $model,
             'fields' => $fields,

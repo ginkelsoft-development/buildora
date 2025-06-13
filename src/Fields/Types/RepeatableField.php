@@ -4,6 +4,7 @@ namespace Ginkelsoft\Buildora\Fields\Types;
 
 use Ginkelsoft\Buildora\Fields\Field;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * Class RepeatableField
@@ -12,8 +13,10 @@ use Illuminate\Support\Arr;
  */
 class RepeatableField extends Field
 {
+    /** @var array<int, Field> */
     protected array $subfields = [];
-    protected string $view = 'buildora::fields.repeatable';
+
+    public string $type = 'repeatable';
 
     public function __construct(string $name, ?string $label = null, string $type = 'repeatable')
     {
@@ -25,56 +28,32 @@ class RepeatableField extends Field
         return new self($name, $label, $type);
     }
 
-    public function addField(Field $field): static
+    /**
+     * Define the subfields schema.
+     *
+     * @param array<int, Field> $fields
+     */
+    public function addFields(array $fields): static
     {
-        $this->subfields[] = $field;
+        $this->subfields = $fields;
         return $this;
     }
 
+    /**
+     * Get the subfields schema.
+     *
+     * @return array<int, Field>
+     */
     public function getSubfields(): array
     {
         return $this->subfields;
     }
 
-    public function getCast(): ?string
-    {
-        return 'array';
-    }
-
-    public function fillFromRequest(array $request): static
-    {
-        $this->value = $request[$this->name] ?? [];
-        return $this;
-    }
-
-    public function setValue(mixed $value): static
-    {
-        if ($value instanceof Model) {
-            $attr = $value->{$this->name};
-
-            if (is_string($attr)) {
-                $this->value = json_decode($attr, true) ?? [];
-            } elseif (is_array($attr)) {
-                $this->value = $attr;
-            } else {
-                $this->value = [];
-            }
-        } elseif (is_string($value)) {
-            $this->value = json_decode($value, true) ?? [];
-        } elseif (is_array($value)) {
-            $this->value = $value;
-        } else {
-            $this->value = [];
-        }
-
-        return $this;
-    }
-
-    public function value(): mixed
-    {
-        return $this->value;
-    }
-
+    /**
+     * Return the rows as an array.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public function rows(): array
     {
         $value = $this->value;
@@ -87,21 +66,42 @@ class RepeatableField extends Field
             return [];
         }
 
-        if (array_key_exists('${index}', $value)) {
-            return [ $value['${index}'] ];
+        if (Arr::isAssoc($value)) {
+            $value = array_values($value);
         }
 
-        if (Arr::isAssoc($value)) {
-            return array_values($value);
+        // Voeg uuid toe
+        foreach ($value as &$row) {
+            if (!isset($row['__uuid'])) {
+                $row['__uuid'] = (string) Str::uuid();
+            }
         }
 
         return $value;
     }
 
+    public function getValidationRules(mixed $model = null): array
+    {
+        $rules = $this->validationRules;
+
+        if (is_callable($rules)) {
+            $rules = call_user_func($rules, $model);
+        }
+
+        // Zorg dat we altijd een array teruggeven
+        return is_array($rules) ? $rules : [];
+    }
+
+    /**
+     * Convert the field to an array representation for the frontend.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
-        return array_merge(parent::toArray(), [
-            'subfields' => collect($this->subfields)->map->toArray()->toArray(),
-        ]);
+        return parent::toArray() + [
+                'rows' => $this->rows(),
+                'subfields' => collect($this->subfields)->map->toArray()->values()->all(),
+            ];
     }
 }

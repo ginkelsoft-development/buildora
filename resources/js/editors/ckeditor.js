@@ -2,6 +2,8 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export function initCkeditors() {
     document.querySelectorAll('textarea.editorfield:not(.ck-initialized)').forEach((el) => {
+        if (el.closest('.ck-editor')) return;
+
         ClassicEditor
             .create(el)
             .then(() => {
@@ -11,4 +13,4 @@ export function initCkeditors() {
     });
 }
 
-export default initCkeditors; // ← voeg deze toe
+export default initCkeditors;
