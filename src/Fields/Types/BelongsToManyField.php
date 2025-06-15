@@ -141,4 +141,13 @@ class BelongsToManyField extends Field
             ->pluck("{$table}.{$this->displayColumn}", "{$table}.{$this->returnColumn}")
             ->toArray();
     }
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), [
+            'options' => $this->getOptions(),
+            'returnColumn' => $this->returnColumn,
+            'displayColumn' => $this->displayColumn,
+            'relatedModel' => $this->relatedModel,
+        ]);
+    }
 }

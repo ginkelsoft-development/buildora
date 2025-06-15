@@ -3,7 +3,9 @@
 namespace Ginkelsoft\Buildora\Http\Controllers;
 
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
+use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
 use Ginkelsoft\Buildora\Fields\Types\PasswordField;
+use Ginkelsoft\Buildora\Fields\Types\RepeatableField;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -16,29 +18,23 @@ use Illuminate\View\View;
 
 class BuildoraController extends Controller
 {
-    /**
-     * Resolve a Buildora resource by its model name.
-     *
-     * @param string $model
-     * @return object
-     */
     protected function getResource(string $model): object
     {
         return ResourceResolver::resolve($model);
     }
 
-    /**
-     * Show the create form for a resource.
-     *
-     * @param string $model
-     * @return View
-     */
     public function create(string $model): View
     {
         $resource = $this->getResource($model);
         $modelInstance = $resource->getModelInstance();
         $resourceName = ResourceResolver::resolve($model);
         $fields = $resource->resolveFields($modelInstance);
+
+        foreach ($fields as $field) {
+            if ($field instanceof RepeatableField && empty($field->value)) {
+                $field->value = null;
+            }
+        }
 
         return view("buildora::form", [
             'model' => $model,
@@ -47,75 +43,67 @@ class BuildoraController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @param string $model
-     * @return RedirectResponse
-     */
     public function store(Request $request, string $model): RedirectResponse
     {
         $resource = $this->getResource($model);
         $modelInstance = $resource->getModelInstance();
 
-        $fields = collect($resource->resolveFields($modelInstance))
+        $resolvedFields = collect($resource->resolveFields($modelInstance));
+
+        $storeColumns = $resolvedFields
             ->reject(fn($field) => $field->readonly)
-            ->map(fn($field) => $field->name)
+            ->map(fn($field) => $field->getStoreColumn())
             ->toArray();
 
-        $validationRules = collect($resource->resolveFields($modelInstance))
+        $validationRules = $resolvedFields
             ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($modelInstance)])
             ->filter()
             ->toArray();
 
         $validatedData = $request->validate($validationRules);
-        $allowedRequestData = $request->only($fields);
+
+        $allowedRequestData = $request->only($storeColumns);
         $finalData = array_merge($allowedRequestData, $validatedData);
 
-        foreach ($resource->resolveFields($modelInstance) as $field) {
+        foreach ($resolvedFields as $field) {
+            $storeKey = $field->getStoreColumn();
+
             if ($field instanceof FileField && $request->hasFile($field->name)) {
                 $uploadedFile = $request->file($field->name);
                 $disk = $field->getDisk() ?? 'public';
                 $path = $uploadedFile->store($field->getPath() ?? 'uploads', $disk);
-                $finalData[$field->name] = $path;
-
-                if (!in_array($field->name, $fields)) {
-                    $fields[] = $field->name;
-                }
+                $finalData[$storeKey] = $path;
             }
 
             if ($field instanceof PasswordField) {
-                $value = $finalData[$field->name] ?? null;
+                $value = $finalData[$storeKey] ?? null;
+                $finalData[$storeKey] = blank($value) ? null : bcrypt($value);
+            }
 
-                if (blank($value)) {
-                    unset($finalData[$field->name]);
-                } else {
-                    $finalData[$field->name] = bcrypt($value);
-                }
+            if ($field instanceof BelongsToField) {
+                $finalData[$storeKey] = $request->input($field->name);
+            }
+
+            if ($field instanceof RepeatableField) {
+                $finalData[$storeKey] = $request->input($field->name, []);
             }
         }
 
-        $filteredData = array_intersect_key($finalData, array_flip($fields));
+        $filteredData = array_intersect_key($finalData, array_flip($storeColumns));
 
         if (empty($filteredData)) {
-            return redirect()->back()->with('error', __buildora('No valid fields to save. Check fields in resource.', [':model' => $model]));
+            return redirect()->back()
+                ->with('error', __buildora('No valid fields to save. Check fields in resource.', [':model' => $model]));
         }
 
         $createdItem = $modelInstance::create($filteredData);
+
         $this->handleRelationships($createdItem, $request->all());
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('created successfully.'));
     }
 
-    /**
-     * Show the edit form for the given resource.
-     *
-     * @param string $model
-     * @param int $id
-     * @return View
-     */
     public function edit(string $model, int $id): View
     {
         $resource = $this->getResource($model);
@@ -131,62 +119,58 @@ class BuildoraController extends Controller
         ]);
     }
 
-    /**
-     * Update the given resource instance.
-     *
-     * @param Request $request
-     * @param string $model
-     * @param int $id
-     * @return RedirectResponse
-     */
     public function update(Request $request, string $model, int $id): RedirectResponse
     {
         $resource = $this->getResource($model);
-        $modelInstance = $resource->getModelInstance();
-        $item = $modelInstance->findOrFail($id);
+        $item = $resource->getModelInstance()->findOrFail($id);
 
-        $fields = collect($resource->resolveFields($modelInstance))
+        $resolvedFields = collect($resource->resolveFields($item));
+
+        $storeColumns = $resolvedFields
             ->reject(fn($field) => $field->readonly)
-            ->map(fn($field) => $field->name)
+            ->map(fn($field) => $field->getStoreColumn())
             ->toArray();
 
-        $validationRules = collect($resource->resolveFields($modelInstance))
-            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($modelInstance)])
+        $validationRules = $resolvedFields
+            ->mapWithKeys(fn($field) => [$field->name => $field->getValidationRules($item)])
             ->filter()
             ->toArray();
 
         $validatedData = $request->validate($validationRules);
-        $allowedRequestData = $request->only($fields);
+        $allowedRequestData = $request->only($storeColumns);
         $finalData = array_merge($allowedRequestData, $validatedData);
 
-        foreach ($resource->resolveFields($modelInstance) as $field) {
+        foreach ($resolvedFields as $field) {
+            $storeKey = $field->getStoreColumn();
+
             if ($field instanceof FileField && $request->hasFile($field->name)) {
                 $uploadedFile = $request->file($field->name);
                 $disk = $field->getDisk() ?? 'public';
                 $path = $uploadedFile->store($field->getPath() ?? 'uploads', $disk);
-                $finalData[$field->name] = $path;
-                if (!in_array($field->name, $fields)) {
-                    $fields[] = $field->name;
-                }
+                $finalData[$storeKey] = $path;
             }
 
             if ($field instanceof PasswordField) {
-                $value = $finalData[$field->name] ?? null;
+                $value = $finalData[$storeKey] ?? null;
+                $finalData[$storeKey] = blank($value) ? $item->{$storeKey} : bcrypt($value);
+            }
 
-                if (blank($value)) {
-                    unset($finalData[$field->name]);
-                } else {
-                    $finalData[$field->name] = bcrypt($value);
-                }
+            if ($field instanceof BelongsToField) {
+                $finalData[$storeKey] = $request->input($field->name);
+            }
+
+            if ($field instanceof RepeatableField) {
+                $finalData[$storeKey] = $request->input($field->name, []);
             }
         }
 
-        $filteredData = array_intersect_key($finalData, array_flip($fields));
-
+        $filteredData = array_intersect_key($finalData, array_flip($storeColumns));
         $item->update($filteredData);
+
         $this->handleRelationships($item, $request->all());
 
-        return redirect()->route('buildora.index', ['resource' => $model])
+        return redirect()
+            ->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('updated successfully.'));
     }
 
@@ -207,13 +191,6 @@ class BuildoraController extends Controller
         ]);
     }
 
-    /**
-     * Delete a resource instance.
-     *
-     * @param string $model
-     * @param int $id
-     * @return RedirectResponse
-     */
     public function destroy(string $model, int $id): RedirectResponse
     {
         $resource = $this->getResource($model);
@@ -230,13 +207,6 @@ class BuildoraController extends Controller
             ->with('success', ucfirst($model) . ' ' . __buildora('deleted successfully.'));
     }
 
-    /**
-     * Check if a model attribute is a relation.
-     *
-     * @param object $model
-     * @param string $attribute
-     * @return bool
-     */
     protected function isRelation($model, string $attribute): bool
     {
         if (!method_exists($model, $attribute)) {
@@ -252,13 +222,6 @@ class BuildoraController extends Controller
         return $model->$attribute() instanceof Relation;
     }
 
-    /**
-     * Handle relationships for a given model item.
-     *
-     * @param object $item
-     * @param array $data
-     * @return void
-     */
     protected function handleRelationships($item, array $data): void
     {
         foreach ($data as $key => $value) {
@@ -279,5 +242,25 @@ class BuildoraController extends Controller
                 $relation->saveMany($modelsToSave);
             }
         }
+    }
+
+    protected function buildValidationRules($resolvedFields, Request $request): array
+    {
+        $rules = [];
+
+        foreach ($resolvedFields as $field) {
+            if ($field instanceof RepeatableField) {
+                $rows = $request->input($field->name, []);
+                foreach ($rows as $index => $row) {
+                    foreach ($field->getSubfields() as $subfield) {
+                        $rules["{$field->name}.{$index}.{$subfield->name}"] = $subfield->getValidationRules();
+                    }
+                }
+            } else {
+                $rules[$field->name] = $field->getValidationRules();
+            }
+        }
+
+        return array_filter($rules);
     }
 }
