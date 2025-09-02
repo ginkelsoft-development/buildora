@@ -29,7 +29,6 @@ class Field
 
     protected ?string $helpText = null;
 
-    protected ?string $storeAs = null;
     /**
      * Field constructor.
      *
@@ -124,10 +123,6 @@ class Field
     public function getDisplayValue(mixed $model): string
     {
         $value = $model->{$this->name} ?? null;
-        
-        if (is_array($value)) {
-            return '-';
-        }
         return is_null($value) ? '-' : e($value);
     }
 
@@ -166,18 +161,6 @@ class Field
      */
     public function hideFromDetail(): self { return $this->hide('detail'); }
 
-
-    public function storeAs(string $column): self
-    {
-        $this->storeAs = $column;
-        return $this;
-    }
-
-    public function getStoreColumn(): string
-    {
-        return $this->storeAs ?? $this->name;
-    }
-
     /**
      * Convert the field into an array representation.
      *
@@ -196,7 +179,6 @@ class Field
             'helpText' => $this->helpText,
             'columnSpan' => $this->columnSpan,
             'startNewRow' => $this->startNewRow,
-            'storeAs' => $this->storeAs,
         ];
     }
 }

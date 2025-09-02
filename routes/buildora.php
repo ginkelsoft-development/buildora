@@ -83,5 +83,45 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->middleware('buildora.can:view')
                 ->where('format', 'xlsx|csv')
                 ->name('buildora.export');
+
+            Route::get('/buildora/async/{model}/search', function ($model) {
+                $modelClass = Str::start("App\\Models\\" . Str::studly($model), '\\');
+
+                if (!class_exists($modelClass)) {
+                    abort(404, "Model {$modelClass} not found");
+                }
+
+                $query = request('q');
+                $displayColumn = request('label', 'name'); // wat je toont (mag accessor zijn)
+                $searchColumns = request()->input('search', [$displayColumn]); // waar je op zoekt (echte DB kolommen)
+
+                $instance = new $modelClass;
+
+                // validatie: display column mag accessor zijn
+                if (!array_key_exists($displayColumn, $instance->toArray())) {
+                    abort(400, "Invalid display column '{$displayColumn}' for {$modelClass}");
+                }
+
+                // validatie: alle zoek kolommen moeten kolommen zijn in de DB
+                $invalid = collect($searchColumns)->reject(fn ($col) => \Schema::hasColumn($instance->getTable(), $col));
+                if ($invalid->isNotEmpty()) {
+                    abort(400, "Invalid search column(s): " . $invalid->implode(', '));
+                }
+
+                return $modelClass::query()
+                    ->when($query, function ($q) use ($searchColumns, $query) {
+                        $q->where(function ($q) use ($searchColumns, $query) {
+                            foreach ($searchColumns as $col) {
+                                $q->orWhere($col, 'like', "%{$query}%");
+                            }
+                        });
+                    })
+                    ->limit(25)
+                    ->get()
+                    ->map(fn ($record) => [
+                        'id' => $record->getKey(),
+                        'text' => $record->{$displayColumn},
+                    ]);
+            })->name('buildora.async.search');
         });
     });
