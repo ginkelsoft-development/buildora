@@ -52,7 +52,7 @@
                         <path d="M5.516 7.548l4.484 4.484 4.484-4.484-1.06-1.06L10 9.91 6.576 6.488z" />
                     </svg>
                 </button>
-{{var_dump(buildora_session_get('locale'))}}
+
                 <div x-show="openLang"
                      x-transition
                      @click.outside="openLang = false"

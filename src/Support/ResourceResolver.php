@@ -22,8 +22,7 @@ class ResourceResolver
             return null;
         }
 
-        $classBase = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $slug)));
-        $class = "App\\Buildora\\Resources\\{$classBase}Buildora";
+        $class = 'App\\Buildora\\Resources\\' . ucfirst($slug) . 'Buildora';
 
         if (!class_exists($class)) {
             throw new BuildoraException("No Buildora resource found for slug [{$slug}].");
