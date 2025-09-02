@@ -4,7 +4,6 @@ namespace Ginkelsoft\Buildora\Commands;
 
 use Illuminate\Console\Command;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use ReflectionClass;
 use Illuminate\Support\Facades\File;
@@ -39,11 +38,9 @@ class GeneratePermissionsCommand extends Command
         }
 
         foreach ($resources as $resourceClass) {
-            $resource = new $resourceClass();
 
-            // Gebruik de model class naam, omzet naar kebab-case (zoals Laravel dat ook doet)
-            $modelClass = (new \ReflectionClass($resource))->getProperty('model')->getValue($resource);
-            $resourceName = Str::kebab(class_basename($modelClass));
+            $resource = new $resourceClass();
+            $resourceName = $resource->uriKey();
 
             foreach (['view', 'create', 'edit', 'delete'] as $action) {
                 Permission::findOrCreate("{$resourceName}.{$action}");
