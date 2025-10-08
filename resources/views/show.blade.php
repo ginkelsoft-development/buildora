@@ -25,19 +25,17 @@
 
             @php
                 $value = old($field->name, $item->{$field->name} ?? '');
-                $colSpans = $field->getColumnSpan();
-                $colClasses = collect($colSpans)->map(
-                    fn($cols, $breakpoint) => $breakpoint === 'default'
-                        ? "col-span-{$cols}"
-                        : "{$breakpoint}:col-span-{$cols}"
-                )->implode(' ');
+                // fallback naar 12 als er geen default span is
+                $colSpan = (int) ($field->getColumnSpan()['default'] ?? 12);
+                $colSpan = max(1, min(12, $colSpan));
+                $colClasses = "col-span-{$colSpan}";
             @endphp
 
             @if(method_exists($field, 'shouldStartNewRow') && $field->shouldStartNewRow())
-                <div class="col-span-12"></div>
+                <div class="col-span-12" style="grid-column: span 12 / span 12;"></div>
             @endif
 
-            <div class="{{ $colClasses }}">
+            <div class="{{ $colClasses }}" style="grid-column: span {{ $colSpan }} / span {{ $colSpan }};">
                 <div class="bg-muted text-foreground border border-border rounded-xl p-4 h-full">
                     <label class="block text-sm font-semibold text-muted-foreground mb-1">
                         {{ $field->label }}

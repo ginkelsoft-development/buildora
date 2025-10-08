@@ -49,23 +49,18 @@
 
                     @php
                         $value = old($field->name, $item->{$field->name} ?? '');
-                        $spans = collect($field->getColumnSpan())
-                            ->filter(fn($v, $bp) => in_array($bp, ['default','sm','md','lg','xl','2xl']))
-                            ->map(fn($v) => max(1, min(12, (int) $v)));
-
-                        $colClasses = trim($spans->map(fn($cols,$bp) =>
-                            $bp === 'default' ? "col-span-{$cols}" : "{$bp}:col-span-{$cols}"
-                        )->implode(' '));
-
-                        if ($colClasses === '') $colClasses = 'col-span-12';
+                        // Alleen niet-responsief, fallback naar 12
+                        $colSpan = (int) ($field->getColumnSpan()['default'] ?? 12);
+                        $colSpan = max(1, min(12, $colSpan));
+                        $colClasses = "col-span-{$colSpan}";
                     @endphp
 
                     {{-- Nieuwe rij forceren --}}
                     @if($field->shouldStartNewRow())
-                        <div class="col-span-12"></div>
+                        <div class="col-span-12" style="grid-column: span 12 / span 12;"></div>
                     @endif
 
-                    <div class="{{ $colClasses }}">
+                    <div class="{{ $colClasses }}" style="grid-column: span {{ $colSpan }} / span {{ $colSpan }};">
                         <label for="{{ $field->name }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             {{ $field->label }}
                         </label>
