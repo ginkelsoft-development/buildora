@@ -1,9 +1,12 @@
-
+// tailwind.config.js
 module.exports = {
     content: [
-        './resources/**/*.{blade.php,js,vue}',  // Dit zorgt ervoor dat Tailwind de juiste bestanden scant
-        './vendor/ginkelsoft/buildora/resources/**/*.{blade.php,js,vue}',  // Zorg ervoor dat je Buildora-componenten ook worden gescand
+        './resources/**/*.{blade.php,js,vue}',           // je app views/components
+        './app/**/*.php',                                // als je klassen in PHP samenstelt
+        './vendor/ginkelsoft/buildora/resources/**/*.{blade.php,js,vue}', // Buildora componenten
     ],
+    
+    // Voeg een safelist toe voor alle col-span varianten en bestaande kleurklassen
     safelist: [
         'bg-base',
         'text-foreground',
@@ -11,8 +14,13 @@ module.exports = {
         'text-primary-foreground',
         'bg-muted',
         'text-muted-foreground',
+        {
+            pattern: /(sm:|md:|lg:|xl:|2xl:)?col-span-(1|2|3|4|5|6|7|8|9|10|11|12)/,
+        },
     ],
+
     darkMode: 'class',
+
     theme: {
         extend: {
             colors: {

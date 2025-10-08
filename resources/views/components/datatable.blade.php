@@ -216,12 +216,22 @@
 
             handleAction(action, row) {
                 if (action.confirm && !confirm(action.confirm)) return;
+
                 if (action.method === 'GET') {
                     window.location.href = action.url;
                 } else if (action.method === 'DELETE') {
+                    // ✅ Veiliger: check of meta bestaat en haal token op
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    console.debug(row)
+                    const url = `${action.url}/${row.id}`;
+
                     fetch(action.url, {
                         method: 'DELETE',
-                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'same-origin'
                     }).then(response => {
                         if (response.ok) {
                             this.fetchData();
@@ -256,6 +266,7 @@
                 if (this.selectedRows.length === 0) {
                     return;
                 }
+
                 const action = this.bulkActions.find(a => a.url === this.selectedBulkAction);
                 if (!action) return;
                 if (action.method === 'DELETE' && !confirm('{{ __buildora('Are you sure you want to delete the selected records?') }}')) return;
