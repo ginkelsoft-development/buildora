@@ -8,50 +8,93 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
 
+/**
+ * Class RelationDatatableController
+ *
+ * Handles AJAX requests for relation-based datatables inside Buildora resources.
+ *
+ * When a resource (for example `CouponBuildora`) defines a panel such as:
+ *
+ *     Panel::relation('orders', OrderBuildora::class)
+ *
+ * the Buildora frontend will make a request like:
+ *
+ *     GET /buildora/relation-datatable/coupons/12/orders
+ *
+ * This controller resolves that request by:
+ *  1. Resolving the parent Buildora resource (e.g., CouponBuildora).
+ *  2. Retrieving the parent Eloquent model instance (e.g., Coupon::findOrFail(12)).
+ *  3. Validating that the requested relation exists on the model.
+ *  4. Resolving the related Buildora resource (e.g., OrderBuildora).
+ *  5. Building an Eloquent query for the relation (e.g., $coupon->orders()).
+ *  6. Applying eager loading for any nested relations defined in the related resource.
+ *  7. Returning a JSON response containing the paginated datatable data.
+ *
+ * This ensures relation panels load efficiently and consistently,
+ * without generating redundant or duplicate SQL queries.
+ */
 class RelationDatatableController extends Controller
 {
+    /**
+     * Handle a relation datatable request for a specific Buildora resource.
+     *
+     * @param  string     $resource  The base resource slug or class name (for example: 'coupons').
+     * @param  int|string $id        The primary key of the parent model instance.
+     * @param  string     $relation  The relation method name defined on the model (for example: 'orders').
+     * @return JsonResponse          The JSON datatable response for the relation.
+     */
     public function __invoke(string $resource, int|string $id, string $relation): JsonResponse
     {
-        // 🔎 Resolve hoofdresource en model
+        // Step 1: Resolve the Buildora resource (e.g., CouponBuildora)
         $resource = ResourceResolver::resolve($resource);
+
+        // Step 2: Retrieve the parent model instance (e.g., Coupon::findOrFail($id))
         $model = $resource->getModelInstance()->findOrFail($id);
 
-        // ❌ Controleer of de relatie bestaat op het model
+        // Step 3: Ensure the relation exists on the model
         if (!method_exists($model, $relation)) {
             abort(404, "Relation '{$relation}' not found on model " . get_class($model));
         }
 
-        // 🔗 Vind relationele layoutconfig (zoals Panel::relation)
+        // Step 4: Find the relation configuration (as defined in definePanels)
         $relationConfig = collect($resource->getRelationResources())
-            ->first(fn ($layout) => $layout->relationName === $relation);
+            ->first(fn($layout) => $layout->relationName === $relation);
 
         if (!$relationConfig) {
-            abort(404, "Relation '{$relation}' is not defined in the resource " . get_class($resource));
+            abort(404, "Relation '{$relation}' is not defined in resource " . get_class($resource));
         }
 
-        // 📦 Instantieer de relationele resource
+        // Step 5: Instantiate the related resource (e.g., OrderBuildora)
         $relatedResourceClass = $relationConfig->resourceClass;
         $relatedResource = app($relatedResourceClass);
-
-        // 🔗 Stel het parentmodel in zodat relatie weet voor wie
         $relatedResource->setParentModel($model);
 
-        // 🧠 Haal relationele query op (bv. $model->orders())
+        // Step 6: Build the Eloquent relation query (e.g., $coupon->orders())
         $relationQuery = $model->{$relation}();
 
         if (!$relationQuery instanceof Relation) {
-            abort(400, "Relation '{$relation}' on model " . get_class($model) . " is not a valid Eloquent relation.");
+            abort(400, "Relation '{$relation}' on " . get_class($model) . " is not a valid Eloquent relation.");
         }
 
-        // ✨ Vul de resource met het eerste record (optioneel, voor weergave)
-        if ($first = $relationQuery->first()) {
-            $relatedResource->fill($first);
+        // Step 7: Apply eager loading for nested relations defined in the related resource
+        if (method_exists($relatedResource, 'getRelationResources')) {
+            $subRelations = collect($relatedResource->getRelationResources())
+                ->pluck('relationName')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            if (!empty($subRelations)) {
+                $relationQuery->with($subRelations);
+            }
         }
 
-        // 📊 Bouw de datatable
+        // Step 8: Build the datatable using the relation query
         $datatable = new BuildoraDatatable($relatedResource);
         $datatable->fetchDataUsingRelation($relationQuery);
 
+        // Step 9: Return the JSON datatable response
         return response()->json($datatable->getJsonResponse());
     }
 }
