@@ -31,7 +31,7 @@
         }
     ],
     "extra": {
-        "buildora-version": "1.0.26",
+        "buildora-version": "1.0.27",
         "laravel": {
             "providers": [
                 "Ginkelsoft\\Buildora\\Providers\\BuildoraServiceProvider"
