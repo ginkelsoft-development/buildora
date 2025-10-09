@@ -276,4 +276,20 @@ abstract class BuildoraResource
     {
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
+
+    public function loadWithRelations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        $relations = collect($this->getRelationResources())
+            ->pluck('relationName')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (!empty($relations)) {
+            $query->with($relations);
+        }
+
+        return $query;
+    }
 }

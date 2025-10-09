@@ -34,7 +34,19 @@ class Panel
 
     public function usingModel(object $model): static
     {
-        $this->resourceClass = ResourceResolver::resolveFromMethod($model, $this->relationName)::class;
+        // Alleen bepalen WELKE resourceclass hoort bij de relatie, geen data ophalen
+        $relation = $model->{$this->relationName}();
+        $relatedModel = $relation->getRelated();
+        $base = class_basename($relatedModel);
+
+        $resourceClass = "App\\Buildora\\Resources\\{$base}Buildora";
+
+        if (!class_exists($resourceClass)) {
+            throw new \Exception("Buildora resource [{$resourceClass}] not found.");
+        }
+
+        $this->resourceClass = $resourceClass;
+
         return $this;
     }
 
