@@ -8,6 +8,7 @@
 # Dependencies
 node_modules/
 vendor/
+composer.lock
 
 # Build output
 dist/
