@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Buildora is a Laravel package for building admin panels, resources, forms, datatables, widgets and actions — fully based on Eloquent models with minimal configuration. It's a comprehensive CRUD engine that automatically generates resource interfaces from Laravel models.
 
 **Key Technologies:**
-- Laravel 10/11/12 + PHP 8.0-8.4
+- Laravel 10/11/12 + PHP 8.1-8.4
 - Livewire 3.0
 - Alpine.js 3.14
 - Tailwind CSS 4.x with Vite
