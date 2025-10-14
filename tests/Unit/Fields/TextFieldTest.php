@@ -37,7 +37,7 @@ class TextFieldTest extends TestCase
     /** @test */
     public function it_can_set_help_text(): void
     {
-        $field = TextField::make('name')->helpText('Enter your full name');
+        $field = TextField::make('name')->help('Enter your full name');
 
         $this->assertEquals('Enter your full name', $field->getHelpText());
     }
@@ -47,6 +47,7 @@ class TextFieldTest extends TestCase
     {
         $field = TextField::make('first_name');
 
+        // The label should be generated from the field name: "first_name" -> "First name"
         $this->assertEquals('First name', $field->label);
     }
 }
