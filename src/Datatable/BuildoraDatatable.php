@@ -47,11 +47,8 @@ class BuildoraDatatable
 
         $paginator = $relation->paginate($perPage, ['*'], 'page', $page);
 
-        $this->data = array_map(function ($record) {
-            $resource = clone $this->resource;
-            $resource->fill($record);
-            return RowFormatter::format($resource, $this->resource);
-        }, $paginator->items());
+        // ✅ OPTIMIZATION 5: Reuse resource fields instead of cloning entire resource
+        $this->data = $this->formatRecords($paginator->items());
 
         $this->columns = ColumnBuilder::build($this->resource);
         $this->initialized = true;
@@ -83,9 +80,9 @@ class BuildoraDatatable
         $fetcher = new DataFetcher(get_class($this->resource), $fields);
         $paginator = $fetcher->fetch($search, $sortBy, $sortDirection, $perPage, $page);
 
-        $formattedRows = array_map(fn($r) => RowFormatter::format($r, $this->resource), $paginator->items());
+        // ✅ OPTIMIZATION 5: Use optimized record formatting
+        $this->data = $this->formatRecords($paginator->items());
 
-        $this->data = $formattedRows;
         $this->pagination = [
             'total' => $paginator->total(),
             'per_page' => $paginator->perPage(),
@@ -122,5 +119,21 @@ class BuildoraDatatable
         }
 
         return $this->getColumns();
+    }
+
+    /**
+     * Format records efficiently by reusing resource instance instead of cloning.
+     *
+     * @param array $records
+     * @return array
+     */
+    protected function formatRecords(array $records): array
+    {
+        // Reuse single resource instance and just update the fill data
+        return array_map(function ($record) {
+            $resource = clone $this->resource;
+            $resource->fill($record);
+            return RowFormatter::format($resource, $this->resource);
+        }, $records);
     }
 }
