@@ -99,7 +99,11 @@ class BuildoraController extends Controller
         $filteredData = array_intersect_key($finalData, array_flip($fields));
 
         if (empty($filteredData)) {
-            return redirect()->back()->with('error', __buildora('No valid fields to save. Check fields in resource.', [':model' => $model]));
+            return redirect()->back()
+                ->with(
+                    'error',
+                    __buildora('No valid fields to save. Check fields in resource.', [':model' => $model])
+                );
         }
 
         $createdItem = $modelInstance::create($filteredData);
