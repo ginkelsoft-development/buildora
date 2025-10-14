@@ -17,7 +17,9 @@ class GeneratePermissionsCommand extends Command
     public function handle(): void
     {
         if (! class_exists(\Spatie\Permission\Models\Permission::class)) {
-            $this->error('Spatie Permissions package is not installed. Please run: composer require spatie/laravel-permission');
+            $this->error(
+                'Spatie Permissions package is not installed. Please run: composer require spatie/laravel-permission'
+            );
             return;
         }
 
@@ -29,8 +31,7 @@ class GeneratePermissionsCommand extends Command
         $resources = collect(get_declared_classes())
             ->filter(fn ($class) =>
                 is_subclass_of($class, BuildoraResource::class)
-                && !(new ReflectionClass($class))->isAbstract()
-            );
+                && !(new ReflectionClass($class))->isAbstract());
 
         if ($resources->isEmpty()) {
             $this->warn('No Buildora resources found.');
@@ -38,7 +39,6 @@ class GeneratePermissionsCommand extends Command
         }
 
         foreach ($resources as $resourceClass) {
-
             $resource = new $resourceClass();
             $resourceName = $resource->uriKey();
 

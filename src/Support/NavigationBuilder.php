@@ -18,7 +18,11 @@ class NavigationBuilder
         $navigation = [];
 
         $dashboardsConfig = config('buildora.dashboards', []);
-        if (($dashboardsConfig['enabled'] ?? false) && isset($dashboardsConfig['children']) && is_array($dashboardsConfig['children'])) {
+        if (
+            ($dashboardsConfig['enabled'] ?? false)
+            && isset($dashboardsConfig['children'])
+            && is_array($dashboardsConfig['children'])
+        ) {
             $dashboardChildren = [];
 
             foreach ($dashboardsConfig['children'] as $key => $dashboard) {
@@ -26,7 +30,11 @@ class NavigationBuilder
                     continue;
                 }
 
-                if (isset($dashboard['permission']) && (!auth()->check() || !auth()->user()->can($dashboard['permission']))) {
+                if (
+                    isset($dashboard['permission'])
+                    && (!auth()->check()
+                        || !auth()->user()->can($dashboard['permission']))
+                ) {
                     continue;
                 }
 
@@ -116,7 +124,7 @@ class NavigationBuilder
                         $label = Str::title(str_replace('Buildora', '', $resource['resource']));
 
                         if (class_exists($class)) {
-                            $instance = new $class;
+                            $instance = new $class();
                             if (method_exists($instance, 'title')) {
                                 $label = $instance->title();
                             }

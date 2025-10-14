@@ -1,0 +1,27 @@
+# Claude Code
+.claude/
+
+# IDE
+.idea/
+.vscode/
+
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+
+# Build output
+dist/
+
+# Testing
+coverage/
+.phpunit.cache/
+.phpunit.result.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.testing

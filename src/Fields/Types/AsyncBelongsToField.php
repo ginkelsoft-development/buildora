@@ -115,7 +115,9 @@ class AsyncBelongsToField extends Field
      */
     public function getSelectedLabel(mixed $id): ?string
     {
-        if (!$id) return null;
+        if (!$id) {
+            return null;
+        }
 
         $modelClass = $this->getRelatedModel();
         $record = $modelClass::find($id);

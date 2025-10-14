@@ -47,4 +47,3 @@ trait HasValidation
         return $this->validationRules ?? [];
     }
 }
-
