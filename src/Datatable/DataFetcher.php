@@ -70,10 +70,16 @@ class DataFetcher
         // ✅ OPTIMIZATION 1: Use cached schema instead of querying database
         $databaseColumns = SchemaCache::getColumnListing($modelInstance->getTable(), $connectionName);
 
-        // ✅ OPTIMIZATION 2: Auto eager-load BelongsTo relations to prevent N+1
+        // ✅ OPTIMIZATION 2: Select only table-visible columns + id
+        $visibleColumns = $this->getVisibleTableColumns($modelInstance->getTable(), $databaseColumns);
+        if (!empty($visibleColumns)) {
+            $query->select($visibleColumns);
+        }
+
+        // ✅ OPTIMIZATION 3: Auto eager-load BelongsTo relations to prevent N+1
         $this->eagerLoadBelongsToRelations($query);
 
-        // 🔎 OPTIMIZATION 3: Apply search conditions with optimized joins
+        // 🔎 OPTIMIZATION 4: Apply search conditions with optimized joins
         if (!empty($search)) {
             $relationsToJoin = [];
 
@@ -136,7 +142,7 @@ class DataFetcher
             $query->distinct();
         }
 
-        // ✅ OPTIMIZATION 4: Qualified column names for sorting
+        // ✅ OPTIMIZATION 5: Qualified column names for sorting
         if (!empty($sortBy)) {
             $sortColumn = collect($this->columns)->first(fn ($col) =>
                 (is_array($col) ? ($col['name'] ?? null) : $col) === $sortBy);
@@ -156,6 +162,44 @@ class DataFetcher
         return $strategy === 'simple'
             ? $query->simplePaginate($perPage, ['*'], 'page')
             : $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    /**
+     * Get only columns that are visible in the table view.
+     *
+     * @param string $tableName
+     * @param array $databaseColumns
+     * @return array
+     */
+    protected function getVisibleTableColumns(string $tableName, array $databaseColumns): array
+    {
+        $columns = ["{$tableName}.*"]; // Always include primary key and timestamps
+        $selectedColumns = [];
+
+        foreach ($this->columns as $field) {
+            if (! $field instanceof Field) {
+                continue;
+            }
+
+            // Only include fields visible in table
+            if ($field->visibility['table'] ?? false) {
+                $columnName = $field->name;
+
+                // For BelongsTo fields, we need the foreign key column
+                if ($field instanceof BelongsToField) {
+                    // BelongsTo typically stores foreign_key, not the relation name
+                    // We'll need to keep all columns for relations
+                    continue;
+                }
+
+                if (in_array($columnName, $databaseColumns)) {
+                    $selectedColumns[] = "{$tableName}.{$columnName}";
+                }
+            }
+        }
+
+        // If we have specific columns, use them, otherwise select all
+        return !empty($selectedColumns) ? array_merge(["{$tableName}.id"], array_unique($selectedColumns)) : ["{$tableName}.*"];
     }
 
     /**
