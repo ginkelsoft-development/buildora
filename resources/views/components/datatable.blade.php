@@ -3,7 +3,7 @@
     'componentKey' => Str::random(8)
 ])
 
-<div x-data="dataTable({{ json_encode($endpoint) }})" x-init="init()" class="mx-auto" :key="{{ json_encode($componentKey) }}">
+<div x-data="dataTable({{ json_encode($endpoint) }})" class="mx-auto" :key="{{ json_encode($componentKey) }}">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
         <div class="relative w-full max-w-sm">
@@ -164,8 +164,13 @@
             selectedBulkAction: '',
             bulkActions: [],
             isLoading: false,
+            _initialized: false,
+            _currentRequest: null,
 
             init() {
+                if (this._initialized) return;
+                this._initialized = true;
+
                 this.debouncedFetchData = debounce(() => {
                     this.fetchData();
                 }, 300);
@@ -173,6 +178,11 @@
             },
 
             fetchData() {
+                // Abort any pending request
+                if (this._currentRequest) {
+                    this._currentRequest.abort();
+                }
+
                 this.isLoading = true;
                 const params = new URLSearchParams({
                     search: this.search,
@@ -182,7 +192,12 @@
                     page: this.pagination.current_page
                 });
 
-                fetch(`${this.endpoint}?${params.toString()}`)
+                const controller = new AbortController();
+                this._currentRequest = controller;
+
+                fetch(`${this.endpoint}?${params.toString()}`, {
+                    signal: controller.signal
+                })
                     .then(response => response.json())
                     .then(json => {
                         this.data = json.data ?? [];
@@ -193,9 +208,16 @@
                         }
                         this.paginationOptions = json.pagination_options ?? this.paginationOptions;
                         this.bulkActions = json.bulk_actions ?? [];
+                        this._currentRequest = null;
                     })
-                    .catch(error => console.error('Error fetching data:', error))
-                    .finally(() => this.isLoading = false);
+                    .catch(error => {
+                        if (error.name !== 'AbortError') {
+                            console.error('Error fetching data:', error);
+                        }
+                    })
+                    .finally(() => {
+                        this.isLoading = false;
+                    });
             },
 
             formatCell(row, column) {
