@@ -22,7 +22,7 @@ class Buildora
      */
     public static function css()
     {
-        if (($light = @file_get_contents(__DIR__.'/../dist/assets/style.css')) === false) {
+        if (($light = @file_get_contents(__DIR__ . '/../dist/assets/style.css')) === false) {
             throw new BuildoraException('Unable to load the Buildora dashboard CSS.');
         }
 
@@ -30,8 +30,7 @@ class Buildora
 
         if ($theme == true) {
             $theme = '<style>' . $theme . '</style>';
-        }
-        else {
+        } else {
             $theme = '';
         }
 
@@ -48,7 +47,7 @@ class Buildora
      */
     public static function js()
     {
-        if (($js = @file_get_contents(__DIR__.'/../dist/assets/app.js')) === false) {
+        if (($js = @file_get_contents(__DIR__ . '/../dist/assets/app.js')) === false) {
             throw new BuildoraException('Unable to load the Buildora dashboard JavaScript.');
         }
 

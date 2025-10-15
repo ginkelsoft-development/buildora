@@ -34,8 +34,11 @@ class DateTimeField extends Field
      * @param string $type The internal field type.
      * @return self
      */
-    public static function make(string $name = 'created_at', ?string $label = 'Created At', string $type = 'datetime'): self
-    {
+    public static function make(
+        string $name = 'created_at',
+        ?string $label = 'Created At',
+        string $type = 'datetime'
+    ): self {
         return new self($name, $label, $type);
     }
 }

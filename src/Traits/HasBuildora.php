@@ -19,7 +19,7 @@ trait HasBuildora
      */
     public static function getFields(): array
     {
-        $instance = new static;
+        $instance = new static();
 
         return [
             'fillable' => $instance->getFillable(),
@@ -35,7 +35,7 @@ trait HasBuildora
      */
     private static function getBuildoraRelations(): array
     {
-        $instance = new static;
+        $instance = new static();
         $relations = [];
 
         foreach (get_class_methods($instance) as $method) {

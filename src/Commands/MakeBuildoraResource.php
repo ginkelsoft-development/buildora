@@ -39,7 +39,7 @@ class MakeBuildoraResource extends Command
         }
 
         $fields = $this->generateFieldsArray($modelClass);
-        $relations = $this->detectModelRelations(new $modelClass);
+        $relations = $this->detectModelRelations(new $modelClass());
 
         $stub = <<<PHP
 <?php
@@ -122,7 +122,7 @@ PHP;
 
     private function generateFieldsArray(string $modelClass): string
     {
-        $modelInstance = new $modelClass;
+        $modelInstance = new $modelClass();
         $fillable = $modelInstance->getFillable();
         $primaryKey = $modelInstance->getKeyName();
         $fields = [];
@@ -144,7 +144,8 @@ PHP;
             }
         }
 
-        return '[' . PHP_EOL . '            ' . implode(',' . PHP_EOL . '            ', $fields) . PHP_EOL . '        ]';
+        return '[' . PHP_EOL . '            ' .
+            implode(',' . PHP_EOL . '            ', $fields) . PHP_EOL . '        ]';
     }
 
     private function resolveFieldType(string $field, object $model): string
