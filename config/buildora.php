@@ -62,6 +62,7 @@ return [
     'datatable' => [
         'pagination' => [10, 25, 50, 100, 250],     // Available rows-per-page options
         'default_per_page' => 25,                   // Default selected pagination size
+        'pagination_strategy' => env('BUILDORA_PAGINATION_STRATEGY', 'length_aware'), // length_aware|simple
     ],
 
     /*
