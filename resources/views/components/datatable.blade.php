@@ -164,8 +164,12 @@
             selectedBulkAction: '',
             bulkActions: [],
             isLoading: false,
+            _initialized: false,
 
             init() {
+                if (this._initialized) return;
+                this._initialized = true;
+
                 this.debouncedFetchData = debounce(() => {
                     this.fetchData();
                 }, 300);
