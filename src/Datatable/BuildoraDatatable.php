@@ -50,9 +50,12 @@ class BuildoraDatatable
         }
         $page = (int) Request::input('page', 1);
 
+        // ✅ PERFORMANCE: Select only columns needed for table display
+        $selectColumns = $this->getSelectColumnsForRelation($relation);
+
         $paginator = $this->paginationStrategy === 'simple'
-            ? $relation->simplePaginate($perPage)
-            : $relation->paginate($perPage, ['*'], 'page', $page);
+            ? $relation->select($selectColumns)->simplePaginate($perPage)
+            : $relation->select($selectColumns)->paginate($perPage, ['*'], 'page', $page);
 
         // ✅ OPTIMIZATION 5: Reuse resource fields instead of cloning entire resource
         $this->data = $this->formatRecords($paginator->items());
@@ -134,6 +137,41 @@ class BuildoraDatatable
         }
 
         return $this->getColumns();
+    }
+
+    /**
+     * Get columns to select for relation queries (only table-visible fields).
+     *
+     * @param Relation $relation
+     * @return array
+     */
+    protected function getSelectColumnsForRelation(Relation $relation): array
+    {
+        $table = $relation->getRelated()->getTable();
+        $columns = ["{$table}.*"]; // Fallback to all columns
+        $selectColumns = [];
+
+        foreach ($this->resource->getFields() as $field) {
+            // Only process fields visible in table
+            if (!($field->visibility['table'] ?? false)) {
+                continue;
+            }
+
+            // For BelongsTo, we need the foreign key
+            if ($field instanceof \Ginkelsoft\Buildora\Fields\Types\BelongsToField) {
+                continue; // Will be eager loaded
+            }
+
+            $selectColumns[] = $field->name;
+        }
+
+        // Always include id and timestamps
+        $finalColumns = array_unique(array_merge(
+            ["{$table}.id", "{$table}.created_at", "{$table}.updated_at"],
+            array_map(fn($col) => "{$table}.{$col}", $selectColumns)
+        ));
+
+        return !empty($selectColumns) ? $finalColumns : ["{$table}.*"];
     }
 
     /**

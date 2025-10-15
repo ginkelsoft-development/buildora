@@ -49,8 +49,8 @@ class RelationDatatableController extends Controller
         // Step 1: Resolve the Buildora resource (e.g., CouponBuildora)
         $resource = ResourceResolver::resolve($resource);
 
-        // Step 2: Retrieve the parent model instance (e.g., Coupon::findOrFail($id))
-        $model = $resource->getModelInstance()->findOrFail($id);
+        // ✅ PERFORMANCE: Only select 'id' for parent - we just need it to exist
+        $model = $resource->getModelInstance()->select('id')->findOrFail($id);
 
         // Step 3: Ensure the relation exists on the model
         if (!method_exists($model, $relation)) {
@@ -77,24 +77,15 @@ class RelationDatatableController extends Controller
             abort(400, "Relation '{$relation}' on " . get_class($model) . " is not a valid Eloquent relation.");
         }
 
-        // Step 7: Apply eager loading for nested relations defined in the related resource
-        if (method_exists($relatedResource, 'getRelationResources')) {
-            $subRelations = collect($relatedResource->getRelationResources())
-                ->pluck('relationName')
-                ->filter()
-                ->unique()
-                ->values()
-                ->toArray();
-
-            if (!empty($subRelations)) {
-                $relationQuery->with($subRelations);
-            }
-        }
-
-        // Step 7b: Prevent N+1 queries for BelongsTo table columns
+        // ✅ PERFORMANCE: Only eager load BelongsTo relations that are visible in table
         $relatedModel = $relationQuery->getRelated();
         $belongsToRelations = collect($relatedResource->getFields())
-            ->filter(fn ($field) => $field instanceof BelongsToField && method_exists($relatedModel, $field->name))
+            ->filter(function ($field) use ($relatedModel) {
+                // Only load if it's a BelongsTo, exists on model, AND is visible in table
+                return $field instanceof BelongsToField
+                    && method_exists($relatedModel, $field->name)
+                    && ($field->visibility['table'] ?? false);
+            })
             ->map(fn (BelongsToField $field) => $field->name)
             ->unique()
             ->values()
