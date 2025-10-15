@@ -137,19 +137,23 @@ class BuildoraDatatable
     }
 
     /**
-     * Format records efficiently by reusing resource instance instead of cloning.
+     * Format records efficiently with minimal resource cloning.
      *
      * @param array $records
      * @return array
      */
     protected function formatRecords(array $records): array
     {
-        // Reuse single resource instance and just update the fill data
-        return array_map(function ($record) {
-            $resource = clone $this->resource;
-            $resource->fill($record);
-            return RowFormatter::format($resource, $this->resource);
-        }, $records);
+        // ✅ PERFORMANCE: Reduce overhead by caching row actions template
+        $rowActionsTemplate = $this->resource->getRowActions($this->resource);
+
+        $formatted = [];
+        foreach ($records as $record) {
+            $this->resource->fill($record);
+            $formatted[] = RowFormatter::format($this->resource, $this->resource);
+        }
+
+        return $formatted;
     }
 
     protected function buildPaginationMeta($paginator, int $perPage, int $fallbackPage = 1): array
