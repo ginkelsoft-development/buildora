@@ -4,10 +4,11 @@ namespace Ginkelsoft\Buildora\Datatable;
 
 use Ginkelsoft\Buildora\Support\SchemaCache;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator as PaginatorContract;
 use Ginkelsoft\Buildora\Fields\Field;
 use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Class DataFetcher
@@ -50,7 +51,7 @@ class DataFetcher
      * @param string $sortDirection The sort direction (asc|desc).
      * @param int $perPage The number of items per page.
      * @param int $page The current page.
-     * @return LengthAwarePaginator The paginated result set.
+     * @return PaginatorContract The paginated result set.
      */
     public function fetch(
         string $search = '',
@@ -58,7 +59,7 @@ class DataFetcher
         string $sortDirection = 'asc',
         int $perPage = 25,
         int $page = 1
-    ): LengthAwarePaginator {
+    ): PaginatorContract {
         /** @var Builder $query */
         $query = call_user_func([$this->resourceClass, 'query']);
 
@@ -151,7 +152,11 @@ class DataFetcher
             }
         }
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        $strategy = Config::get('buildora.datatable.pagination_strategy', 'length_aware');
+
+        return $strategy === 'simple'
+            ? $query->simplePaginate($perPage, ['*'], 'page')
+            : $query->paginate($perPage, ['*'], 'page', $page);
     }
 
     /**

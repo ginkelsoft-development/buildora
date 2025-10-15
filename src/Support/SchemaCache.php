@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class SchemaCache
 {
+    protected const CACHE_TAG = 'buildora-schema';
+
     /**
      * Get cached column listing for a table.
      *
@@ -23,7 +25,7 @@ class SchemaCache
     {
         $cacheKey = self::getCacheKey($table, $connection);
 
-        return Cache::remember($cacheKey, now()->addHours(24), function () use ($table, $connection) {
+        return self::rememberWithTags($cacheKey, function () use ($table, $connection) {
             return Schema::connection($connection)->getColumnListing($table);
         });
     }
@@ -38,7 +40,7 @@ class SchemaCache
     public static function forget(string $table, ?string $connection = null): void
     {
         $cacheKey = self::getCacheKey($table, $connection);
-        Cache::forget($cacheKey);
+        self::forgetWithTags($cacheKey);
     }
 
     /**
@@ -48,7 +50,9 @@ class SchemaCache
      */
     public static function flush(): void
     {
-        Cache::tags(['buildora-schema'])->flush();
+        if (self::supportsTags()) {
+            Cache::tags([self::CACHE_TAG])->flush();
+        }
     }
 
     /**
@@ -62,5 +66,32 @@ class SchemaCache
     {
         $connection = $connection ?? config('database.default');
         return "buildora.schema.{$connection}.{$table}";
+    }
+
+    protected static function supportsTags(): bool
+    {
+        $store = Cache::getStore();
+        return method_exists($store, 'tags');
+    }
+
+    protected static function rememberWithTags(string $key, \Closure $callback): array
+    {
+        $ttl = now()->addHours(24);
+
+        if (self::supportsTags()) {
+            return Cache::tags([self::CACHE_TAG])->remember($key, $ttl, $callback);
+        }
+
+        return Cache::remember($key, $ttl, $callback);
+    }
+
+    protected static function forgetWithTags(string $key): void
+    {
+        if (self::supportsTags()) {
+            Cache::tags([self::CACHE_TAG])->forget($key);
+            return;
+        }
+
+        Cache::forget($key);
     }
 }
