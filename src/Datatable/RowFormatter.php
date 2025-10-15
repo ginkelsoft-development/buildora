@@ -6,6 +6,7 @@ use Ginkelsoft\Buildora\Actions\RowAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Fields\Field;
 use Ginkelsoft\Buildora\Fields\Types\ViewField;
+use Ginkelsoft\Buildora\Resources\ActionManager;
 
 class RowFormatter
 {
@@ -18,7 +19,7 @@ class RowFormatter
      *
      * @throws BuildoraException
      */
-    public static function format(object $resource, object $resourceInstance): array
+    public static function format(object $resource, object $resourceInstance, ?array $rowActionDefinitions = null): array
     {
         $row = [];
         $fields = $resource->getFields();
@@ -52,10 +53,13 @@ class RowFormatter
         }
 
         // Voeg acties toe
+        if ($rowActionDefinitions !== null) {
+            $row['actions'] = ActionManager::resolveRowActions($rowActionDefinitions, $resource);
+            return $row;
+        }
+
         $row['actions'] = array_map(
-            fn($action) => $action instanceof RowAction
-                ? $action->toArray($resource)
-                : $action,
+            fn($action) => $action instanceof RowAction ? $action->toArray($resource) : $action,
             $resourceInstance->getRowActions($resource)
         );
 
