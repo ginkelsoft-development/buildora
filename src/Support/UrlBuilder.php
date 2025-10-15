@@ -21,6 +21,20 @@ use InvalidArgumentException;
 class UrlBuilder
 {
     /**
+     * Cache of resolved routes and their parameter names to prevent repeated lookups.
+     *
+     * @var array<string, \Illuminate\Routing\Route|null>
+     */
+    protected static array $routeCache = [];
+
+    /**
+     * Cache of parameter name lists per route.
+     *
+     * @var array<string, array<int, string>>
+     */
+    protected static array $routeParameterCache = [];
+
+    /**
      * Builds a URL based on the given action type and value.
      *
      * @param string      $actionType       The type of action (e.g., 'route', 'url').
@@ -60,15 +74,25 @@ class UrlBuilder
      */
     private static function buildRoute(string $routeName, object $item = null, array $extraArguments = []): string
     {
-        $routeDefinition = Route::getRoutes()->getByName($routeName);
+        if (!array_key_exists($routeName, self::$routeCache)) {
+            self::$routeCache[$routeName] = Route::getRoutes()->getByName($routeName);
+        }
+
+        $routeDefinition = self::$routeCache[$routeName];
         if (!$routeDefinition) {
             throw new InvalidArgumentException("Route [$routeName] not found.");
         }
 
+        if (!array_key_exists($routeName, self::$routeParameterCache)) {
+            self::$routeParameterCache[$routeName] = $routeDefinition->parameterNames();
+        }
+
+        $parameterNames = self::$routeParameterCache[$routeName];
+
         $parameters = [];
 
         // ✅ Identify required parameters from the route definition
-        foreach ($routeDefinition->parameterNames() as $param) {
+        foreach ($parameterNames as $param) {
             // ✅ 1. Check if the parameter exists in the resource fields
             if ($item && method_exists($item, 'getFields')) {
                 $field = collect($item->getFields())->firstWhere('name', $param);
@@ -110,7 +134,7 @@ class UrlBuilder
         }
 
         // ✅ 5. Ensure all required parameters are present
-        foreach ($routeDefinition->parameterNames() as $param) {
+        foreach ($parameterNames as $param) {
             if (!isset($parameters[$param])) {
                 throw new InvalidArgumentException("Missing required route parameter [$param] for route [$routeName].");
             }

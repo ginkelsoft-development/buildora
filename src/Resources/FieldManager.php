@@ -26,10 +26,12 @@ class FieldManager
                 $field->setParentModel($model);
             }
 
-            if (method_exists($field, 'setValue')) {
+            $shouldHydrateValue = !($model instanceof Model) || $model->exists;
+
+            if ($shouldHydrateValue && method_exists($field, 'setValue')) {
                 $field->setValue($model);
             } else {
-                $field->value = $model->{$field->name} ?? null;
+                $field->value = $model instanceof Model ? ($model->{$field->name} ?? null) : null;
             }
 
             return $field;

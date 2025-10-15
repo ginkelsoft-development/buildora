@@ -182,13 +182,14 @@ class BuildoraDatatable
      */
     protected function formatRecords(array $records): array
     {
-        // ✅ PERFORMANCE: Reduce overhead by caching row actions template
-        $rowActionsTemplate = $this->resource->getRowActions($this->resource);
+        $rowActionDefinitions = method_exists($this->resource, 'defineRowActions')
+            ? $this->resource->defineRowActions()
+            : [];
 
         $formatted = [];
         foreach ($records as $record) {
             $this->resource->fill($record);
-            $formatted[] = RowFormatter::format($this->resource, $this->resource);
+            $formatted[] = RowFormatter::format($this->resource, $this->resource, $rowActionDefinitions);
         }
 
         return $formatted;
