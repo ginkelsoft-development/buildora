@@ -3,7 +3,7 @@
     'componentKey' => Str::random(8)
 ])
 
-<div x-data="dataTable({{ json_encode($endpoint) }})" x-init="init()" class="mx-auto" :key="{{ json_encode($componentKey) }}">
+<div x-data="dataTable({{ json_encode($endpoint) }})" class="mx-auto" :key="{{ json_encode($componentKey) }}">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
         <div class="relative w-full max-w-sm">
@@ -164,8 +164,12 @@
             selectedBulkAction: '',
             bulkActions: [],
             isLoading: false,
+            _initialized: false,
 
             init() {
+                if (this._initialized) return;
+                this._initialized = true;
+
                 this.debouncedFetchData = debounce(() => {
                     this.fetchData();
                 }, 300);
