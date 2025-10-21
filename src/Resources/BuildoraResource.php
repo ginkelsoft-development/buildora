@@ -102,9 +102,7 @@ abstract class BuildoraResource
         foreach ($fields as $field) {
             if (! $field instanceof Field) {
                 $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException(
-                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
-                );
+                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
             }
         }
 
@@ -183,9 +181,7 @@ abstract class BuildoraResource
         foreach ($fields as $field) {
             if (! $field instanceof \Ginkelsoft\Buildora\Fields\Field) {
                 $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException(
-                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
-                );
+                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
             }
         }
 
@@ -224,13 +220,25 @@ abstract class BuildoraResource
     }
 
     /**
-     * Return the query builder for this resource.
+     * Return the query builder for this resource WITHOUT eager-loading relations.
+     * Use this for index/list views for optimal performance.
      *
      * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
      */
     public static function query(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
     {
-        return QueryFactory::make(new static());
+        return QueryFactory::make(new static(), false);
+    }
+
+    /**
+     * Return the query builder for this resource WITH eager-loading of panel relations.
+     * Use this for detail/show views where relations are needed.
+     *
+     * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
+     */
+    public static function queryWithRelations(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
+    {
+        return QueryFactory::make(new static(), true);
     }
 
     public function setDetailView(string $view): static
@@ -281,9 +289,8 @@ abstract class BuildoraResource
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
 
-    public function loadWithRelations(
-        \Illuminate\Database\Eloquent\Builder $query
-    ): \Illuminate\Database\Eloquent\Builder {
+    public function loadWithRelations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
         $relations = collect($this->getRelationResources())
             ->pluck('relationName')
             ->filter()

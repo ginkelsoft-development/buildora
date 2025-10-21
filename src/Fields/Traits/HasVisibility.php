@@ -61,3 +61,4 @@ trait HasVisibility
         return $this->visibility[$context] ?? false;
     }
 }
+

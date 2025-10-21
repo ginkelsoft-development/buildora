@@ -63,9 +63,7 @@ class BuildoraSyncPermissionsCommand extends Command
                     $generatedLabel = ucfirst($action) . ' ' . str_replace('_', ' ', str($modelName)->headline());
                     $permission->label = $generatedLabel;
                     $permission->save();
-                    $this->line(
-                        "✓ Registered: <comment>$permissionName</comment> with label <info>$generatedLabel</info>"
-                    );
+                    $this->line("✓ Registered: <comment>$permissionName</comment> with label <info>$generatedLabel</info>");
                 } else {
                     $this->line("✓ Registered: <comment>$permissionName</comment>");
                 }

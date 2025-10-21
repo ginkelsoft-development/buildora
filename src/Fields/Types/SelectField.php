@@ -18,9 +18,6 @@ class SelectField extends Field
 
     protected bool $nullable = false;
 
-    /** @var array<string, mixed>|null Cache for resolved options within a request */
-    protected ?array $resolvedOptions = null;
-
     /**
      * Create a new SelectField instance.
      *
@@ -47,7 +44,6 @@ class SelectField extends Field
     public function options(array|Closure|string $options): self
     {
         $this->options = $options;
-        $this->resolvedOptions = null;
 
         return $this;
     }
@@ -57,26 +53,19 @@ class SelectField extends Field
      */
     public function getOptions(): array
     {
-        if ($this->resolvedOptions !== null) {
-            return $this->resolvedOptions;
-        }
-
         if ($this->options instanceof Closure) {
-            $this->resolvedOptions = call_user_func($this->options);
-            return $this->resolvedOptions;
+            return call_user_func($this->options);
         }
 
         if (is_string($this->options) && enum_exists($this->options)) {
-            $this->resolvedOptions = collect(($this->options)::cases())
+            return collect(($this->options)::cases())
                 ->mapWithKeys(fn ($case) => [
                     $case->value => method_exists($case, 'label') ? $case->label() : $case->name,
                 ])
                 ->toArray();
-            return $this->resolvedOptions;
         }
 
-        $this->resolvedOptions = $this->options ?? [];
-        return $this->resolvedOptions;
+        return $this->options ?? [];
     }
 
     public function label(string $value): static

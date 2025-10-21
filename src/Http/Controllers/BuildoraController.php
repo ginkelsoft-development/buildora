@@ -99,11 +99,7 @@ class BuildoraController extends Controller
         $filteredData = array_intersect_key($finalData, array_flip($fields));
 
         if (empty($filteredData)) {
-            return redirect()->back()
-                ->with(
-                    'error',
-                    __buildora('No valid fields to save. Check fields in resource.', [':model' => $model])
-                );
+            return redirect()->back()->with('error', __buildora('No valid fields to save. Check fields in resource.', [':model' => $model]));
         }
 
         $createdItem = $modelInstance::create($filteredData);
@@ -197,7 +193,8 @@ class BuildoraController extends Controller
     public function show(string $model, int|string $id)
     {
         $resource = ResourceResolver::resolve($model);
-        $item = $resource::query()->findOrFail($id);
+        // Use queryWithRelations() for detail view to eager-load panel relations
+        $item = $resource::queryWithRelations()->findOrFail($id);
         $resource->fill($item);
 
         $customView = $resource->getDetailView();

@@ -11,8 +11,7 @@ class Panel
         public string $relationName,
         public string $resourceClass,
         protected ?string $label = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Koppel een relationele resource op basis van een relatienaam (zoals 'orders')
