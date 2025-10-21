@@ -74,7 +74,7 @@ class BuildoraServiceProvider extends ServiceProvider
             $view->with('buildoraBreadcrumbs', BuildoraBreadcrumbBuilder::generate());
         });
 
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         $composerPath = dirname(__DIR__, 2) . '/composer.json';
 
