@@ -139,4 +139,26 @@ return [
 
         'include_resources' => true, // Laat overige resources automatisch toevoegen
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Resources
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable the packaged Buildora resources. You can also replace
+    | the class with your own implementation per resource.
+    |
+    */
+    'resources' => [
+        'defaults' => [
+            'user' => [
+                'enabled' => true,
+                'class' => \Ginkelsoft\Buildora\Resources\Defaults\UserBuildora::class,
+            ],
+            'permission' => [
+                'enabled' => true,
+                'class' => \Ginkelsoft\Buildora\Resources\Defaults\PermissionBuildora::class,
+            ],
+        ],
+    ],
 ];
