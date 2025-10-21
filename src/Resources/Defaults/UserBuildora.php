@@ -2,17 +2,18 @@
 
 namespace Ginkelsoft\Buildora\Resources\Defaults;
 
-use Ginkelsoft\Buildora\Resources\ModelResource;
-use Illuminate\Database\Eloquent\Model;
+use Ginkelsoft\Buildora\Actions\RowAction;
+use Ginkelsoft\Buildora\Fields\Types\EmailField;
+use Ginkelsoft\Buildora\Fields\Types\IDField;
+use Ginkelsoft\Buildora\Fields\Types\PasswordField;
+use Ginkelsoft\Buildora\Fields\Types\TextField;
+use Ginkelsoft\Buildora\Resources\BuildoraResource;
 
-class UserBuildora extends ModelResource
+class UserBuildora extends BuildoraResource
 {
-    protected array $excludeFields = ['remember_token'];
-    protected bool $includeRelationFields = false;
-
     public function title(): string
     {
-        return 'User';
+        return 'Gebruikers';
     }
 
     public function searchResultConfig(): array
@@ -25,22 +26,76 @@ class UserBuildora extends ModelResource
 
     protected function confirmDeleteMessage(): string
     {
-        return 'Are you sure you want to delete this user?';
+        return 'Weet je zeker dat je deze gebruiker wilt verwijderen?';
     }
 
-    protected function additionalFields(Model $model): array
+    public function defineFields(): array
+    {
+        return [
+            IDField::make('id')
+                ->readonly()
+                ->hideFromTable()
+                ->hideFromExport()
+                ->hideFromCreate()
+                ->hideFromEdit(),
+
+            TextField::make('name', 'Naam')
+                ->help('Volledige naam van de gebruiker.')
+                ->validation(['required', 'string', 'max:255']),
+
+            EmailField::make('email', 'E-mailadres')
+                ->help('Uniek e-mailadres voor login en notificaties.')
+                ->validation(['required', 'email', 'max:255']),
+
+            PasswordField::make('password', 'Wachtwoord')
+                ->hideFromTable()
+                ->hideFromDetail()
+                ->help('Laat leeg om het wachtwoord ongewijzigd te laten.')
+                ->validation(fn ($model) => $model && $model->exists
+                    ? ['nullable', 'string', 'min:8']
+                    : ['required', 'string', 'min:8']
+                ),
+        ];
+    }
+
+    public function defineRowActions(): array
+    {
+        return [
+            RowAction::make('View', 'fas fa-eye', 'route', 'buildora.show')
+                ->method('GET')
+                ->params(['id' => 'id'])
+                ->permission('user.view'),
+
+            RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
+                ->method('GET')
+                ->params(['id' => 'id'])
+                ->permission('user.edit'),
+
+            RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
+                ->method('DELETE')
+                ->params(['id' => 'id'])
+                ->permission('user.delete')
+                ->confirm($this->confirmDeleteMessage()),
+        ];
+    }
+
+    public function defineBulkActions(): array
+    {
+        return [];
+    }
+
+    public function defineWidgets(): array
+    {
+        return [];
+    }
+
+    public function definePanels(): array
     {
         return [];
     }
 
     public static function modelClass(): string
     {
-        $configured = config('auth.providers.users.model');
-
-        if ($configured) {
-            return $configured;
-        }
-
-        return parent::modelClass();
+        return config('auth.providers.users.model', '\App\Models\User');
     }
 }
