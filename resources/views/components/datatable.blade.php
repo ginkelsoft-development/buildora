@@ -101,7 +101,7 @@
     <!-- 📄 Paginering -->
     <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
         <div class="text-sm text-gray-600">
-            {{ __buildora('Page') }} <span x-text="pagination.current_page"></span> {{ __buildora('From') }} <span x-text="displayLastPage()"></span>
+            {{ __buildora('Page') }} <span x-text="pagination.current_page"></span> {{ __buildora('From') }} <span x-text="pagination.last_page"></span>
         </div>
         <div class="flex flex-wrap items-center gap-4">
             <!-- Per pagina -->
@@ -124,7 +124,7 @@
                     {{ __buildora('Previous') }}
                 </button>
                 <button @click="nextPage"
-                        :disabled="isLoading || !pagination.has_more"
+                        :disabled="isLoading || pagination.current_page === pagination.last_page"
                         class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
                     {{ __buildora('Next') }}
                 </button>
@@ -156,8 +156,8 @@
             columns: [],
             sortBy: '',
             sortDirection: 'asc',
-            pagination: { current_page: 1, per_page: 25, total: null, last_page: 1, has_more: false },
-            paginationOptions: [10, 25, 50, 100, 250], // <- ✅ init waarde toegevoegd
+            pagination: { current_page: 1, per_page: 25, total: 0, last_page: 1 },
+            paginationOptions: [10, 25, 50, 100], // <- ✅ init waarde toegevoegd
             endpoint: customEndpoint,
             debouncedFetchData: null,
             selectedRows: [],
@@ -191,10 +191,7 @@
                     .then(json => {
                         this.data = json.data ?? [];
                         this.columns = json.columns ?? [];
-                        this.pagination = Object.assign({}, this.pagination, json.pagination ?? {});
-                        if (typeof this.pagination.has_more === 'undefined') {
-                            this.pagination.has_more = this.pagination.current_page < this.pagination.last_page;
-                        }
+                        this.pagination = json.pagination ?? this.pagination;
                         this.paginationOptions = json.pagination_options ?? this.paginationOptions;
                         this.bulkActions = json.bulk_actions ?? [];
                     })
@@ -260,18 +257,10 @@
             },
 
             nextPage() {
-                if (this.pagination.has_more) {
+                if (this.pagination.current_page < this.pagination.last_page) {
                     this.pagination.current_page++;
                     this.fetchData();
                 }
-            },
-
-            displayLastPage() {
-                if (this.pagination.total !== null && typeof this.pagination.total !== 'undefined') {
-                    return this.pagination.last_page;
-                }
-
-                return this.pagination.has_more ? '...' : this.pagination.current_page;
             },
 
             executeBulkAction() {

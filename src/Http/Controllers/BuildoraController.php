@@ -193,7 +193,8 @@ class BuildoraController extends Controller
     public function show(string $model, int|string $id)
     {
         $resource = ResourceResolver::resolve($model);
-        $item = $resource::query()->findOrFail($id);
+        // Use queryWithRelations() for detail view to eager-load panel relations
+        $item = $resource::queryWithRelations()->findOrFail($id);
         $resource->fill($item);
 
         $customView = $resource->getDetailView();

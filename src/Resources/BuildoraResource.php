@@ -220,13 +220,25 @@ abstract class BuildoraResource
     }
 
     /**
-     * Return the query builder for this resource.
+     * Return the query builder for this resource WITHOUT eager-loading relations.
+     * Use this for index/list views for optimal performance.
      *
      * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
      */
     public static function query(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
     {
-        return QueryFactory::make(new static());
+        return QueryFactory::make(new static(), false);
+    }
+
+    /**
+     * Return the query builder for this resource WITH eager-loading of panel relations.
+     * Use this for detail/show views where relations are needed.
+     *
+     * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
+     */
+    public static function queryWithRelations(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
+    {
+        return QueryFactory::make(new static(), true);
     }
 
     public function setDetailView(string $view): static

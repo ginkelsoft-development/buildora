@@ -7,7 +7,6 @@ use Illuminate\Routing\Controller;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
 
 /**
  * Class RelationDatatableController
@@ -89,19 +88,6 @@ class RelationDatatableController extends Controller
             if (!empty($subRelations)) {
                 $relationQuery->with($subRelations);
             }
-        }
-
-        // Step 7b: Prevent N+1 queries for BelongsTo table columns
-        $relatedModel = $relationQuery->getRelated();
-        $belongsToRelations = collect($relatedResource->getFields())
-            ->filter(fn ($field) => $field instanceof BelongsToField && method_exists($relatedModel, $field->name))
-            ->map(fn (BelongsToField $field) => $field->name)
-            ->unique()
-            ->values()
-            ->toArray();
-
-        if (!empty($belongsToRelations)) {
-            $relationQuery->with($belongsToRelations);
         }
 
         // Step 8: Build the datatable using the relation query

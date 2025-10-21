@@ -1,0 +1,18 @@
+parameters:
+    level: 0
+    paths:
+        - src
+    excludePaths:
+        - vendor
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Call to an undefined method#'
+        - '#Call to an undefined static method#'
+        - '#Access to an undefined property#'
+        - '#Call to static method .* on an unknown class#'
+        - '#Parameter .* has invalid type App\\Models\\User#'
+        - '#Unsafe usage of new static\(\)#'
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics
