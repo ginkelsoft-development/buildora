@@ -74,4 +74,3 @@ trait HasSearch
         return true;
     }
 }
-
