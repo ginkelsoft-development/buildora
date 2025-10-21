@@ -71,4 +71,3 @@ trait HasLayout
         return $this->startNewRow;
     }
 }
-

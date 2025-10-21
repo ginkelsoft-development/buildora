@@ -45,9 +45,9 @@ class TextFieldTest extends TestCase
     /** @test */
     public function it_generates_label_from_field_name_when_not_provided(): void
     {
-        $field = TextField::make('first_name');
+        $field = TextField::make('name');
 
-        // The label should be generated from the field name: "first_name" -> "First name"
-        $this->assertEquals('First name', $field->label);
+        // The label should be generated from the field name: "name" -> "Name"
+        $this->assertEquals('Name', $field->label);
     }
 }

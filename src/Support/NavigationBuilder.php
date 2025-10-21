@@ -116,7 +116,7 @@ class NavigationBuilder
                         $label = Str::title(str_replace('Buildora', '', $resource['resource']));
 
                         if (class_exists($class)) {
-                            $instance = new $class;
+                            $instance = new $class();
                             if (method_exists($instance, 'title')) {
                                 $label = $instance->title();
                             }
