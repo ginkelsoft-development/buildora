@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserBuildora extends ModelResource
 {
     protected array $excludeFields = ['remember_token'];
+    protected bool $includeRelationFields = false;
 
     public function title(): string
     {
