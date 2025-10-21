@@ -2,7 +2,6 @@
 
 namespace Ginkelsoft\Buildora\Resources;
 
-use Illuminate\Support\Str;
 use Ginkelsoft\Buildora\Support\BuildoraValidator;
 
 /**
@@ -20,8 +19,20 @@ class ModelResolver
      */
     public static function resolve(string $resourceClass): string
     {
-        $modelClass = $resourceClass::$model
-            ?? "App\\Models\\" . str_replace('Buildora', '', class_basename($resourceClass));
+        if (method_exists($resourceClass, 'modelClass')) {
+            $modelClass = $resourceClass::modelClass();
+        } else {
+            $modelClass = null;
+
+            if (property_exists($resourceClass, 'model')) {
+                $modelClass = $resourceClass::$model ?? null;
+            }
+
+            if (! $modelClass) {
+                $namespace = config('buildora.models_namespace', 'App\\Models\\');
+                $modelClass = $namespace . str_replace('Buildora', '', class_basename($resourceClass));
+            }
+        }
 
         BuildoraValidator::assertValidModel($modelClass);
 
