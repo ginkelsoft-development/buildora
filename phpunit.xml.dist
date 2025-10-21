@@ -21,12 +21,6 @@
             <directory>./vendor</directory>
         </exclude>
     </source>
-    <coverage>
-        <report>
-            <html outputDirectory="coverage/html"/>
-            <text outputFile="php://stdout" showOnlySummary="true"/>
-        </report>
-    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="CACHE_DRIVER" value="array"/>
