@@ -2,12 +2,14 @@
 
 namespace Ginkelsoft\Buildora\Resources\Defaults;
 
+use Ginkelsoft\Buildora\Models\Permission as BuildoraPermission;
 use Ginkelsoft\Buildora\Resources\ModelResource;
-use Spatie\Permission\Models\Permission;
+use Ginkelsoft\Buildora\Traits\HasBuildora;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class PermissionBuildora extends ModelResource
 {
-    protected static string $model = Permission::class;
+    protected static string $model = BuildoraPermission::class;
     protected array $excludeFields = ['guard_name'];
 
     public function title(): string
@@ -32,10 +34,24 @@ class PermissionBuildora extends ModelResource
     {
         $configured = config('permission.models.permission');
 
-        if ($configured) {
-            return $configured;
+        if (! $configured) {
+            return BuildoraPermission::class;
         }
 
-        return parent::modelClass();
+        if (! class_exists($configured)) {
+            throw new \RuntimeException("Configured permission model [{$configured}] does not exist.");
+        }
+
+        if (! in_array(HasBuildora::class, class_uses_recursive($configured))) {
+            if ($configured === SpatiePermission::class) {
+                return BuildoraPermission::class;
+            }
+
+            throw new \RuntimeException(
+                "Configured permission model [{$configured}] must use the HasBuildora trait."
+            );
+        }
+
+        return $configured;
     }
 }
