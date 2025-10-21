@@ -50,6 +50,7 @@ class PermissionBuildora extends ModelResource
         if ($nameFieldIndex !== null) {
             $fields[$nameFieldIndex]
                 ->label('Permission')
+                ->validation(['required', 'string', 'max:255'])
                 ->help('Technische naam van de permissie, bij voorkeur in dot-notatie.');
         }
 
