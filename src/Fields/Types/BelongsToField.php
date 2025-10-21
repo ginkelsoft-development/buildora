@@ -19,8 +19,6 @@ class BelongsToField extends Field
     public string $displayColumn = 'name';
     protected ?Model $parentModel = null;
     public bool $createInForm = false;
-    /** @var array<string, mixed>|null */
-    protected ?array $optionsCache = null;
 
     /**
      * BelongsToField constructor.
@@ -56,7 +54,6 @@ class BelongsToField extends Field
     public function relatedTo(string $model): self
     {
         $this->relatedModel = $model;
-        $this->optionsCache = null;
         return $this;
     }
 
@@ -69,7 +66,6 @@ class BelongsToField extends Field
     public function setParentModel(Model $parentModel): self
     {
         $this->parentModel = $parentModel;
-        $this->optionsCache = null;
         return $this;
     }
 
@@ -104,7 +100,6 @@ class BelongsToField extends Field
     {
         $this->returnColumn = $returnColumn;
         $this->displayColumn = $displayColumn;
-        $this->optionsCache = null;
         return $this;
     }
 
@@ -144,16 +139,11 @@ class BelongsToField extends Field
      */
     public function getOptions(): array
     {
-        if ($this->optionsCache !== null) {
-            return $this->optionsCache;
-        }
-
         $relatedModel = $this->getRelatedModel();
-        $table = (new $relatedModel())->getTable();
+        $table = (new $relatedModel)->getTable();
 
-        $this->optionsCache = $relatedModel::query()
+        return $relatedModel::query()
             ->pluck("{$table}.{$this->displayColumn}", "{$table}.{$this->returnColumn}")
             ->toArray();
-        return $this->optionsCache;
     }
 }

@@ -6,7 +6,6 @@ use Ginkelsoft\Buildora\Actions\RowAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Fields\Field;
 use Ginkelsoft\Buildora\Fields\Types\ViewField;
-use Ginkelsoft\Buildora\Resources\ActionManager;
 
 class RowFormatter
 {
@@ -19,47 +18,37 @@ class RowFormatter
      *
      * @throws BuildoraException
      */
-    public static function format(object $resource, object $resourceInstance, ?array $rowActionDefinitions = null): array
+    public static function format(object $resource, object $resourceInstance): array
     {
         $row = [];
-        $fields = $resource->getFields();
 
-        // ✅ PERFORMANCE: Process only visible table fields
-        foreach ($fields as $field) {
+        foreach ($resource->getFields() as $field) {
             if (! $field instanceof Field) {
                 throw new BuildoraException(
-                    "Ongeldig veld in " . get_class($resource) . ": verwacht Field, kreeg " .
-                    (is_object($field) ? get_class($field) : gettype($field))
+                    "Ongeldig veld in " . get_class($resource) . ": verwacht Field, kreeg " . (is_object($field) ? get_class($field) : gettype($field))
                 );
             }
 
-            // Skip fields not visible in table
-            if (!($field->visibility['table'] ?? false)) {
-                continue;
-            }
-
-            // ✅ PERFORMANCE: Defer view rendering - return raw value for now
-            // ViewFields will be rendered on-demand by frontend if needed
             if ($field instanceof ViewField) {
-                // Store view path and value for lazy rendering
-                $row[$field->name] = $field->displayValue ?? $field->value;
-            } else {
-                $rawValue = $field->displayValue ?? $field->value;
+                $view = view($field->getView(), [
+                    $field->getVarKey() => $field->value,
+                ])->render();
 
-                $row[$field->name] = is_array($rawValue)
-                    ? implode(', ', $rawValue)
-                    : $rawValue;
+                $field->value = $view;
             }
+
+            $rawValue = $field->displayValue ?? $field->value;
+
+            $row[$field->name] = is_array($rawValue)
+                ? implode(', ', $rawValue)
+                : $rawValue;
         }
 
         // Voeg acties toe
-        if ($rowActionDefinitions !== null) {
-            $row['actions'] = ActionManager::resolveRowActions($rowActionDefinitions, $resource);
-            return $row;
-        }
-
         $row['actions'] = array_map(
-            fn($action) => $action instanceof RowAction ? $action->toArray($resource) : $action,
+            fn($action) => $action instanceof RowAction
+                ? $action->toArray($resource)
+                : $action,
             $resourceInstance->getRowActions($resource)
         );
 

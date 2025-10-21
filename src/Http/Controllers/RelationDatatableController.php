@@ -7,7 +7,6 @@ use Illuminate\Routing\Controller;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
-use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
 
 /**
  * Class RelationDatatableController
@@ -49,8 +48,8 @@ class RelationDatatableController extends Controller
         // Step 1: Resolve the Buildora resource (e.g., CouponBuildora)
         $resource = ResourceResolver::resolve($resource);
 
-        // ✅ PERFORMANCE: Only select 'id' for parent - we just need it to exist
-        $model = $resource->getModelInstance()->select('id')->findOrFail($id);
+        // Step 2: Retrieve the parent model instance (e.g., Coupon::findOrFail($id))
+        $model = $resource->getModelInstance()->findOrFail($id);
 
         // Step 3: Ensure the relation exists on the model
         if (!method_exists($model, $relation)) {
@@ -77,22 +76,18 @@ class RelationDatatableController extends Controller
             abort(400, "Relation '{$relation}' on " . get_class($model) . " is not a valid Eloquent relation.");
         }
 
-        // ✅ PERFORMANCE: Only eager load BelongsTo relations that are visible in table
-        $relatedModel = $relationQuery->getRelated();
-        $belongsToRelations = collect($relatedResource->getFields())
-            ->filter(function ($field) use ($relatedModel) {
-                // Only load if it's a BelongsTo, exists on model, AND is visible in table
-                return $field instanceof BelongsToField
-                    && method_exists($relatedModel, $field->name)
-                    && ($field->visibility['table'] ?? false);
-            })
-            ->map(fn (BelongsToField $field) => $field->name)
-            ->unique()
-            ->values()
-            ->toArray();
+        // Step 7: Apply eager loading for nested relations defined in the related resource
+        if (method_exists($relatedResource, 'getRelationResources')) {
+            $subRelations = collect($relatedResource->getRelationResources())
+                ->pluck('relationName')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
 
-        if (!empty($belongsToRelations)) {
-            $relationQuery->with($belongsToRelations);
+            if (!empty($subRelations)) {
+                $relationQuery->with($subRelations);
+            }
         }
 
         // Step 8: Build the datatable using the relation query

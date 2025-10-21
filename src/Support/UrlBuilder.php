@@ -21,20 +21,6 @@ use InvalidArgumentException;
 class UrlBuilder
 {
     /**
-     * Cache of resolved routes and their parameter names to prevent repeated lookups.
-     *
-     * @var array<string, \Illuminate\Routing\Route|null>
-     */
-    protected static array $routeCache = [];
-
-    /**
-     * Cache of parameter name lists per route.
-     *
-     * @var array<string, array<int, string>>
-     */
-    protected static array $routeParameterCache = [];
-
-    /**
      * Builds a URL based on the given action type and value.
      *
      * @param string      $actionType       The type of action (e.g., 'route', 'url').
@@ -44,12 +30,8 @@ class UrlBuilder
      * @return string      The generated URL.
      * @throws InvalidArgumentException If an invalid action type is provided.
      */
-    public static function build(
-        string $actionType,
-        string $actionValue,
-        object $item = null,
-        array $extraArguments = []
-    ): string {
+    public static function build(string $actionType, string $actionValue, object $item = null, array $extraArguments = []): string
+    {
         if ($actionType === 'route') {
             return self::buildRoute($actionValue, $item, $extraArguments);
         }
@@ -74,25 +56,15 @@ class UrlBuilder
      */
     private static function buildRoute(string $routeName, object $item = null, array $extraArguments = []): string
     {
-        if (!array_key_exists($routeName, self::$routeCache)) {
-            self::$routeCache[$routeName] = Route::getRoutes()->getByName($routeName);
-        }
-
-        $routeDefinition = self::$routeCache[$routeName];
+        $routeDefinition = Route::getRoutes()->getByName($routeName);
         if (!$routeDefinition) {
             throw new InvalidArgumentException("Route [$routeName] not found.");
         }
 
-        if (!array_key_exists($routeName, self::$routeParameterCache)) {
-            self::$routeParameterCache[$routeName] = $routeDefinition->parameterNames();
-        }
-
-        $parameterNames = self::$routeParameterCache[$routeName];
-
         $parameters = [];
 
         // ✅ Identify required parameters from the route definition
-        foreach ($parameterNames as $param) {
+        foreach ($routeDefinition->parameterNames() as $param) {
             // ✅ 1. Check if the parameter exists in the resource fields
             if ($item && method_exists($item, 'getFields')) {
                 $field = collect($item->getFields())->firstWhere('name', $param);
@@ -134,7 +106,7 @@ class UrlBuilder
         }
 
         // ✅ 5. Ensure all required parameters are present
-        foreach ($parameterNames as $param) {
+        foreach ($routeDefinition->parameterNames() as $param) {
             if (!isset($parameters[$param])) {
                 throw new InvalidArgumentException("Missing required route parameter [$param] for route [$routeName].");
             }

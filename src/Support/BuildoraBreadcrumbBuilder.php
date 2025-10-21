@@ -40,7 +40,7 @@ class BuildoraBreadcrumbBuilder
                 $class = 'App\\Buildora\\Resources\\' . ucfirst($resourceMeta['name']) . 'Buildora';
 
                 if (class_exists($class)) {
-                    $resource = new $class();
+                    $resource = new $class;
                     $label = method_exists($resource, 'title') ? $resource->title() : $resourceMeta['label'] ?? $label;
                 }
             }

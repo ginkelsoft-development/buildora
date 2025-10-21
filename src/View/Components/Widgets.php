@@ -7,6 +7,7 @@ use Illuminate\View\Component;
 
 class Widgets extends Component
 {
+
     /**
      * The Buildora resource instance.
      *
