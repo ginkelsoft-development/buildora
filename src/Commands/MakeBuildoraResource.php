@@ -144,7 +144,10 @@ PHP;
             }
         }
 
-        return '[' . PHP_EOL . '            ' . implode(',' . PHP_EOL . '            ', $fields) . PHP_EOL . '        ]';
+        return '['
+            . PHP_EOL . '            '
+            . implode(',' . PHP_EOL . '            ', $fields)
+            . PHP_EOL . '        ]';
     }
 
     private function resolveFieldType(string $field, object $model): string

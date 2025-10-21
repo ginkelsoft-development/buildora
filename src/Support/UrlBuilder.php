@@ -30,8 +30,12 @@ class UrlBuilder
      * @return string      The generated URL.
      * @throws InvalidArgumentException If an invalid action type is provided.
      */
-    public static function build(string $actionType, string $actionValue, object $item = null, array $extraArguments = []): string
-    {
+    public static function build(
+        string $actionType,
+        string $actionValue,
+        object $item = null,
+        array $extraArguments = []
+    ): string {
         if ($actionType === 'route') {
             return self::buildRoute($actionValue, $item, $extraArguments);
         }

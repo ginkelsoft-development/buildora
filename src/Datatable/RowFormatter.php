@@ -24,8 +24,9 @@ class RowFormatter
 
         foreach ($resource->getFields() as $field) {
             if (! $field instanceof Field) {
+                $type = is_object($field) ? get_class($field) : gettype($field);
                 throw new BuildoraException(
-                    "Ongeldig veld in " . get_class($resource) . ": verwacht Field, kreeg " . (is_object($field) ? get_class($field) : gettype($field))
+                    "Ongeldig veld in " . get_class($resource) . ": verwacht Field, kreeg " . $type
                 );
             }
 

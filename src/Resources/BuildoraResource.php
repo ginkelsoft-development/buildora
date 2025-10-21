@@ -102,7 +102,9 @@ abstract class BuildoraResource
         foreach ($fields as $field) {
             if (! $field instanceof Field) {
                 $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
+                throw new BuildoraException(
+                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
+                );
             }
         }
 
@@ -181,7 +183,9 @@ abstract class BuildoraResource
         foreach ($fields as $field) {
             if (! $field instanceof \Ginkelsoft\Buildora\Fields\Field) {
                 $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException("Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}");
+                throw new BuildoraException(
+                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
+                );
             }
         }
 
@@ -289,8 +293,9 @@ abstract class BuildoraResource
         return strtolower(str_replace('Buildora', '', class_basename(static::class)));
     }
 
-    public function loadWithRelations(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
-    {
+    public function loadWithRelations(
+        \Illuminate\Database\Eloquent\Builder $query
+    ): \Illuminate\Database\Eloquent\Builder {
         $relations = collect($this->getRelationResources())
             ->pluck('relationName')
             ->filter()

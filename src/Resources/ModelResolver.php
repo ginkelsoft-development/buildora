@@ -20,7 +20,8 @@ class ModelResolver
      */
     public static function resolve(string $resourceClass): string
     {
-        $modelClass = $resourceClass::$model ?? "App\\Models\\" . str_replace('Buildora', '', class_basename($resourceClass));
+        $modelClass = $resourceClass::$model
+            ?? "App\\Models\\" . str_replace('Buildora', '', class_basename($resourceClass));
 
         BuildoraValidator::assertValidModel($modelClass);
 

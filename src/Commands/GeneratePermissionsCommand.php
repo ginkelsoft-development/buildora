@@ -17,7 +17,9 @@ class GeneratePermissionsCommand extends Command
     public function handle(): void
     {
         if (! class_exists(\Spatie\Permission\Models\Permission::class)) {
-            $this->error('Spatie Permissions package is not installed. Please run: composer require spatie/laravel-permission');
+            $this->error(
+                'Spatie Permissions package is not installed. Please run: composer require spatie/laravel-permission'
+            );
             return;
         }
 

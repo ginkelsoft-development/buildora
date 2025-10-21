@@ -52,7 +52,11 @@ class ExportManager
                 })->toArray();
         });
 
-        return new class ($headers, $rows->toArray(), ucfirst($modelSlug)) implements FromArray, WithHeadings, WithTitle {
+        return new class (
+            $headers,
+            $rows->toArray(),
+            ucfirst($modelSlug)
+        ) implements FromArray, WithHeadings, WithTitle {
             public function __construct(
                 protected array $headings,
                 protected array $rows,
