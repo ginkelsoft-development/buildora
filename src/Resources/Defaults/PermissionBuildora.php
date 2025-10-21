@@ -11,6 +11,7 @@ class PermissionBuildora extends ModelResource
 {
     protected static string $model = Permission::class;
     protected array $excludeFields = ['guard_name'];
+    protected bool $includeRelationFields = false;
 
     public function title(): string
     {
@@ -20,8 +21,8 @@ class PermissionBuildora extends ModelResource
     public function searchResultConfig(): array
     {
         return [
-            'label' => 'name',
-            'columns' => ['name'],
+            'label' => 'label',
+            'columns' => ['name', 'label'],
         ];
     }
 
@@ -33,12 +34,23 @@ class PermissionBuildora extends ModelResource
     protected function finalizeFields(array $fields, Model $model): array
     {
         $labelFieldIndex = null;
+        $nameFieldIndex = null;
 
         foreach ($fields as $index => $field) {
             if ($field->name === 'label') {
                 $labelFieldIndex = $index;
-                break;
+                continue;
             }
+
+            if ($field->name === 'name') {
+                $nameFieldIndex = $index;
+            }
+        }
+
+        if ($nameFieldIndex !== null) {
+            $fields[$nameFieldIndex]
+                ->label('Permission')
+                ->help('Technische naam van de permissie, bij voorkeur in dot-notatie.');
         }
 
         $labelField = $labelFieldIndex !== null
