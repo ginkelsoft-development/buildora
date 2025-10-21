@@ -2,20 +2,20 @@
 
 namespace Ginkelsoft\Buildora\Resources\Defaults;
 
+use Ginkelsoft\Buildora\Actions\RowAction;
+use Ginkelsoft\Buildora\Fields\Types\IDField;
+use Ginkelsoft\Buildora\Fields\Types\SelectField;
 use Ginkelsoft\Buildora\Fields\Types\TextField;
-use Ginkelsoft\Buildora\Resources\ModelResource;
-use Illuminate\Database\Eloquent\Model;
+use Ginkelsoft\Buildora\Resources\BuildoraResource;
 use Spatie\Permission\Models\Permission;
 
-class PermissionBuildora extends ModelResource
+class PermissionBuildora extends BuildoraResource
 {
     protected static string $model = Permission::class;
-    protected array $excludeFields = ['guard_name'];
-    protected bool $includeRelationFields = false;
 
     public function title(): string
     {
-        return 'Permission';
+        return 'Rechten';
     }
 
     public function searchResultConfig(): array
@@ -26,53 +26,82 @@ class PermissionBuildora extends ModelResource
         ];
     }
 
-    protected function confirmDeleteMessage(): string
+    public function defineFields(): array
     {
-        return 'Are you sure you want to delete this permission?';
+        return [
+            IDField::make('id')
+                ->readonly()
+                ->hideFromTable()
+                ->hideFromExport()
+                ->hideFromCreate()
+                ->hideFromEdit(),
+
+            TextField::make('name', 'Permission')
+                ->help('Technische naam van de permissie, bij voorkeur in dot-notatie.')
+                ->validation(['required', 'string', 'max:255']),
+
+            TextField::make('label', 'Label')
+                ->help('Leesbare label dat in de interface wordt gebruikt.')
+                ->validation(['required', 'string', 'max:255']),
+
+            SelectField::make('guard_name', 'Guard')
+                ->options($this->guardOptions())
+                ->readonly(count($this->guardOptions()) <= 1)
+                ->help('Selecteer de guard waarvoor deze permissie geldt.')
+                ->validation(['required', 'string', 'max:255']),
+        ];
     }
 
-    protected function finalizeFields(array $fields, Model $model): array
+    public function defineRowActions(): array
     {
-        $labelFieldIndex = null;
-        $nameFieldIndex = null;
+        return [
+            RowAction::make('View', 'fas fa-eye', 'route', 'buildora.show')
+                ->method('GET')
+                ->params(['id' => 'id'])
+                ->permission('permission.view'),
 
-        foreach ($fields as $index => $field) {
-            if ($field->name === 'label') {
-                $labelFieldIndex = $index;
-                continue;
-            }
+            RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
+                ->method('GET')
+                ->params(['id' => 'id'])
+                ->permission('permission.edit'),
 
-            if ($field->name === 'name') {
-                $nameFieldIndex = $index;
-            }
-        }
-
-        if ($nameFieldIndex !== null) {
-            $fields[$nameFieldIndex]
-                ->label('Permission')
-                ->validation(['required', 'string', 'max:255'])
-                ->help('Technische naam van de permissie, bij voorkeur in dot-notatie.');
-        }
-
-        $labelField = $labelFieldIndex !== null
-            ? $fields[$labelFieldIndex]
-            : TextField::make('label', 'Label');
-
-        $labelField
-            ->validation(['required', 'string', 'max:255'])
-            ->help('Dit label wordt gebruikt om permissies leesbaar te tonen in de interface.');
-
-        if ($labelFieldIndex === null) {
-            $fields[] = $labelField;
-        } else {
-            $fields[$labelFieldIndex] = $labelField;
-        }
-
-        return parent::finalizeFields($fields, $model);
+            RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
+                ->method('DELETE')
+                ->params(['id' => 'id'])
+                ->permission('permission.delete')
+                ->confirm('Are you sure you want to delete this permission?'),
+        ];
     }
 
-    public static function modelClass(): string
+    public function defineBulkActions(): array
     {
-        return config('permission.models.permission', Permission::class);
+        return [];
+    }
+
+    public function defineWidgets(): array
+    {
+        return [];
+    }
+
+    public function definePanels(): array
+    {
+        return [];
+    }
+
+    private function guardOptions(): array
+    {
+        $guards = array_keys(config('auth.guards', ['web' => []]));
+
+        if (empty($guards)) {
+            $guards = ['web'];
+        }
+
+        $options = [];
+
+        foreach ($guards as $guard) {
+            $options[$guard] = ucfirst(str_replace(['_', '-'], ' ', $guard));
+        }
+
+        return $options;
     }
 }
