@@ -131,50 +131,35 @@ class Field
      *
      * @return self
      */
-    public function hideFromTable(): self
-    {
-        return $this->hide('table');
-    }
+    public function hideFromTable(): self { return $this->hide('table'); }
 
     /**
      * Hide the field from the create form.
      *
      * @return self
      */
-    public function hideFromCreate(): self
-    {
-        return $this->hide('create');
-    }
+    public function hideFromCreate(): self { return $this->hide('create'); }
 
     /**
      * Hide the field from the edit form.
      *
      * @return self
      */
-    public function hideFromEdit(): self
-    {
-        return $this->hide('edit');
-    }
+    public function hideFromEdit(): self { return $this->hide('edit'); }
 
     /**
      * Hide the field from export output.
      *
      * @return self
      */
-    public function hideFromExport(): self
-    {
-        return $this->hide('export');
-    }
+    public function hideFromExport(): self { return $this->hide('export'); }
 
     /**
      * Hide the field from the detail view.
      *
      * @return self
      */
-    public function hideFromDetail(): self
-    {
-        return $this->hide('detail');
-    }
+    public function hideFromDetail(): self { return $this->hide('detail'); }
 
     /**
      * Convert the field into an array representation.
@@ -197,3 +182,4 @@ class Field
         ];
     }
 }
+

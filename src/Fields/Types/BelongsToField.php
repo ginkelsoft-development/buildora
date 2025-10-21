@@ -140,7 +140,7 @@ class BelongsToField extends Field
     public function getOptions(): array
     {
         $relatedModel = $this->getRelatedModel();
-        $table = (new $relatedModel())->getTable();
+        $table = (new $relatedModel)->getTable();
 
         return $relatedModel::query()
             ->pluck("{$table}.{$this->displayColumn}", "{$table}.{$this->returnColumn}")
