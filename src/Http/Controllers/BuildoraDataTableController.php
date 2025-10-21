@@ -22,8 +22,9 @@ class BuildoraDataTableController extends Controller
         $datatable = new BuildoraDatatable($model);
         $columns = $datatable->getColumns();
         $resource = ResourceResolver::resolve($model);
+        $pageActions = $resource->getPageActions();
 
-        return view('buildora::index', compact('columns', 'model', 'resource'));
+        return view('buildora::index', compact('columns', 'model', 'resource', 'pageActions'));
     }
 
     /**

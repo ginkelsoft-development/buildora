@@ -8,6 +8,7 @@ use Ginkelsoft\Buildora\Http\Controllers\BuildoraExportController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
 use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
+use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
@@ -35,6 +36,15 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
 
         Route::get('/global-search', GlobalSearchController::class)
             ->name('buildora.global.search');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Management
+        |--------------------------------------------------------------------------
+        */
+        Route::post('/permissions/sync', [PermissionSyncController::class, 'sync'])
+            ->name('buildora.permissions.sync')
+            ->middleware(['web', 'auth']);
 
         /*
         |--------------------------------------------------------------------------
