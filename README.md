@@ -7,7 +7,7 @@ Buildora is a Laravel package for building admin panels, resources, forms, datat
 ## 1. Requirements
 
 - Laravel 10, 11 or 12
-- PHP 8.2+
+- PHP 8.1+
 - Tailwind CSS (via CDN or Vite)
 - Laravel Jetstream (optional)
 - `spatie/laravel-permission` (recommended)
@@ -157,34 +157,274 @@ Panels are relation-based data sections shown on the detail page of a resource.
 public function definePanels(): array
 {
     return [
-        Panel::make('orders')
-            ->label('Recent Orders')
-            ->resource(OrderBuildora::class)
-            ->relation('orders'),
+        Panel::relation('orders', OrderBuildora::class)->label('Recent Orders'),
+        Panel::relation('invoices', InvoiceBuildora::class),
     ];
 }
 ```
 
-This will show a datatable of related `orders` on the detail page.
+This will show a datatable of related data on the detail page. Buildora automatically eager-loads these relations to prevent N+1 query issues.
 
 ---
 
+## 10. Actions
+
+Actions allow you to perform operations on individual records (RowAction) or multiple selected records (BulkAction).
+
+### Row Actions
+
+Row actions appear on individual rows in datatables and detail pages:
+
 ```php
+public function defineRowActions(): array
+{
+    return [
+        RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
+            ->params(['resource' => 'user', 'id' => '{id}'])
+            ->method('GET'),
+
+        RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
+            ->params(['resource' => 'user', 'id' => '{id}'])
+            ->method('DELETE')
+            ->confirm('Are you sure you want to delete this record?'),
+    ];
+}
 ```
 
+### Bulk Actions
 
+Bulk actions allow operations on multiple selected records:
 
 ```php
+public function defineBulkActions(): array
+{
+    return [
+        BulkAction::make('Delete Selected', 'buildora.bulk.delete')
+            ->method('DELETE')
+            ->confirm('Are you sure you want to delete the selected records?'),
+
+        BulkAction::make('Export Selected', 'buildora.bulk.export')
+            ->method('POST'),
+    ];
+}
 ```
 
-## 10. Theme customization
+---
 
-Buildora uses CSS variables for theming. By default, it includes a clean base theme with support for light and dark mode.  
-If you want to customize the theme colors, **you can override the default theme**.
+## 11. Permissions
 
-### Overriding the default theme
+Buildora integrates with Spatie Laravel Permission for authorization. Permissions are automatically generated per resource.
 
-To override the default colors, first publish the theme file:
+### Available Commands
+
+```bash
+# Generate permissions for all resources
+php artisan buildora:generate-permissions
+
+# Sync permissions (registers new permissions without deleting existing ones)
+php artisan buildora:sync-permissions
+
+# Grant all permissions to a specific user
+php artisan buildora:grant-permissions {user_id}
+
+# Create Permission resource for managing permissions in the UI
+php artisan buildora:make-permission-resource
+```
+
+### Permission Format
+
+Permissions follow the format `{resource}.{action}`:
+- `user.view` - View user listings
+- `user.create` - Create new users
+- `user.edit` - Edit existing users
+- `user.delete` - Delete users
+
+### Checking Permissions in Resources
+
+You can control access to actions using permissions:
+
+```php
+RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
+    ->permission('user.delete');
+```
+
+---
+
+## 12. Global Search
+
+Configure global search behavior per resource:
+
+```php
+public function searchResultConfig(): array
+{
+    return [
+        'label' => fn($record) => $record->name,
+        'columns' => ['name', 'email', 'created_at'],
+    ];
+}
+```
+
+The `label` can be:
+- A string (column name)
+- An array of column names
+- A callable that receives the record and returns a string
+
+---
+
+## 13. Configuration
+
+The main configuration file `config/buildora.php` contains:
+
+### Route Settings
+```php
+'route_prefix' => 'buildora',  // Base URL path
+'middleware' => ['web', 'buildora.auth', 'buildora.ensure-user-resource'],
+```
+
+### Models Namespace
+```php
+'models_namespace' => 'App\\Models\\',
+```
+
+### Datatable Defaults
+```php
+'datatable' => [
+    'pagination' => [10, 25, 50, 100, 250],
+    'default_per_page' => 25,
+],
+```
+
+### File Upload Settings
+```php
+'files' => [
+    'default_disk' => 'public',
+    'default_path' => 'uploads',
+    'max_upload_size_kb' => 2048,
+    'previewable' => ['jpg', 'jpeg', 'png', 'pdf'],
+],
+```
+
+### Dashboard Configuration
+```php
+'dashboards' => [
+    'enabled' => true,
+    'label' => 'Dashboards',
+    'icon' => 'fa fa-gauge',
+    'children' => [
+        'main' => [
+            'label' => 'Main',
+            'route' => 'buildora.dashboard',
+            'params' => ['name' => 'main'],
+            'permission' => 'dashboard.view',
+            'widgets' => [],
+        ],
+    ],
+],
+```
+
+### Navigation Structure
+```php
+'navigation' => [
+    [
+        'label' => 'Settings',
+        'icon' => 'fas fa-cog',
+        'children' => [
+            [
+                'label' => 'Users',
+                'icon' => 'fas fa-user',
+                'route' => 'buildora.index',
+                'params' => ['resource' => 'user'],
+            ],
+        ],
+    ],
+    'include_resources' => true, // Auto-include all resources
+],
+```
+
+---
+
+## 14. All Available Commands
+
+```bash
+# Installation and setup
+php artisan buildora:install              # Interactive installer
+
+# Resource generation
+php artisan buildora:resource {Model}     # Generate resource from model
+php artisan buildora:widget {Name}        # Generate widget
+
+# Permission management
+php artisan buildora:generate-permissions # Generate all resource permissions
+php artisan buildora:sync-permissions     # Sync permissions
+php artisan buildora:grant-permissions {user_id}  # Grant all permissions to user
+php artisan buildora:make-permission-resource     # Create Permission resource
+
+# User management
+php artisan buildora:create-user          # Create admin user
+```
+
+---
+
+## 15. Theme Customization
+
+Buildora uses CSS variables for theming with support for light and dark mode.
+
+### Publishing the Theme
 
 ```bash
 php artisan vendor:publish --tag=buildora-theme
+```
+
+This will create `resources/buildora/buildora-theme.css` in your Laravel application.
+
+### Customizing Colors
+
+Edit the published theme file to override CSS variables:
+
+```css
+:root {
+    /* Primary colors */
+    --primary-rgb: 59, 130, 246;
+    --primary-hover-rgb: 37, 99, 235;
+
+    /* Background colors */
+    --background-rgb: 255, 255, 255;
+    --surface-rgb: 249, 250, 251;
+
+    /* Text colors */
+    --text-primary-rgb: 17, 24, 39;
+    --text-secondary-rgb: 107, 114, 128;
+
+    /* Border colors */
+    --border-rgb: 229, 231, 235;
+}
+
+/* Dark mode */
+.dark {
+    --background-rgb: 17, 24, 39;
+    --surface-rgb: 31, 41, 55;
+    --text-primary-rgb: 243, 244, 246;
+    --text-secondary-rgb: 156, 163, 175;
+    --border-rgb: 55, 65, 81;
+}
+```
+
+The theme system uses RGB values to allow alpha transparency (e.g., `rgba(var(--primary-rgb), 0.5)`).
+
+### Frontend Build
+
+If you're developing the package itself, you can rebuild the assets:
+
+```bash
+# Development with hot reload
+npm run dev
+
+# Production build
+npm run build
+```
+
+---
+
+## 16. License
+
+Buildora is open-source software licensed under the MIT license.
