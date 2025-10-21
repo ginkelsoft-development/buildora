@@ -161,4 +161,18 @@ return [
             ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Models Allowed Without HasBuildora
+    |--------------------------------------------------------------------------
+    |
+    | Some third-party models (like Spatie Permissions) do not ship with the
+    | HasBuildora trait. List them here to bypass the trait requirement while
+    | still allowing Buildora resources to function.
+    |
+    */
+    'models_allow_without_buildora_trait' => [
+        \Spatie\Permission\Models\Permission::class,
+    ],
 ];

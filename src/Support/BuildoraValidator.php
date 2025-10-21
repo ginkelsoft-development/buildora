@@ -23,16 +23,31 @@ class BuildoraValidator
      */
     public static function assertValidModel(string $modelClass): void
     {
-        if (!class_exists($modelClass)) {
+        if (! class_exists($modelClass)) {
             throw new BuildoraException("Model [$modelClass] does not exist.");
         }
 
-        if (!is_subclass_of($modelClass, Model::class)) {
+        if (! is_subclass_of($modelClass, Model::class)) {
             throw new BuildoraException("Class [$modelClass] is not a valid Eloquent model.");
         }
 
-        if (!in_array(HasBuildora::class, class_uses_recursive($modelClass))) {
-            throw new BuildoraException("Model [$modelClass] must use the HasBuildora trait.");
+        if (! in_array(HasBuildora::class, class_uses_recursive($modelClass))) {
+            if (! self::isAllowedWithoutTrait($modelClass)) {
+                throw new BuildoraException("Model [$modelClass] must use the HasBuildora trait.");
+            }
         }
+    }
+
+    private static function isAllowedWithoutTrait(string $modelClass): bool
+    {
+        $allowed = config('buildora.models_allow_without_buildora_trait', []);
+
+        foreach ($allowed as $candidate) {
+            if (class_exists($candidate) && is_a($modelClass, $candidate, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
