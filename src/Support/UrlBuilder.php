@@ -73,8 +73,12 @@ class UrlBuilder
 
             // ✅ 2. Check if the parameter exists in the extra arguments
             if (isset($extraArguments[$param])) {
-                $parameters[$param] = $extraArguments[$param];
-                continue;
+                $value = $extraArguments[$param];
+                // If value equals the param name (e.g. 'id' => 'id'), resolve from fields instead
+                if ($value !== $param) {
+                    $parameters[$param] = $value;
+                    continue;
+                }
             }
 
             // ✅ 3. Check if the parameter exists in the resource fields
