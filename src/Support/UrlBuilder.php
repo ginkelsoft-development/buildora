@@ -112,6 +112,13 @@ class UrlBuilder
             }
         }
 
+        \Log::debug('UrlBuilder::buildRoute', [
+            'routeName' => $routeName,
+            'parameters' => $parameters,
+            'extraArguments' => $extraArguments,
+            'result' => route($routeName, $parameters),
+        ]);
+
         return route($routeName, $parameters);
     }
 
