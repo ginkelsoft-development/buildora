@@ -30,12 +30,8 @@ class UrlBuilder
      * @return string      The generated URL.
      * @throws InvalidArgumentException If an invalid action type is provided.
      */
-    public static function build(
-        string $actionType,
-        string $actionValue,
-        object $item = null,
-        array $extraArguments = []
-    ): string {
+    public static function build(string $actionType, string $actionValue, object $item = null, array $extraArguments = []): string
+    {
         if ($actionType === 'route') {
             return self::buildRoute($actionValue, $item, $extraArguments);
         }
@@ -69,10 +65,14 @@ class UrlBuilder
 
         // ✅ Identify required parameters from the route definition
         foreach ($routeDefinition->parameterNames() as $param) {
-            // ✅ 1. 'resource' is always the resource slug, never from fields
-            if ($param === 'resource') {
-                $parameters['resource'] = self::extractResourceName($item, $routeName);
-                continue;
+            // ✅ 1. Check if the parameter exists in the resource fields
+            if ($item && method_exists($item, 'getFields')) {
+                $field = collect($item->getFields())->firstWhere('name', $param);
+
+                if ($field && isset($field->value)) {
+                    $parameters[$param] = $field->value;
+                    continue;
+                }
             }
 
             // ✅ 2. Check if the parameter exists in the extra arguments
@@ -81,12 +81,25 @@ class UrlBuilder
                 continue;
             }
 
-            // ✅ 3. Check if the parameter exists in the resource fields
-            if ($item && method_exists($item, 'getFields')) {
-                $field = collect($item->getFields())->firstWhere('name', $param);
+            // ✅ 3. Ensure the 'resource' parameter is always correctly set
+            if ($param === 'resource') {
+                $parameters['resource'] = self::extractResourceName($item, $routeName);
+                continue;
+            }
 
-                if ($field && isset($field->value)) {
-                    $parameters[$param] = $field->value;
+            // ✅ 4. Extract 'id' from the model if not already provided
+            if ($param === 'id' && !isset($parameters[$param]) && $item) {
+                if (method_exists($item, 'getModelInstance')) {
+                    $modelInstance = $item->getModelInstance();
+                    $primaryKey = $modelInstance->getKeyName();
+                    if (isset($modelInstance->{$primaryKey})) {
+                        $parameters[$param] = $modelInstance->{$primaryKey};
+                        continue;
+                    }
+                }
+
+                if (isset($item->id)) {
+                    $parameters[$param] = $item->id;
                     continue;
                 }
             }
