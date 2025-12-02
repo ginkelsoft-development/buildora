@@ -69,10 +69,14 @@ class UrlBuilder
 
         // ✅ Identify required parameters from the route definition
         foreach ($routeDefinition->parameterNames() as $param) {
-            // ✅ 1. 'resource' parameter is always the resource slug, never from fields
-            if ($param === 'resource') {
-                $parameters['resource'] = self::extractResourceName($item, $routeName);
-                continue;
+            // ✅ 1. Check if the parameter exists in the resource fields
+            if ($item && method_exists($item, 'getFields')) {
+                $field = collect($item->getFields())->firstWhere('name', $param);
+
+                if ($field && isset($field->value)) {
+                    $parameters[$param] = $field->value;
+                    continue;
+                }
             }
 
             // ✅ 2. Check if the parameter exists in the extra arguments
@@ -81,8 +85,14 @@ class UrlBuilder
                 continue;
             }
 
-            // ✅ 3. Extract 'id' from the model (always use model's primary key, not field value)
-            if ($param === 'id' && $item) {
+            // ✅ 3. Ensure the 'resource' parameter is always correctly set
+            if ($param === 'resource') {
+                $parameters['resource'] = self::extractResourceName($item, $routeName);
+                continue;
+            }
+
+            // ✅ 4. Extract 'id' from the model if not already provided
+            if ($param === 'id' && !isset($parameters[$param]) && $item) {
                 if (method_exists($item, 'getModelInstance')) {
                     $modelInstance = $item->getModelInstance();
                     $primaryKey = $modelInstance->getKeyName();
@@ -94,16 +104,6 @@ class UrlBuilder
 
                 if (isset($item->id)) {
                     $parameters[$param] = $item->id;
-                    continue;
-                }
-            }
-
-            // ✅ 4. Check if the parameter exists in the resource fields
-            if ($item && method_exists($item, 'getFields')) {
-                $field = collect($item->getFields())->firstWhere('name', $param);
-
-                if ($field && isset($field->value)) {
-                    $parameters[$param] = $field->value;
                     continue;
                 }
             }
