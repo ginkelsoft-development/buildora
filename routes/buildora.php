@@ -61,6 +61,15 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->middleware('buildora.can:create')
                 ->name('buildora.create');
 
+            Route::get('{resource}/datatable/json', [BuildoraDataTableController::class, 'json'])
+                ->middleware('buildora.can:view')
+                ->name('buildora.datatable.json');
+
+            Route::get('{resource}/export/{format?}', [BuildoraExportController::class, 'export'])
+                ->middleware('buildora.can:view')
+                ->where('format', 'xlsx|csv')
+                ->name('buildora.export');
+
             Route::post('{resource}', [BuildoraController::class, 'store'])
                 ->middleware('buildora.can:create')
                 ->name('buildora.store');
@@ -68,6 +77,10 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
             Route::get('{resource}/{id}/edit', [BuildoraController::class, 'edit'])
                 ->middleware('buildora.can:edit')
                 ->name('buildora.edit');
+
+            Route::get('{resource}/{id}/relation/{relation}', RelationDatatableController::class)
+                ->middleware('buildora.can:view')
+                ->name('buildora.relation.index');
 
             Route::put('{resource}/{id}', [BuildoraController::class, 'update'])
                 ->middleware('buildora.can:edit')
@@ -80,19 +93,6 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
             Route::delete('{resource}/{id}', [BuildoraController::class, 'destroy'])
                 ->middleware('buildora.can:delete')
                 ->name('buildora.destroy');
-
-            Route::get('{resource}/{id}/relation/{relation}', RelationDatatableController::class)
-                ->middleware('buildora.can:view')
-                ->name('buildora.relation.index');
-
-            Route::get('{resource}/datatable/json', [BuildoraDataTableController::class, 'json'])
-                ->middleware('buildora.can:view')
-                ->name('buildora.datatable.json');
-
-            Route::get('{resource}/export/{format?}', [BuildoraExportController::class, 'export'])
-                ->middleware('buildora.can:view')
-                ->where('format', 'xlsx|csv')
-                ->name('buildora.export');
 
             Route::get('/buildora/async/{model}/search', function ($model) {
                 $modelClass = Str::start("App\\Models\\" . Str::studly($model), '\\');
