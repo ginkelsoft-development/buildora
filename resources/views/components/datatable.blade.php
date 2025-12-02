@@ -221,12 +221,13 @@
             handleAction(action, row) {
                 if (action.confirm && !confirm(action.confirm)) return;
 
+                console.log('ACTION URL:', action.url);
+                console.log('ROW:', row);
+
                 if (action.method === 'GET') {
                     window.location.href = action.url;
                 } else if (action.method === 'DELETE') {
-                    // ✅ Veiliger: check of meta bestaat en haal token op
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    console.debug(row)
 
                     fetch(action.url, {
                         method: 'DELETE',

@@ -122,15 +122,20 @@ class BuildoraDatatable
     }
 
     /**
-     * Format records efficiently by reusing resource instance instead of cloning.
+     * Format records efficiently.
      *
      * @param array $records
      * @return array
      */
     protected function formatRecords(array $records): array
     {
-        // Reuse single resource instance and just update the fill data
         return array_map(function ($record) {
+            // BuildoraQueryBuilder returns resources, not models
+            if ($record instanceof BuildoraResource) {
+                return RowFormatter::format($record, $this->resource);
+            }
+
+            // For relation mode: records are models, need to fill resource
             $resource = clone $this->resource;
             $resource->fill($record);
             return RowFormatter::format($resource, $this->resource);
