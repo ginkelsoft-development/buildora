@@ -217,13 +217,8 @@
             handleAction(action, row) {
                 if (action.confirm && !confirm(action.confirm)) return;
 
-                // Debug log
-                console.log('action.url:', action.url);
-                console.log('row:', row);
-
                 // Ensure URL has trailing slash to prevent 301 redirect
                 const url = action.url.endsWith('/') ? action.url : action.url + '/';
-                console.log('final url:', url);
 
                 if (action.method === 'GET') {
                     window.location.href = url;
