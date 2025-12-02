@@ -93,11 +93,10 @@ class BuildoraDatatable
         $fetcher = new DataFetcher(get_class($this->resource), $fields);
         $paginator = $fetcher->fetch($search, $sortBy, $sortDirection, $perPage, $page);
 
-        $formattedRows = array_map(function ($record) {
-            $resource = clone $this->resource;
-            $resource->fill($record);
-            return RowFormatter::format($resource, $this->resource);
-        }, $paginator->items());
+        $formattedRows = array_map(
+            fn($resource) => RowFormatter::format($resource, $this->resource),
+            $paginator->items()
+        );
 
         $this->data = $formattedRows;
         $this->pagination = [
