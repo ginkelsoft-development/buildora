@@ -75,22 +75,27 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->name('buildora.store');
 
             Route::get('{resource}/{id}/edit', [BuildoraController::class, 'edit'])
+                ->where('id', '[0-9]+')
                 ->middleware('buildora.can:edit')
                 ->name('buildora.edit');
 
             Route::get('{resource}/{id}/relation/{relation}', RelationDatatableController::class)
+                ->where('id', '[0-9]+')
                 ->middleware('buildora.can:view')
                 ->name('buildora.relation.index');
 
             Route::put('{resource}/{id}', [BuildoraController::class, 'update'])
+                ->where('id', '[0-9]+')
                 ->middleware('buildora.can:edit')
                 ->name('buildora.update');
 
             Route::get('{resource}/{id}', [BuildoraController::class, 'show'])
+                ->where('id', '[0-9]+')
                 ->middleware('buildora.can:view')
                 ->name('buildora.show');
 
             Route::delete('{resource}/{id}', [BuildoraController::class, 'destroy'])
+                ->where('id', '[0-9]+')
                 ->middleware('buildora.can:delete')
                 ->name('buildora.destroy');
 
