@@ -60,7 +60,6 @@ class DataFetcher
         int $perPage = 25,
         int $page = 1
     ): PaginatorContract {
-        /** @var Builder $query */
         $query = call_user_func([$this->resourceClass, 'query']);
 
         /** @var Model $modelInstance */
@@ -111,7 +110,7 @@ class DataFetcher
             }
 
             // Apply search conditions
-            $query->where(function (Builder $q) use ($search, $databaseColumns, $relationsToJoin, $modelInstance) {
+            $query->where(function ($q) use ($search, $databaseColumns, $relationsToJoin, $modelInstance) {
                 foreach ($this->columns as $field) {
                     if (! $field instanceof Field || ! $field->isSearchable()) {
                         continue;
@@ -162,10 +161,10 @@ class DataFetcher
     /**
      * Automatically eager-load all BelongsTo relations from columns to prevent N+1 queries.
      *
-     * @param Builder $query
+     * @param Builder|\Ginkelsoft\Buildora\BuildoraQueryBuilder $query
      * @return void
      */
-    protected function eagerLoadBelongsToRelations(Builder $query): void
+    protected function eagerLoadBelongsToRelations($query): void
     {
         $relations = [];
 
