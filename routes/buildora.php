@@ -11,7 +11,7 @@ use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
-    ->middleware(array_merge(['buildora.normalize-slash'], config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource'])))
+    ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
     ->group(function () {
 
         Route::post('/switch-locale', function (Request $request) {
