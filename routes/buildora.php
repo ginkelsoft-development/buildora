@@ -61,7 +61,7 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->middleware('buildora.can:create')
                 ->name('buildora.create');
 
-            Route::get('{resource}/datatable/json', [BuildoraDataTableController::class, 'json'])
+            Route::get('{resource}/datatable/json/', [BuildoraDataTableController::class, 'json'])
                 ->middleware('buildora.can:view')
                 ->name('buildora.datatable.json');
 
