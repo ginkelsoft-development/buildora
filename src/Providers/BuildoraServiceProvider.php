@@ -12,6 +12,7 @@ use Illuminate\Support\ServiceProvider;
 use Ginkelsoft\Buildora\Http\Middleware\BuildoraAuthenticate;
 use Ginkelsoft\Buildora\Http\Middleware\EnsureUserResourceExists;
 use Ginkelsoft\Buildora\Http\Middleware\CheckBuildoraPermission;
+use Ginkelsoft\Buildora\Http\Middleware\NormalizeTrailingSlash;
 
 /**
  * Class BuildoraServiceProvider
@@ -36,6 +37,7 @@ class BuildoraServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('buildora.auth', BuildoraAuthenticate::class);
         $this->app['router']->aliasMiddleware('buildora.ensure-user-resource', EnsureUserResourceExists::class);
         $this->app['router']->aliasMiddleware('buildora.can', CheckBuildoraPermission::class);
+        $this->app['router']->aliasMiddleware('buildora.normalize-slash', NormalizeTrailingSlash::class);
 
         // Register package commands
         $this->commands([

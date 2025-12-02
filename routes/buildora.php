@@ -11,7 +11,7 @@ use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
-    ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
+    ->middleware(array_merge(['buildora.normalize-slash'], config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource'])))
     ->group(function () {
 
         Route::post('/switch-locale', function (Request $request) {
@@ -61,7 +61,7 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->middleware('buildora.can:create')
                 ->name('buildora.create');
 
-            Route::get('{resource}/datatable/json/', [BuildoraDataTableController::class, 'json'])
+            Route::get('{resource}/datatable/json', [BuildoraDataTableController::class, 'json'])
                 ->middleware('buildora.can:view')
                 ->name('buildora.datatable.json');
 
