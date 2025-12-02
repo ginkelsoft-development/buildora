@@ -22,16 +22,37 @@ class ResourceResolver
             return null;
         }
 
+        $resourceClass = null;
         $class = 'App\\Buildora\\Resources\\' . ucfirst($slug) . 'Buildora';
 
-        if (!class_exists($class)) {
+        if (class_exists($class)) {
+            $resourceClass = $class;
+        } else {
+            $config = config("buildora.resources.defaults.{$slug}");
+
+            if (($config['enabled'] ?? false) === true) {
+                $classFromConfig = $config['class'] ?? null;
+
+                if ($classFromConfig && ! class_exists($classFromConfig)) {
+                    throw new BuildoraException(
+                        "Configured default resource class [{$classFromConfig}] for slug [{$slug}] was not found."
+                    );
+                }
+
+                if ($classFromConfig) {
+                    $resourceClass = $classFromConfig;
+                }
+            }
+        }
+
+        if (! $resourceClass) {
             throw new BuildoraException("No Buildora resource found for slug [{$slug}].");
         }
 
-        $instance = app($class);
+        $instance = app($resourceClass);
 
         if (! $instance instanceof BuildoraResource) {
-            throw new BuildoraException("Resolved class [$class] is not a valid BuildoraResource.");
+            throw new BuildoraException("Resolved class [{$resourceClass}] is not a valid BuildoraResource.");
         }
 
         return $instance;
@@ -55,7 +76,7 @@ class ResourceResolver
         $resourceClass = "App\\Buildora\\Resources\\{$base}Buildora";
 
         if (! class_exists($resourceClass)) {
-            throw new \Exception("Buildora resource [{$resourceClass}] not found.");
+            return self::resolve(strtolower($base));
         }
 
         return app($resourceClass);

@@ -2,7 +2,6 @@
 
 namespace Ginkelsoft\Buildora\Support;
 
-use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
 use Ginkelsoft\Buildora\Traits\HasBuildora;
 use Illuminate\Support\Facades\File;
@@ -24,42 +23,69 @@ class ResourceScanner
     {
         $resourcePath = app_path('Buildora/Resources');
         $resources = [];
+        $registered = [];
 
-        if (!File::exists($resourcePath)) {
-            return [];
-        }
-
-        foreach (File::files($resourcePath) as $file) {
-            $resourceName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-            $resourceClass = "App\\Buildora\\Resources\\{$resourceName}";
-
-            if (!class_exists($resourceClass) || !is_subclass_of($resourceClass, BuildoraResource::class)) {
-                continue;
+        $registerResource = function (string $resourceClass) use (&$resources, &$registered): void {
+            if (! class_exists($resourceClass) || ! is_subclass_of($resourceClass, BuildoraResource::class)) {
+                return;
             }
 
             try {
                 /** @var BuildoraResource $instance */
-                $instance = new $resourceClass();
+                $instance = app($resourceClass);
                 $modelInstance = $instance->getModelInstance();
                 $modelClass = get_class($modelInstance);
-            } catch (BuildoraException $e) {
-                continue;
+            } catch (\Throwable) {
+                return;
             }
 
-            if (!in_array(HasBuildora::class, class_uses_recursive($modelClass))) {
-                continue;
+            if (! in_array(HasBuildora::class, class_uses_recursive($modelClass))) {
+                return;
+            }
+
+            $slug = $resourceClass::slug();
+
+            if (isset($registered[$slug])) {
+                return;
             }
 
             $label = method_exists($instance, 'label')
                 ? $instance->label()
-                : Str::plural(ucfirst(Str::snake(class_basename($modelClass), ' ')));
+                : Str::plural(Str::headline(class_basename($modelClass)));
 
             $resources[] = [
-                'name' => strtolower(str_replace('Buildora', '', $resourceName)),
+                'name' => $slug,
                 'resource' => class_basename($resourceClass),
-                'route' => route('buildora.index', ['resource' => strtolower(class_basename($modelClass))]),
+                'route' => route('buildora.index', ['resource' => $slug]),
                 'label' => $label,
             ];
+
+            $registered[$slug] = true;
+        };
+
+        if (File::exists($resourcePath)) {
+            foreach (File::files($resourcePath) as $file) {
+                $resourceName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+                $resourceClass = "App\\Buildora\\Resources\\{$resourceName}";
+
+                $registerResource($resourceClass);
+            }
+        }
+
+        $defaultResources = config('buildora.resources.defaults', []);
+
+        foreach ($defaultResources as $slug => $config) {
+            if (($config['enabled'] ?? false) !== true) {
+                continue;
+            }
+
+            $class = $config['class'] ?? null;
+
+            if (! $class) {
+                continue;
+            }
+
+            $registerResource($class);
         }
 
         return $resources;

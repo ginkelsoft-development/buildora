@@ -227,7 +227,6 @@
                     // ✅ Veiliger: check of meta bestaat en haal token op
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
                     console.debug(row)
-                    const url = `${action.url}/${row.id}`;
 
                     fetch(action.url, {
                         method: 'DELETE',

@@ -71,6 +71,7 @@ use Ginkelsoft\Buildora\Fields\Types\TextField;
 use Ginkelsoft\Buildora\Fields\Types\SelectField;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
 use Ginkelsoft\Buildora\Actions\RowAction;
+use Ginkelsoft\Buildora\Actions\PageAction;
 
 class PermissionBuildora extends BuildoraResource
 {
@@ -132,6 +133,19 @@ class PermissionBuildora extends BuildoraResource
     public function definePanels(): array
     {
         return [];
+    }
+
+    public function definePageActions(): array
+    {
+        return [
+            PageAction::make(
+                'Permissions Synchroniseren',
+                'fas fa-sync',
+                'buildora.permissions.sync'
+            )
+                ->style('success')
+                ->permission('permission.create'),
+        ];
     }
 }
 PHP;

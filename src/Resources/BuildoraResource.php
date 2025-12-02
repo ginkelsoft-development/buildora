@@ -142,6 +142,37 @@ abstract class BuildoraResource
     }
 
     /**
+     * Define page-level actions for this resource (shown on index page).
+     *
+     * @return array
+     */
+    public function definePageActions(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get the page actions, filtered by permissions.
+     *
+     * @return array
+     */
+    public function getPageActions(): array
+    {
+        $actions = $this->definePageActions();
+
+        return collect($actions)
+            ->filter(function ($action) {
+                $permission = $action->getPermission();
+                if ($permission && auth()->check()) {
+                    return auth()->user()->can($permission);
+                }
+                return true;
+            })
+            ->values()
+            ->toArray();
+    }
+
+    /**
      * Return the row actions for a specific resource instance.
      *
      * @param object $resource

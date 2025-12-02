@@ -20,7 +20,7 @@ class EnsureUserResourceExists
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! class_exists('App\\Buildora\\Resources\\UserBuildora')) {
+        if (! $this->userResourceAvailable()) {
             if (! $request->is('buildora/install*')) {
                 /*return redirect()->route('buildora.install')->with(
                     'info',
@@ -30,5 +30,22 @@ class EnsureUserResourceExists
         }
 
         return $next($request);
+    }
+
+    private function userResourceAvailable(): bool
+    {
+        if (class_exists('App\\Buildora\\Resources\\UserBuildora')) {
+            return true;
+        }
+
+        $config = config('buildora.resources.defaults.user');
+
+        if (($config['enabled'] ?? false) !== true) {
+            return false;
+        }
+
+        $class = $config['class'] ?? null;
+
+        return $class && class_exists($class);
     }
 }
