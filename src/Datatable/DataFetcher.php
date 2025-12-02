@@ -3,12 +3,10 @@
 namespace Ginkelsoft\Buildora\Datatable;
 
 use Ginkelsoft\Buildora\Support\SchemaCache;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\Paginator as PaginatorContract;
 use Ginkelsoft\Buildora\Fields\Field;
 use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Config;
 
 /**
  * Class DataFetcher
@@ -151,11 +149,7 @@ class DataFetcher
             }
         }
 
-        $strategy = Config::get('buildora.datatable.pagination_strategy', 'length_aware');
-
-        return $strategy === 'simple'
-            ? $query->simplePaginate($perPage, ['*'], 'page')
-            : $query->paginate($perPage, ['*'], 'page', $page);
+        return $query->paginate($perPage, 'page', $page);
     }
 
     /**
