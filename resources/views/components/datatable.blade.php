@@ -219,7 +219,7 @@
 
                 // Ensure URL has trailing slash to prevent 301 redirect
                 const url = action.url.endsWith('/') ? action.url : action.url + '/';
-
+alert(url);
                 if (action.method === 'GET') {
                     window.location.href = url;
                 } else if (action.method === 'DELETE') {
