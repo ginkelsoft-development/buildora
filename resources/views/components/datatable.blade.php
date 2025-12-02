@@ -217,14 +217,15 @@
             handleAction(action, row) {
                 if (action.confirm && !confirm(action.confirm)) return;
 
-                if (action.method === 'GET') {
-                    window.location.href = action.url;
-                } else if (action.method === 'DELETE') {
-                    // ✅ Veiliger: check of meta bestaat en haal token op
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    console.debug(row)
+                // Ensure URL has trailing slash to prevent 301 redirect
+                const url = action.url.endsWith('/') ? action.url : action.url + '/';
 
-                    fetch(action.url, {
+                if (action.method === 'GET') {
+                    window.location.href = url;
+                } else if (action.method === 'DELETE') {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                    fetch(url, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken,
