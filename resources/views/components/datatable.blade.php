@@ -1,5 +1,5 @@
 @props([
-    'endpoint' => request()->url() . '/datatable/json',
+    'endpoint' => rtrim(request()->url(), '/') . '/datatable/json/',
     'componentKey' => Str::random(8)
 ])
 
