@@ -69,13 +69,9 @@ class DataFetcher
         // 🔎 Apply search conditions
         if (!empty($search)) {
             $query->where(function (Builder $q) use ($search, $databaseColumns) {
-                foreach ($this->columns as $field) {
-                    if (! $field instanceof Field || ! $field->isSearchable()) {
-                        continue;
-                    }
+                $searchableFields = $this->getSearchableFields($databaseColumns);
 
-                    $column = $field->getSearchColumn();
-
+                foreach ($searchableFields as $column) {
                     if (str_contains($column, '.')) {
                         [$relation, $relColumn] = explode('.', $column, 2);
                         $q->orWhereHas($relation, fn ($sub) => $sub->where($relColumn, 'like', "%{$search}%"));
@@ -100,5 +96,49 @@ class DataFetcher
         }
 
         return $query->paginate($perPage, 'page', $page);
+    }
+
+    /**
+     * Get searchable fields. If no fields are explicitly marked as searchable,
+     * fall back to all text-based fields that exist in the database.
+     *
+     * @param array<int, string> $databaseColumns
+     * @return array<int, string>
+     */
+    protected function getSearchableFields(array $databaseColumns): array
+    {
+        $explicitSearchable = [];
+
+        foreach ($this->columns as $field) {
+            if ($field instanceof Field && $field->isSearchable()) {
+                $explicitSearchable[] = $field->getSearchColumn();
+            }
+        }
+
+        if (!empty($explicitSearchable)) {
+            return $explicitSearchable;
+        }
+
+        $searchableColumns = [];
+
+        foreach ($this->columns as $field) {
+            if (!$field instanceof Field) {
+                continue;
+            }
+
+            if (!$field->supportsSearch()) {
+                continue;
+            }
+
+            $column = $field->name;
+
+            if (str_contains($column, '.')) {
+                $searchableColumns[] = $column;
+            } elseif (in_array($column, $databaseColumns)) {
+                $searchableColumns[] = $column;
+            }
+        }
+
+        return $searchableColumns;
     }
 }

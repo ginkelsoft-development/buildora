@@ -39,7 +39,7 @@ class BuildoraDataTableController extends Controller
         $search = (string) $request->input('search', '');
         $sortBy = (string) $request->input('sortBy', '');
         $sortDirection = (string) $request->input('sortDirection', 'asc');
-        $perPage = (int) $request->input('perPage', 10);
+        $perPage = (int) $request->input('per_page', 10);
         $page = (int) $request->input('page', 1);
 
         $datatable = new BuildoraDatatable($resource);
