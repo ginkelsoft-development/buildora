@@ -81,29 +81,20 @@ class UrlBuilder
                 continue;
             }
 
-            // ✅ 3. Check if the parameter exists in the resource fields
+            // ✅ 3. Extract 'id' directly from the parent model
+            if ($param === 'id' && $item) {
+                if (method_exists($item, 'getParentModel') && $item->getParentModel()) {
+                    $parameters[$param] = $item->getParentModel()->getKey();
+                    continue;
+                }
+            }
+
+            // ✅ 4. Check if the parameter exists in the resource fields
             if ($item && method_exists($item, 'getFields')) {
                 $field = collect($item->getFields())->firstWhere('name', $param);
 
                 if ($field && isset($field->value)) {
                     $parameters[$param] = $field->value;
-                    continue;
-                }
-            }
-
-            // ✅ 4. Extract 'id' from the model if not already provided
-            if ($param === 'id' && !isset($parameters[$param]) && $item) {
-                if (method_exists($item, 'getModelInstance')) {
-                    $modelInstance = $item->getModelInstance();
-                    $primaryKey = $modelInstance->getKeyName();
-                    if (isset($modelInstance->{$primaryKey})) {
-                        $parameters[$param] = $modelInstance->{$primaryKey};
-                        continue;
-                    }
-                }
-
-                if (isset($item->id)) {
-                    $parameters[$param] = $item->id;
                     continue;
                 }
             }

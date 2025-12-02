@@ -76,6 +76,8 @@ abstract class BuildoraResource
      */
     public function fill(Model $model): self
     {
+        $this->parentModel = $model;
+
         foreach ($this->fields as $field) {
             if (method_exists($field, 'setParentModel')) {
                 $field->setParentModel($model);
