@@ -65,19 +65,7 @@ class UrlBuilder
 
         // ✅ Identify required parameters from the route definition
         foreach ($routeDefinition->parameterNames() as $param) {
-            // ✅ 1. 'resource' always comes from extractResourceName, never from fields
-            if ($param === 'resource') {
-                $parameters['resource'] = self::extractResourceName($item, $routeName);
-                continue;
-            }
-
-            // ✅ 2. Check if the parameter exists in the extra arguments (skip 'id' to prevent 'id' => 'id' issues)
-            if ($param !== 'id' && isset($extraArguments[$param])) {
-                $parameters[$param] = $extraArguments[$param];
-                continue;
-            }
-
-            // ✅ 3. Check if the parameter exists in the resource fields
+            // ✅ 1. Check if the parameter exists in the resource fields
             if ($item && method_exists($item, 'getFields')) {
                 $field = collect($item->getFields())->firstWhere('name', $param);
 
@@ -85,6 +73,18 @@ class UrlBuilder
                     $parameters[$param] = $field->value;
                     continue;
                 }
+            }
+
+            // ✅ 2. Check if the parameter exists in the extra arguments
+            if (isset($extraArguments[$param])) {
+                $parameters[$param] = $extraArguments[$param];
+                continue;
+            }
+
+            // ✅ 3. Ensure the 'resource' parameter is always correctly set
+            if ($param === 'resource') {
+                $parameters['resource'] = self::extractResourceName($item, $routeName);
+                continue;
             }
 
             // ✅ 4. Extract 'id' from the model if not already provided

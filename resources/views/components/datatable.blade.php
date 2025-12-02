@@ -1,9 +1,9 @@
 @props([
-    'endpoint' => rtrim(request()->url(), '/') . '/datatable/json/',
+    'endpoint' => request()->url() . '/datatable/json',
     'componentKey' => Str::random(8)
 ])
 
-<div x-data="dataTable({{ json_encode($endpoint) }})" x-init="init()" class="mx-auto" :key="{{ json_encode($componentKey) }}">
+<div x-data="dataTable({{ json_encode($endpoint) }})" class="mx-auto" :key="{{ json_encode($componentKey) }}">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <!-- 🔎 Zoekbalk -->
         <div class="relative w-full max-w-sm">
@@ -101,7 +101,7 @@
     <!-- 📄 Paginering -->
     <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
         <div class="text-sm text-gray-600">
-            {{ __buildora('Page') }} <span x-text="pagination.current_page"></span> {{ __buildora('From') }} <span x-text="pagination.last_page"></span>
+            {{ __buildora('Page') }} <span x-text="pagination.current_page"></span> {{ __buildora('From') }} <span x-text="displayLastPage()"></span>
         </div>
         <div class="flex flex-wrap items-center gap-4">
             <!-- Per pagina -->
@@ -124,7 +124,7 @@
                     {{ __buildora('Previous') }}
                 </button>
                 <button @click="nextPage"
-                        :disabled="isLoading || pagination.current_page === pagination.last_page"
+                        :disabled="isLoading || !pagination.has_more"
                         class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
                     {{ __buildora('Next') }}
                 </button>
@@ -156,16 +156,20 @@
             columns: [],
             sortBy: '',
             sortDirection: 'asc',
-            pagination: { current_page: 1, per_page: 25, total: 0, last_page: 1 },
-            paginationOptions: [10, 25, 50, 100], // <- ✅ init waarde toegevoegd
+            pagination: { current_page: 1, per_page: 25, total: null, last_page: 1, has_more: false },
+            paginationOptions: [10, 25, 50, 100, 250], // <- ✅ init waarde toegevoegd
             endpoint: customEndpoint,
             debouncedFetchData: null,
             selectedRows: [],
             selectedBulkAction: '',
             bulkActions: [],
             isLoading: false,
+            _initialized: false,
 
             init() {
+                if (this._initialized) return;
+                this._initialized = true;
+
                 this.debouncedFetchData = debounce(() => {
                     this.fetchData();
                 }, 300);
@@ -187,7 +191,10 @@
                     .then(json => {
                         this.data = json.data ?? [];
                         this.columns = json.columns ?? [];
-                        this.pagination = json.pagination ?? this.pagination;
+                        this.pagination = Object.assign({}, this.pagination, json.pagination ?? {});
+                        if (typeof this.pagination.has_more === 'undefined') {
+                            this.pagination.has_more = this.pagination.current_page < this.pagination.last_page;
+                        }
                         this.paginationOptions = json.pagination_options ?? this.paginationOptions;
                         this.bulkActions = json.bulk_actions ?? [];
                     })
@@ -217,15 +224,15 @@
             handleAction(action, row) {
                 if (action.confirm && !confirm(action.confirm)) return;
 
-                // Ensure URL has trailing slash to prevent 301 redirect
-                const url = action.url.endsWith('/') ? action.url : action.url + '/';
-
                 if (action.method === 'GET') {
-                    window.location.href = url;
+                    window.location.href = action.url;
                 } else if (action.method === 'DELETE') {
+                    // ✅ Veiliger: check of meta bestaat en haal token op
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    console.debug(row)
+                    const url = `${action.url}/${row.id}`;
 
-                    fetch(url, {
+                    fetch(action.url, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': csrfToken,
@@ -253,10 +260,18 @@
             },
 
             nextPage() {
-                if (this.pagination.current_page < this.pagination.last_page) {
+                if (this.pagination.has_more) {
                     this.pagination.current_page++;
                     this.fetchData();
                 }
+            },
+
+            displayLastPage() {
+                if (this.pagination.total !== null && typeof this.pagination.total !== 'undefined') {
+                    return this.pagination.last_page;
+                }
+
+                return this.pagination.has_more ? '...' : this.pagination.current_page;
             },
 
             executeBulkAction() {

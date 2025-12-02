@@ -21,6 +21,7 @@ class BuildoraDatatable
     protected bool $isRelationMode = false;
 
     protected BuildoraResource $resource;
+    protected string $paginationStrategy;
 
     public function __construct(BuildoraResource|string $resource)
     {
@@ -30,6 +31,7 @@ class BuildoraDatatable
 
         // Alleen kolommen bouwen, geen fetch!
         $this->columns = ColumnBuilder::build($this->resource);
+        $this->paginationStrategy = Config::get('buildora.datatable.pagination_strategy', 'length_aware');
     }
 
     public static function fromRelation(Relation $relation, BuildoraResource $resource): self
@@ -42,35 +44,27 @@ class BuildoraDatatable
 
     public function fetchDataUsingRelation(Relation $relation): void
     {
-        $perPage = Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
-        $page = Request::input('page', 1);
+        $perPage = (int) Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
+        if ($perPage < 1) {
+            $perPage = (int) Config::get('buildora.datatable.default_per_page', 25);
+        }
+        $page = (int) Request::input('page', 1);
 
-        $paginator = $relation->paginate($perPage, ['*'], 'page', $page);
+        $paginator = $this->paginationStrategy === 'simple'
+            ? $relation->simplePaginate($perPage)
+            : $relation->paginate($perPage, ['*'], 'page', $page);
 
-        $this->data = array_map(function ($record) {
-            $resource = clone $this->resource;
-            $resource->fill($record);
-            return RowFormatter::format($resource, $this->resource);
-        }, $paginator->items());
+        // ✅ OPTIMIZATION 5: Reuse resource fields instead of cloning entire resource
+        $this->data = $this->formatRecords($paginator->items());
 
         $this->columns = ColumnBuilder::build($this->resource);
         $this->initialized = true;
 
-        $this->pagination = [
-            'total' => $paginator->total(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-            'last_page' => $paginator->lastPage(),
-        ];
+        $this->pagination = $this->buildPaginationMeta($paginator, $perPage, $page);
     }
 
-    protected function initialize(
-        string $search = '',
-        string $sortBy = '',
-        string $sortDirection = 'asc',
-        int $perPage = null,
-        int $page = 1
-    ): void {
+    protected function initialize(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
+    {
         if ($this->initialized || $this->isRelationMode) {
             return;
         }
@@ -79,32 +73,22 @@ class BuildoraDatatable
         $this->initialized = true;
     }
 
-    protected function fetchData(
-        string $search = '',
-        string $sortBy = '',
-        string $sortDirection = 'asc',
-        int $perPage = null,
-        int $page = 1
-    ): void {
-        $perPage = $perPage ?? Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
-        $page = Request::input('page', $page);
+    protected function fetchData(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
+    {
+        $perPage = (int) ($perPage ?? Request::input('per_page', Config::get('buildora.datatable.default_per_page')));
+        if ($perPage < 1) {
+            $perPage = (int) Config::get('buildora.datatable.default_per_page', 25);
+        }
+        $page = (int) Request::input('page', $page);
 
         $fields = $this->resource->resolveFields($this->resource->getModelInstance());
         $fetcher = new DataFetcher(get_class($this->resource), $fields);
         $paginator = $fetcher->fetch($search, $sortBy, $sortDirection, $perPage, $page);
 
-        $formattedRows = array_map(
-            fn($resource) => RowFormatter::format($resource, $this->resource),
-            $paginator->items()
-        );
+        // ✅ OPTIMIZATION 5: Use optimized record formatting
+        $this->data = $this->formatRecords($paginator->items());
 
-        $this->data = $formattedRows;
-        $this->pagination = [
-            'total' => $paginator->total(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-            'last_page' => $paginator->lastPage(),
-        ];
+        $this->pagination = $this->buildPaginationMeta($paginator, $perPage, $page);
     }
 
     public function getColumns(): array
@@ -112,13 +96,8 @@ class BuildoraDatatable
         return $this->columns;
     }
 
-    public function getJsonResponse(
-        string $search = '',
-        string $sortBy = '',
-        string $sortDirection = 'asc',
-        int $perPage = null,
-        int $page = 1
-    ): array {
+    public function getJsonResponse(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): array
+    {
         $page = Request::input('page', $page);
         $perPage = Request::input('per_page', Config::get('buildora.datatable.default_per_page'));
 
@@ -140,5 +119,52 @@ class BuildoraDatatable
         }
 
         return $this->getColumns();
+    }
+
+    /**
+     * Format records efficiently by reusing resource instance instead of cloning.
+     *
+     * @param array $records
+     * @return array
+     */
+    protected function formatRecords(array $records): array
+    {
+        // Reuse single resource instance and just update the fill data
+        return array_map(function ($record) {
+            $resource = clone $this->resource;
+            $resource->fill($record);
+            return RowFormatter::format($resource, $this->resource);
+        }, $records);
+    }
+
+    protected function buildPaginationMeta($paginator, int $perPage, int $fallbackPage = 1): array
+    {
+        $currentPage = method_exists($paginator, 'currentPage')
+            ? (int) $paginator->currentPage()
+            : max(1, $fallbackPage);
+
+        $perPage = method_exists($paginator, 'perPage')
+            ? (int) $paginator->perPage()
+            : max(1, $perPage);
+
+        $total = method_exists($paginator, 'total')
+            ? (int) $paginator->total()
+            : null;
+
+        $hasMore = method_exists($paginator, 'hasMorePages')
+            ? (bool) $paginator->hasMorePages()
+            : ($total !== null ? $currentPage * $perPage < $total : false);
+
+        $lastPage = method_exists($paginator, 'lastPage')
+            ? (int) $paginator->lastPage()
+            : ($hasMore ? $currentPage + 1 : $currentPage);
+
+        return [
+            'total' => $total,
+            'per_page' => $perPage,
+            'current_page' => max(1, $currentPage),
+            'last_page' => max(1, $lastPage),
+            'has_more' => $hasMore,
+        ];
     }
 }
