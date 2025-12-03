@@ -247,6 +247,16 @@ abstract class BuildoraResource
     }
 
     /**
+     * Return the fully qualified model class name.
+     *
+     * @return string
+     */
+    public function getModelClass(): string
+    {
+        return $this->modelClass;
+    }
+
+    /**
      * Generate a slug for the resource based on its class name.
      *
      * @return string

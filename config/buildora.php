@@ -83,24 +83,11 @@ return [
 
     'dashboards' => [
         'enabled' => true,
-        'label' => 'Dashboards',
+        'label' => 'Dashboard',
         'icon' => 'fa fa-gauge',
-        'children' => [
-            'main' => [
-                'label' => 'Main',
-                'route' => 'buildora.dashboard',
-                'params' => ['name' => 'main'],
-                'permission' => 'dashboard.view',
-                'widgets' => [],
-            ],
-            'marketing' => [
-                'label' => 'Marketing',
-                'route' => 'buildora.dashboard',
-                'params' => ['name' => 'marketing'],
-                'permission' => 'dashboard.view',
-                'widgets' => [],
-            ],
-        ],
+        'route' => 'buildora.dashboard',
+        'permission' => 'dashboard.view',
+        'widgets' => [],
     ],
 
     /*
@@ -119,7 +106,7 @@ return [
             'icon' => 'fas fa-cog',
             'children' => [
                 [
-                    'label' => 'Gebruikers',
+                    'label' => 'Users',
                     'icon' => 'fas fa-user',
                     'route' => 'buildora.index',
                     'params' => [
@@ -127,7 +114,7 @@ return [
                     ]
                 ],
                 [
-                    'label' => 'Permissies',
+                    'label' => 'Permissions',
                     'icon' => 'fas fa-key',
                     'route' => 'buildora.index',
                     'params' => [
@@ -137,7 +124,7 @@ return [
             ],
         ],
 
-        'include_resources' => true, // Laat overige resources automatisch toevoegen
+        'include_resources' => true,
     ],
 
     /*

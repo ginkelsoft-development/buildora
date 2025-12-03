@@ -177,6 +177,36 @@ class Field
     }
 
     /**
+     * Hide the field from the index/table view (alias for hideFromTable).
+     *
+     * @return self
+     */
+    public function hideOnIndex(): self
+    {
+        return $this->hideFromTable();
+    }
+
+    /**
+     * Hide the field from the detail view (alias for hideFromDetail).
+     *
+     * @return self
+     */
+    public function hideOnDetail(): self
+    {
+        return $this->hideFromDetail();
+    }
+
+    /**
+     * Hide the field from all forms (create and edit).
+     *
+     * @return self
+     */
+    public function hideOnForms(): self
+    {
+        return $this->hideFromCreate()->hideFromEdit();
+    }
+
+    /**
      * Convert the field into an array representation.
      *
      * @return array<string, mixed>

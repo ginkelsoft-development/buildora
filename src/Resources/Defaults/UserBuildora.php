@@ -3,17 +3,19 @@
 namespace Ginkelsoft\Buildora\Resources\Defaults;
 
 use Ginkelsoft\Buildora\Actions\RowAction;
+use Ginkelsoft\Buildora\Fields\Types\CheckboxListField;
 use Ginkelsoft\Buildora\Fields\Types\EmailField;
 use Ginkelsoft\Buildora\Fields\Types\IDField;
 use Ginkelsoft\Buildora\Fields\Types\PasswordField;
 use Ginkelsoft\Buildora\Fields\Types\TextField;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
+use Spatie\Permission\Models\Permission;
 
 class UserBuildora extends BuildoraResource
 {
     public function title(): string
     {
-        return 'Gebruikers';
+        return __buildora('Users');
     }
 
     public function searchResultConfig(): array
@@ -26,52 +28,60 @@ class UserBuildora extends BuildoraResource
 
     protected function confirmDeleteMessage(): string
     {
-        return 'Weet je zeker dat je deze gebruiker wilt verwijderen?';
+        return __buildora('Are you sure you want to delete this user?');
     }
 
     public function defineFields(): array
     {
         return [
-            IDField::make('id')
+            IDField::make('id', __buildora('ID'))
                 ->readonly()
                 ->hideFromTable()
                 ->hideFromExport()
                 ->hideFromCreate()
                 ->hideFromEdit(),
 
-            TextField::make('name', 'Naam')
-                ->help('Volledige naam van de gebruiker.')
+            TextField::make('name', __buildora('Name'))
+                ->help(__buildora('Full name of the user.'))
                 ->validation(['required', 'string', 'max:255']),
 
-            EmailField::make('email', 'E-mailadres')
-                ->help('Uniek e-mailadres voor login en notificaties.')
+            EmailField::make('email', __buildora('Email'))
+                ->help(__buildora('Unique email address for login and notifications.'))
                 ->validation(['required', 'email', 'max:255']),
 
-            PasswordField::make('password', 'Wachtwoord')
+            PasswordField::make('password', __buildora('Password'))
                 ->hideFromTable()
                 ->hideFromDetail()
-                ->help('Laat leeg om het wachtwoord ongewijzigd te laten.')
+                ->help(__buildora('Leave empty to keep the password unchanged.'))
                 ->validation(fn ($model) => $model && $model->exists
                     ? ['nullable', 'string', 'min:8']
                     : ['required', 'string', 'min:8']
                 ),
+
+            CheckboxListField::make('permissions', __buildora('Permissions'))
+                ->relatedTo(Permission::class)
+                ->pluck('id', 'name')
+                ->groupByPrefix(true, '.')
+                ->hideFromTable()
+                ->columnSpan(['default' => 12])
+                ->help(__buildora('Select the permissions for this user.')),
         ];
     }
 
     public function defineRowActions(): array
     {
         return [
-            RowAction::make('View', 'fas fa-eye', 'route', 'buildora.show')
+            RowAction::make(__buildora('View'), 'fas fa-eye', 'route', 'buildora.show')
                 ->method('GET')
                 ->params(['id' => 'id'])
                 ->permission('user.view'),
 
-            RowAction::make('Edit', 'fas fa-edit', 'route', 'buildora.edit')
+            RowAction::make(__buildora('Edit'), 'fas fa-edit', 'route', 'buildora.edit')
                 ->method('GET')
                 ->params(['id' => 'id'])
                 ->permission('user.edit'),
 
-            RowAction::make('Delete', 'fas fa-trash', 'route', 'buildora.destroy')
+            RowAction::make(__buildora('Delete'), 'fas fa-trash', 'route', 'buildora.destroy')
                 ->method('DELETE')
                 ->params(['id' => 'id'])
                 ->permission('user.delete')

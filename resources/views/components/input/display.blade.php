@@ -2,14 +2,8 @@
     $content = $field->getContent($model ?? null);
 @endphp
 
-<div class="form-group">
-    @if ($field->getLabel())
-        <label class="block font-medium text-sm text-foreground">
-            {{ $field->getLabel() }}
-        </label>
-    @endif
-
-    <div class="p-2 rounded bg-muted text-foreground">
+<div class="p-4 rounded-xl" style="background: var(--bg-muted); border: 1px solid var(--border-color);">
+    <div class="text-sm" style="color: var(--text-primary);">
         {!! $content !!}
     </div>
 </div>

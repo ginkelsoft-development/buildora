@@ -9,6 +9,8 @@ use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
 use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
+use Ginkelsoft\Buildora\Http\Controllers\ProfileController;
+use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
@@ -44,6 +46,44 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
         */
         Route::post('/permissions/sync', [PermissionSyncController::class, 'sync'])
             ->name('buildora.permissions.sync')
+            ->middleware(['web', 'auth']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Profile Routes
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/profile', [ProfileController::class, 'edit'])
+            ->name('buildora.profile.edit')
+            ->middleware(['web', 'auth']);
+
+        Route::put('/profile', [ProfileController::class, 'update'])
+            ->name('buildora.profile.update')
+            ->middleware(['web', 'auth']);
+
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+            ->name('buildora.profile.password')
+            ->middleware(['web', 'auth']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Two-Factor Authentication Routes
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/two-factor/setup', [TwoFactorController::class, 'setup'])
+            ->name('buildora.two-factor.setup')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/two-factor/enable', [TwoFactorController::class, 'enable'])
+            ->name('buildora.two-factor.enable')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/two-factor/disable', [TwoFactorController::class, 'disable'])
+            ->name('buildora.two-factor.disable')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/two-factor/regenerate', [TwoFactorController::class, 'regenerateRecoveryCodes'])
+            ->name('buildora.two-factor.regenerate')
             ->middleware(['web', 'auth']);
 
         /*
