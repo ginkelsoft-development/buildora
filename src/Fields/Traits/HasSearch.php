@@ -16,7 +16,7 @@ trait HasSearch
      *
      * @var bool
      */
-    protected bool $isSearchable = false;
+    protected bool $isSearchable = true;
 
     /**
      * The column to use for search queries.
@@ -40,6 +40,18 @@ trait HasSearch
 
         $this->isSearchable = true;
         $this->searchableColumn = $term ?? $this->name;
+
+        return $this;
+    }
+
+    /**
+     * Disable search for this field.
+     *
+     * @return static
+     */
+    public function notSearchable(): static
+    {
+        $this->isSearchable = false;
 
         return $this;
     }
