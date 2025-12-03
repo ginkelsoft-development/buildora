@@ -1,6 +1,6 @@
 {
   "name": "buildora",
-  "version": "1.0.33",
+  "version": "1.0.35",
   "description": "Buildora resource engine",
   "main": "index.js",
   "scripts": {

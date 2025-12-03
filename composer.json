@@ -24,7 +24,7 @@
         "spatie/laravel-permission": "^6.16"
     },
     "extra": {
-        "buildora-version": "1.0.33",
+        "buildora-version": "1.0.35",
         "laravel": {
             "providers": [
                 "Ginkelsoft\\Buildora\\Providers\\BuildoraServiceProvider"
