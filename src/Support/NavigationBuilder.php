@@ -18,39 +18,55 @@ class NavigationBuilder
         $navigation = [];
 
         $dashboardsConfig = config('buildora.dashboards', []);
-        if (
-            ($dashboardsConfig['enabled'] ?? false)
-            && isset($dashboardsConfig['children'])
-            && is_array($dashboardsConfig['children'])
-        ) {
-            $dashboardChildren = [];
-
-            foreach ($dashboardsConfig['children'] as $key => $dashboard) {
-                if (!isset($dashboard['label'], $dashboard['route'])) {
-                    continue;
-                }
-
-                if (
-                    isset($dashboard['permission'])
-                    && (!auth()->check() || !auth()->user()->can($dashboard['permission']))
-                ) {
-                    continue;
-                }
-
-                $dashboardChildren[] = [
-                    'label' => $dashboard['label'],
-                    'icon' => $dashboard['icon'] ?? 'fa fa-chart-pie',
-                    'route' => $dashboard['route'],
-                    'params' => $dashboard['params'] ?? ['name' => $key],
-                ];
+        if ($dashboardsConfig['enabled'] ?? false) {
+            // Check permission
+            $hasPermission = true;
+            if (isset($dashboardsConfig['permission'])) {
+                $hasPermission = auth()->check() && auth()->user()->can($dashboardsConfig['permission']);
             }
 
-            if (count($dashboardChildren) > 0) {
-                $navigation[] = [
-                    'label' => $dashboardsConfig['label'] ?? 'Dashboards',
-                    'icon' => $dashboardsConfig['icon'] ?? 'fas fa-gauge',
-                    'children' => $dashboardChildren,
-                ];
+            if ($hasPermission) {
+                // Check if using new simple format (no children) or old format (with children)
+                if (isset($dashboardsConfig['children']) && is_array($dashboardsConfig['children'])) {
+                    // Old format with multiple dashboards
+                    $dashboardChildren = [];
+
+                    foreach ($dashboardsConfig['children'] as $key => $dashboard) {
+                        if (!isset($dashboard['label'], $dashboard['route'])) {
+                            continue;
+                        }
+
+                        if (
+                            isset($dashboard['permission'])
+                            && (!auth()->check() || !auth()->user()->can($dashboard['permission']))
+                        ) {
+                            continue;
+                        }
+
+                        $dashboardChildren[] = [
+                            'label' => $dashboard['label'],
+                            'icon' => $dashboard['icon'] ?? 'fa fa-chart-pie',
+                            'route' => $dashboard['route'],
+                            'params' => $dashboard['params'] ?? ['name' => $key],
+                        ];
+                    }
+
+                    if (count($dashboardChildren) > 0) {
+                        $navigation[] = [
+                            'label' => $dashboardsConfig['label'] ?? 'Dashboards',
+                            'icon' => $dashboardsConfig['icon'] ?? 'fas fa-gauge',
+                            'children' => $dashboardChildren,
+                        ];
+                    }
+                } else {
+                    // New simple format - single dashboard link
+                    $navigation[] = [
+                        'label' => $dashboardsConfig['label'] ?? 'Dashboard',
+                        'icon' => $dashboardsConfig['icon'] ?? 'fas fa-gauge',
+                        'route' => $dashboardsConfig['route'] ?? 'buildora.dashboard',
+                        'params' => [],
+                    ];
+                }
             }
         }
 

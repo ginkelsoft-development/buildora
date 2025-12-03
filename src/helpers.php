@@ -14,7 +14,7 @@ if (!function_exists('__buildora')) {
         $translated = trans("buildora::buildora.$key", $replace, $effectiveLocale);
 
         return $translated === "buildora::buildora.$key"
-            ? "[MISSING: $key]"
+            ? "[LANGUAGE: $key]"
             : $translated;
     }
 }

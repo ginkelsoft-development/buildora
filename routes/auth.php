@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Ginkelsoft\Buildora\Http\Controllers\Auth\LoginController;
 use Ginkelsoft\Buildora\Http\Controllers\Auth\ForgotPasswordController;
 use Ginkelsoft\Buildora\Http\Controllers\Auth\ResetPasswordController;
+use Ginkelsoft\Buildora\Http\Controllers\InstallController;
+use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,56 @@ use Ginkelsoft\Buildora\Http\Controllers\Auth\ResetPasswordController;
 | Middleware:   web
 |
 */
+
+Route::middleware('web')
+    ->prefix('buildora')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Installation Routes
+        |--------------------------------------------------------------------------
+        |
+        | Show the installation wizard and handle the installation process.
+        |
+        */
+        Route::get('install', [InstallController::class, 'index'])
+            ->name('buildora.install'); // GET: Installation wizard
+
+        Route::post('install', [InstallController::class, 'process'])
+            ->name('buildora.install.process'); // POST: Process installation
+
+        /*
+        |--------------------------------------------------------------------------
+        | Asset Routes
+        |--------------------------------------------------------------------------
+        |
+        | Serve package assets like logo without needing to publish them.
+        |
+        */
+        Route::get('assets/{file}', function ($file) {
+            $path = __DIR__ . '/../resources/assets/' . $file;
+
+            if (!file_exists($path)) {
+                abort(404);
+            }
+
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            $mimeTypes = [
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                'ico' => 'image/x-icon',
+            ];
+
+            return response()->file($path, [
+                'Content-Type' => $mimeTypes[$extension] ?? 'application/octet-stream',
+                'Cache-Control' => 'public, max-age=31536000',
+            ]);
+        })->where('file', '.*')->name('buildora.asset');
+    });
 
 Route::middleware('web')
     ->prefix('buildora/auth')
@@ -39,6 +91,19 @@ Route::middleware('web')
         Route::post('logout', [LoginController::class, 'logout'])
             ->name('buildora.logout'); // POST: Logout current user
 
+        /*
+        |--------------------------------------------------------------------------
+        | Two-Factor Authentication Challenge Routes
+        |--------------------------------------------------------------------------
+        |
+        | Show 2FA challenge and verify code during login.
+        |
+        */
+        Route::get('two-factor/challenge', [TwoFactorController::class, 'challenge'])
+            ->name('buildora.two-factor.challenge'); // GET: 2FA challenge form
+
+        Route::post('two-factor/challenge', [TwoFactorController::class, 'verify'])
+            ->name('buildora.two-factor.verify'); // POST: Verify 2FA code
 
         /*
         |--------------------------------------------------------------------------

@@ -214,21 +214,35 @@ class BuildoraController extends Controller
     /**
      * Delete a resource instance.
      *
+     * @param Request $request
      * @param string $model
      * @param int $id
-     * @return RedirectResponse
+     * @return RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    public function destroy(string $model, int $id): RedirectResponse
+    public function destroy(Request $request, string $model, int $id): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $resource = $this->getResource($model);
         $item = $resource->getModelInstance()->find($id);
 
         if (!$item) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => ucfirst($model) . ' ' . __buildora('not found or already deleted.')
+                ], 404);
+            }
             return redirect()->route('buildora.index', ['resource' => $model])
                 ->with('error', ucfirst($model) . ' ' . __buildora('not found or already deleted.'));
         }
 
         $item->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => ucfirst($model) . ' ' . __buildora('deleted successfully.')
+            ]);
+        }
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('deleted successfully.'));

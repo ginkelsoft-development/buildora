@@ -2,91 +2,125 @@
 
 @section('content')
 
-    {{-- ✅ Resource-specifieke widgets --}}
     <x-buildora::widgets :resource="$resource" :visibility="isset($item) ? 'edit' : 'create'"/>
 
-    {{-- ✅ Foutmeldingen --}}
     @if ($errors->any())
         <div x-data="{ show: true }" x-show="show" x-transition.duration.300ms
-             class="mt-6 bg-red-50 text-red-700 p-4 rounded-lg shadow-md mb-6 flex items-start justify-between">
-            <div class="flex items-start gap-3">
-                <x-buildora-icon icon="fa fa-exclamation-circle" class="text-red-600 text-xl mt-0.5"/>
+             class="p-4 rounded-xl mb-6 flex items-start justify-between"
+             style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid rgba(239, 68, 68, 0.3);">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: rgba(239, 68, 68, 0.2);">
+                    <i class="fa-solid fa-exclamation-circle text-red-500"></i>
+                </div>
                 <div>
-                    <strong class="font-semibold block mb-1">{{ __buildora('Er zijn problemen met je invoer') }}:</strong>
-                    <ul class="list-disc list-inside space-y-1">
+                    <span class="font-medium block" style="color: var(--text-primary);">{{ __buildora('There are issues with your input') }}</span>
+                    <ul class="mt-1 space-y-0.5">
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <li class="text-sm text-red-400">{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-            <button @click="show = false" class="text-red-600 hover:opacity-75 ml-4">
-                <x-buildora-icon icon="fa fa-times"/>
+            <button @click="show = false" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-muted);">
+                <i class="fa-solid fa-times"></i>
             </button>
         </div>
     @endif
 
-    <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold" style="color: var(--text-primary);">
+                @if(isset($item))
+                    {{ __buildora('Edit') }}
+                @else
+                    {{ __buildora('Create new item') }}
+                @endif
+            </h1>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">
+                {{ __buildora('Fill in the details below') }}
+            </p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ route('buildora.index', $model) }}"
+               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+               style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);">
+                <i class="fa-solid fa-arrow-left"></i>
+                {{ __buildora('Back') }}
+            </a>
+        </div>
+    </div>
+
+    {{-- Form Card --}}
+    <div class="rounded-2xl overflow-hidden"
+         style="background: var(--bg-dropdown); border: 1px solid var(--border-color);">
+
         <form method="POST"
               enctype="multipart/form-data"
-              action="{{ isset($item) ? route('buildora.update', [$model, $item->id]) : route('buildora.store', $model) }}"
-              class="flex flex-col space-y-8 max-w-7xl mx-auto">
+              action="{{ isset($item) ? route('buildora.update', [$model, $item->id]) : route('buildora.store', $model) }}">
             @csrf
             @if(isset($item))
                 @method('PUT')
             @endif
 
-            {{-- ✅ Velden-grid --}}
-            <div class="grid grid-cols-12 gap-6">
-                @foreach($fields as $field)
-                    {{-- Sla onzichtbare velden over --}}
-                    @if(!$field->isVisible('create') && !isset($item))
-                        @continue
-                    @endif
-                    @if(!$field->isVisible('edit') && isset($item))
-                        @continue
-                    @endif
-
-                    @php
-                        $value = old($field->name, $item->{$field->name} ?? '');
-                        // Alleen niet-responsief, fallback naar 12
-                        $colSpan = (int) ($field->getColumnSpan()['default'] ?? 12);
-                        $colSpan = max(1, min(12, $colSpan));
-                        $colClasses = "col-span-{$colSpan}";
-                    @endphp
-
-                    {{-- Nieuwe rij forceren --}}
-                    @if($field->shouldStartNewRow())
-                        <div class="col-span-12" style="grid-column: span 12 / span 12;"></div>
-                    @endif
-
-                    <div class="{{ $colClasses }}" style="grid-column: span {{ $colSpan }} / span {{ $colSpan }};">
-                        <label for="{{ $field->name }}" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            {{ $field->label }}
-                        </label>
-
-                        @if(!$field instanceof \Ginkelsoft\Buildora\Fields\Types\ViewField)
-                            @component("buildora::components.input.{$field->type}", [
-                                'field' => $field,
-                                'value' => $value,
-                                'class' => 'w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm
-                                            focus:ring-2 focus:ring-primary focus:outline-none
-                                            bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100',
-                            ])
-                            @endcomponent
-                        @else
-                            {!! $field->detailPage() !!}
+            {{-- Form Fields --}}
+            <div class="p-6 lg:p-8">
+                <div class="grid grid-cols-12 gap-6">
+                    @foreach($fields as $field)
+                        @if(!$field->isVisible('create') && !isset($item))
+                            @continue
                         @endif
-                    </div>
-                @endforeach
+                        @if(!$field->isVisible('edit') && isset($item))
+                            @continue
+                        @endif
+
+                        @php
+                            $value = old($field->name, $item->{$field->name} ?? '');
+                            $colSpan = (int) ($field->getColumnSpan()['default'] ?? 12);
+                            $colSpan = max(1, min(12, $colSpan));
+                        @endphp
+
+                        @if($field->shouldStartNewRow())
+                            <div class="col-span-12"></div>
+                        @endif
+
+                        <div class="col-span-12 lg:col-span-{{ $colSpan }}" style="grid-column: span {{ $colSpan }} / span {{ $colSpan }};">
+                            <label for="{{ $field->name }}"
+                                   class="block text-sm font-medium mb-2"
+                                   style="color: var(--text-secondary);">
+                                {{ $field->label }}
+                            </label>
+
+                            @if(!$field instanceof \Ginkelsoft\Buildora\Fields\Types\ViewField)
+                                @component("buildora::components.input.{$field->type}", [
+                                    'field' => $field,
+                                    'value' => $value,
+                                ])
+                                @endcomponent
+                            @else
+                                <div class="p-4 rounded-xl" style="background: var(--bg-input); border: 1px solid var(--border-color);">
+                                    {!! $field->detailPage() !!}
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
-            {{-- ✅ Actieknoppen --}}
-            <div class="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                <x-buildora::button.back :model="$model"
-                                         class="px-5 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"/>
-                <x-buildora::button.save
-                        class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 shadow transition"/>
+            {{-- Form Actions --}}
+            <div class="px-6 lg:px-8 py-4 flex items-center justify-end gap-3"
+                 style="background: var(--bg-input); border-top: 1px solid var(--border-color);">
+                <a href="{{ route('buildora.index', $model) }}"
+                   class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+                   style="background: var(--bg-dropdown); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    {{ __buildora('cancel') }}
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 btn-primary text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fa-solid fa-check"></i>
+                    {{ __buildora('Save') }}
+                </button>
             </div>
         </form>
     </div>

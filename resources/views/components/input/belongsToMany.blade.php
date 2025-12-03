@@ -14,7 +14,11 @@
 @endphp
 
 <div class="relative">
-    <x-buildora::multi-select-dropdown :name="$relation" :options="$options" :selected="$selectedValues" label="TOET"/>
+    <x-buildora::multi-select-dropdown
+        :name="$relation"
+        :options="$options"
+        :selected="$selectedValues"
+    />
 
     @include('buildora::components.field.help')
 </div>

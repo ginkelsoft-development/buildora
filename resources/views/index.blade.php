@@ -7,147 +7,163 @@
 
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-transition.duration.300ms
-             class="bg-primary text-primary-foreground p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <x-buildora-icon icon="fa fa-check-circle" class="text-primary-foreground text-xl" />
-                <span class="font-semibold">{{ session('success') }}</span>
+             class="p-4 rounded-xl mb-6 flex items-center justify-between"
+             style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%); border: 1px solid rgba(34, 197, 94, 0.3);">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+                    <i class="fa-solid fa-check text-green-500"></i>
+                </div>
+                <span class="font-medium" style="color: var(--text-primary);">{{ session('success') }}</span>
             </div>
-            <button @click="show = false" class="text-primary-foreground ml-4 hover:opacity-75">
-                <x-buildora-icon icon="fa fa-times" />
+            <button @click="show = false" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-black/5 dark:hover:bg-white/5" style="color: var(--text-muted);">
+                <i class="fa-solid fa-times"></i>
             </button>
         </div>
     @endif
 
-    <h1 class="text-2xl font-bold mb-6 text-foreground">
-        {{ $resource->title() }}
-    </h1>
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold" style="color: var(--text-primary);">
+                {{ $resource->title() }}
+            </h1>
+        </div>
 
-    <div class="flex justify-between items-center mb-4">
-        <!-- Page Actions (links) -->
-        @if(isset($pageActions) && count($pageActions) > 0)
-            <div class="flex gap-2">
+        <div class="flex items-center gap-3">
+            {{-- Page Actions --}}
+            @if(isset($pageActions) && count($pageActions) > 0)
                 @foreach($pageActions as $action)
                     <button
                         @click="executePageAction({{ json_encode($action->toArray()) }})"
-                        class="inline-flex items-center px-4 py-2
-                            @if($action->getStyle() === 'primary') bg-primary text-primary-foreground
-                            @elseif($action->getStyle() === 'secondary') bg-secondary text-secondary-foreground
-                            @elseif($action->getStyle() === 'success') bg-green-600 text-white
-                            @elseif($action->getStyle() === 'danger') bg-red-600 text-white
-                            @elseif($action->getStyle() === 'warning') bg-yellow-600 text-white
-                            @endif
-                            font-semibold rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition duration-200 ease-in-out">
-                        <x-buildora-icon :icon="$action->getIcon()" class="mr-2" />
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200
+                            @if($action->getStyle() === 'primary') btn-primary text-white
+                            @elseif($action->getStyle() === 'secondary') hover:bg-black/5 dark:hover:bg-white/5
+                            @elseif($action->getStyle() === 'success') text-white
+                            @elseif($action->getStyle() === 'danger') text-white
+                            @elseif($action->getStyle() === 'warning') text-white
+                            @endif"
+                        @if($action->getStyle() === 'secondary') style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);"
+                        @elseif($action->getStyle() === 'success') style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);"
+                        @elseif($action->getStyle() === 'danger') style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"
+                        @elseif($action->getStyle() === 'warning') style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"
+                        @endif>
+                        <i class="{{ $action->getIcon() }}"></i>
                         {{ $action->getLabel() }}
                     </button>
                 @endforeach
-            </div>
-        @else
-            <div></div>
-        @endif
+            @endif
 
-        <!-- Create Button (rechts) -->
-        @can(Str::kebab($model) . '.create')
-            <a href="{{ route('buildora.create', ['resource' => $model]) }}"
-               class="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition duration-200 ease-in-out">
-                <x-buildora-icon icon="fa fa-plus" class="mr-2" />
-                {{ __buildora('create') }} {{ $resource->title() }}
-            </a>
-        @endcan
+            {{-- Create Button --}}
+            @can(Str::kebab($model) . '.create')
+                <a href="{{ route('buildora.create', ['resource' => $model]) }}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 btn-primary text-white font-medium rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fa-solid fa-plus"></i>
+                    {{ __buildora('create') }} {{ $resource->title() }}
+                </a>
+            @endcan
+        </div>
     </div>
 
     <x-buildora::datatable :columns="$columns"/>
 
-    <!-- Status Modal -->
+    {{-- Status Modal --}}
     <div x-show="showModal"
          x-cloak
          class="fixed inset-0 z-50 overflow-y-auto"
          @keydown.escape.window="showModal = false">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        {{-- Backdrop --}}
+        <div class="fixed inset-0 transition-opacity" style="background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);"
              @click="showModal = false"></div>
 
-        <!-- Modal Content -->
+        {{-- Modal Content --}}
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6"
+            <div class="relative w-full max-w-2xl rounded-2xl shadow-2xl p-6"
+                 style="background: var(--bg-dropdown); border: 1px solid var(--border-color);"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
                  @click.stop>
-                <!-- Header -->
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                {{-- Header --}}
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold" style="color: var(--text-primary);">
                         <span x-text="modalTitle"></span>
                     </h3>
                     <button @click="showModal = false"
-                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <x-buildora-icon icon="fa fa-times" class="text-xl" />
+                            class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                            style="color: var(--text-muted);">
+                        <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
 
-                <!-- Status -->
-                <div class="mb-4">
-                    <!-- Loading -->
-                    <div x-show="isLoading" class="flex items-center gap-3 text-blue-600">
-                        <div class="animate-spin">
-                            <x-buildora-icon icon="fa fa-spinner" class="text-2xl" />
+                {{-- Status --}}
+                <div class="mb-6">
+                    {{-- Loading --}}
+                    <div x-show="isLoading" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(102, 126, 234, 0.1);">
+                            <i class="fa-solid fa-spinner fa-spin" style="color: #667eea;"></i>
                         </div>
-                        <span class="font-medium">Bezig met synchroniseren...</span>
+                        <span class="font-medium" style="color: var(--text-primary);">{{ __buildora('Processing...') }}</span>
                     </div>
 
-                    <!-- Success -->
-                    <div x-show="!isLoading && modalSuccess"
-                         class="flex items-center gap-3 text-green-600 dark:text-green-400">
-                        <x-buildora-icon icon="fa fa-check-circle" class="text-2xl" />
-                        <span class="font-semibold" x-text="modalMessage"></span>
+                    {{-- Success --}}
+                    <div x-show="!isLoading && modalSuccess" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.1);">
+                            <i class="fa-solid fa-check text-green-500"></i>
+                        </div>
+                        <span class="font-semibold" style="color: var(--text-primary);" x-text="modalMessage"></span>
                     </div>
 
-                    <!-- Error -->
-                    <div x-show="!isLoading && !modalSuccess && modalMessage"
-                         class="flex items-center gap-3 text-red-600 dark:text-red-400">
-                        <x-buildora-icon icon="fa fa-exclamation-circle" class="text-2xl" />
-                        <span class="font-semibold" x-text="modalMessage"></span>
+                    {{-- Error --}}
+                    <div x-show="!isLoading && !modalSuccess && modalMessage" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(239, 68, 68, 0.1);">
+                            <i class="fa-solid fa-exclamation-circle text-red-500"></i>
+                        </div>
+                        <span class="font-semibold" style="color: var(--text-primary);" x-text="modalMessage"></span>
                     </div>
                 </div>
 
-                <!-- Details -->
-                <div x-show="modalDetails" class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                {{-- Details --}}
+                <div x-show="modalDetails" class="mb-6 p-4 rounded-xl" style="background: var(--bg-input); border: 1px solid var(--border-color);">
                     <div class="grid grid-cols-3 gap-4 text-center">
                         <div>
-                            <div class="text-2xl font-bold text-green-600 dark:text-green-400"
-                                 x-text="modalDetails.registered || 0"></div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Geregistreerd</div>
+                            <div class="text-2xl font-bold text-green-500" x-text="modalDetails.registered || 0"></div>
+                            <div class="text-sm" style="color: var(--text-muted);">{{ __buildora('Registered') }}</div>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-gray-600 dark:text-gray-400"
-                                 x-text="modalDetails.skipped || 0"></div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Overgeslagen</div>
+                            <div class="text-2xl font-bold" style="color: var(--text-muted);" x-text="modalDetails.skipped || 0"></div>
+                            <div class="text-sm" style="color: var(--text-muted);">{{ __buildora('Skipped') }}</div>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400"
-                                 x-text="modalDetails.total || 0"></div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Totaal</div>
+                            <div class="text-2xl font-bold" style="color: #667eea;" x-text="modalDetails.total || 0"></div>
+                            <div class="text-sm" style="color: var(--text-muted);">{{ __buildora('Total') }}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Output Log -->
-                <div x-show="modalOutput.length > 0" class="mb-4">
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Output:</h4>
-                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-64 overflow-y-auto">
+                {{-- Output Log --}}
+                <div x-show="modalOutput.length > 0" class="mb-6">
+                    <h4 class="text-sm font-semibold mb-2" style="color: var(--text-secondary);">Output:</h4>
+                    <div class="p-4 rounded-xl font-mono text-sm max-h-64 overflow-y-auto" style="background: #0f0f1a; color: #22c55e;">
                         <template x-for="(line, index) in modalOutput" :key="index">
                             <div x-text="line" class="mb-1"></div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Actions -->
+                {{-- Actions --}}
                 <div class="flex justify-end gap-3">
                     <button @click="showModal = false"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        Sluiten
+                            class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+                            style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        {{ __buildora('Close') }}
                     </button>
                     <button x-show="!isLoading && modalSuccess"
                             @click="window.location.reload()"
-                            class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition">
-                        Vernieuwen
+                            class="px-5 py-2.5 btn-primary text-white rounded-xl font-medium transition-all duration-200 hover:shadow-lg">
+                        {{ __buildora('Refresh') }}
                     </button>
                 </div>
             </div>
