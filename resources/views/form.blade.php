@@ -53,7 +53,7 @@
     </div>
 
     {{-- Form Card --}}
-    <div class="rounded-2xl overflow-hidden"
+    <div class="rounded-2xl"
          style="background: var(--bg-dropdown); border: 1px solid var(--border-color);">
 
         <form method="POST"
