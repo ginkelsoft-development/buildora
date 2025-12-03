@@ -45,6 +45,7 @@ class BuildoraServiceProvider extends ServiceProvider
             \Ginkelsoft\Buildora\Commands\GeneratePermissionsCommand::class,
             \Ginkelsoft\Buildora\Commands\GrantUserResourcePermissions::class,
             \Ginkelsoft\Buildora\Commands\InstallBuildoraCommand::class,
+            \Ginkelsoft\Buildora\Commands\UpgradeBuildoraCommand::class,
             \Ginkelsoft\Buildora\Commands\BuildoraSyncPermissionsCommand::class,
             \Ginkelsoft\Buildora\Commands\MakePermissionResourceCommand::class,
         ]);
@@ -53,10 +54,20 @@ class BuildoraServiceProvider extends ServiceProvider
             __DIR__ . '/../../resources/css/buildora-theme.css' => resource_path('buildora/buildora-theme.css'),
         ], 'buildora-theme');
 
+        // Publish assets (logo, images)
+        $this->publishes([
+            __DIR__ . '/../../resources/assets' => public_path('vendor/buildora'),
+        ], 'buildora-assets');
+
         // Publish configuration file
         $this->publishes([
             __DIR__ . '/../../config/buildora.php' => config_path('buildora.php'),
         ], 'buildora-config');
+
+        // Publish migrations
+        $this->publishes([
+            __DIR__ . '/../../database/migrations' => database_path('migrations'),
+        ], 'buildora-migrations');
 
         // Blade directives
         Blade::if('fontawesome', fn () => config('buildora.enable_fontawesome', true));

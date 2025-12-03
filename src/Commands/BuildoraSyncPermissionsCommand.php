@@ -72,7 +72,31 @@ class BuildoraSyncPermissionsCommand extends Command
             }
         }
 
+        // Create dashboard permissions
+        $this->createDashboardPermissions($hasLabelColumn);
+
         $this->info('All Buildora permissions are synced!');
         return self::SUCCESS;
+    }
+
+    protected function createDashboardPermissions(bool $hasLabelColumn): void
+    {
+        $dashboards = config('buildora.dashboards.children', []);
+
+        foreach ($dashboards as $name => $config) {
+            if (isset($config['permission'])) {
+                $permissionName = $config['permission'];
+                $permission = Permission::findOrCreate($permissionName);
+
+                if ($hasLabelColumn && empty($permission->label)) {
+                    $label = 'View ' . ($config['label'] ?? ucfirst($name)) . ' Dashboard';
+                    $permission->label = $label;
+                    $permission->save();
+                    $this->line("✓ Registered: <comment>$permissionName</comment> with label <info>$label</info>");
+                } else {
+                    $this->line("✓ Registered: <comment>$permissionName</comment>");
+                }
+            }
+        }
     }
 }

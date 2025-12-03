@@ -11,7 +11,6 @@
     $options = $relatedModelClass::query()
         ->pluck($displayColumn, $returnValue)
         ->toArray();
-
 @endphp
 
 <div class="relative">
@@ -23,5 +22,5 @@
 
     @include('buildora::components.field.help')
 </div>
-@include('buildora::components.field.error', ['field' => $field])
 
+@include('buildora::components.field.error', ['field' => $field])

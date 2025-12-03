@@ -1,9 +1,14 @@
-<div class="relative space-y-1">
+<div class="relative">
     <input type="text"
            name="{{ $field->name }}"
            id="{{ $field->name }}"
            value="{{ old($field->name, $value ?? '') }}"
-           class="w-full border border-border rounded-lg p-3 text-foreground bg-muted focus:ring-2 focus:ring-ring focus:outline-none transition shadow-sm" />
+           placeholder="{{ $field->placeholder ?? '' }}"
+           class="w-full h-12 px-4 rounded-xl text-sm transition-all focus:outline-none"
+           style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);"
+           onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102,126,234,0.1)'"
+           onblur="this.style.borderColor='var(--border-color)'; this.style.boxShadow='none'"
+           {{ $field->readonly ? 'readonly' : '' }} />
 
     @include('buildora::components.field.help')
 </div>
