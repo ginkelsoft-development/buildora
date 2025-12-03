@@ -35,26 +35,26 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              @click.away="closeDropdown"
-             class="absolute left-0 right-0 mt-2 rounded-xl shadow-lg overflow-hidden z-20"
+             class="absolute left-0 right-0 mt-2 rounded-xl shadow-xl overflow-hidden z-50"
              style="background: var(--bg-dropdown); border: 1px solid var(--border-color);">
-            <div class="p-2">
+            <div class="p-3" style="border-bottom: 1px solid var(--border-color);">
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i class="fa fa-search text-xs" style="color: var(--text-muted);"></i>
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <i class="fa fa-search text-sm" style="color: var(--text-muted);"></i>
                     </div>
                     <input type="text"
-                           class="w-full h-9 pl-9 pr-3 rounded-lg text-sm focus:outline-none"
+                           class="w-full h-10 pl-12 pr-4 rounded-lg text-sm focus:outline-none"
                            style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);"
                            placeholder="{{ __buildora('Search...') }}"
                            x-model="searchTerm"
-                           @focus="$el.style.borderColor='#667eea'"
-                           @blur="$el.style.borderColor='var(--border-color)'" />
+                           @focus="$el.style.borderColor='#667eea'; $el.style.boxShadow='0 0 0 3px rgba(102,126,234,0.1)'"
+                           @blur="$el.style.borderColor='var(--border-color)'; $el.style.boxShadow='none'" />
                 </div>
             </div>
 
-            <div class="overflow-auto max-h-48">
+            <div class="overflow-auto max-h-64 py-2">
                 <template x-for="[key, label] in filteredOptions" :key="key">
-                    <div class="px-4 py-2.5 cursor-pointer text-sm transition-colors"
+                    <div class="px-4 py-3 cursor-pointer text-sm transition-colors"
                          style="color: var(--text-primary);"
                          :style="selectedKey === key ? 'background: rgba(102,126,234,0.1)' : ''"
                          @click="selectTag(key)"

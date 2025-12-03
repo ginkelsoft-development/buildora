@@ -13,7 +13,7 @@
                 class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors sidebar-hover sidebar-text-muted {{ $isParentActive ? 'sidebar-active' : '' }}">
             <span class="flex items-center gap-3">
                 <x-buildora-icon icon="{{ $item['icon'] }}" class="w-5 h-5" />
-                <span class="text-sm">{{ __buildora($item['label']) }}</span>
+                <span class="text-sm">{{ $item['label'] }}</span>
             </span>
             <i class="fa fa-chevron-down text-xs transform transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
         </button>
@@ -27,7 +27,7 @@
         <a href="{{ $url }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors sidebar-hover {{ $isActive ? 'sidebar-active sidebar-text' : 'sidebar-text-muted' }}">
             <x-buildora-icon icon="{{ $item['icon'] }}" class="w-5 h-5" />
-            <span class="text-sm">{{ __buildora($item['label']) }}</span>
+            <span class="text-sm">{{ $item['label'] }}</span>
         </a>
     @endif
 </li>
