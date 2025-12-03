@@ -7,11 +7,51 @@ use Ginkelsoft\Buildora\Support\ResourceResolver;
 
 class Panel
 {
+    protected bool $inlineEditing = false;
+    protected bool $inlineCreate = false;
+    protected bool $inlineDelete = false;
+
     public function __construct(
         public string $relationName,
         public string $resourceClass,
         protected ?string $label = null,
     ) {
+    }
+
+    /**
+     * Enable inline editing for this relation panel.
+     * Allows editing related records in a modal without leaving the page.
+     */
+    public function inlineEditing(bool $create = true, bool $delete = true): static
+    {
+        $this->inlineEditing = true;
+        $this->inlineCreate = $create;
+        $this->inlineDelete = $delete;
+        return $this;
+    }
+
+    /**
+     * Check if inline editing is enabled.
+     */
+    public function hasInlineEditing(): bool
+    {
+        return $this->inlineEditing;
+    }
+
+    /**
+     * Check if inline create is enabled.
+     */
+    public function canInlineCreate(): bool
+    {
+        return $this->inlineEditing && $this->inlineCreate;
+    }
+
+    /**
+     * Check if inline delete is enabled.
+     */
+    public function canInlineDelete(): bool
+    {
+        return $this->inlineEditing && $this->inlineDelete;
     }
 
     /**
@@ -68,10 +108,13 @@ class Panel
     public function toArray(): array
     {
         return [
-            'type'     => 'panel',
-            'relation' => $this->relationName,
-            'resource' => $this->resourceClass,
-            'label'    => $this->label ?? ucfirst($this->relationName),
+            'type'           => 'panel',
+            'relation'       => $this->relationName,
+            'resource'       => $this->resourceClass,
+            'label'          => $this->label ?? ucfirst($this->relationName),
+            'inlineEditing'  => $this->inlineEditing,
+            'inlineCreate'   => $this->inlineCreate,
+            'inlineDelete'   => $this->inlineDelete,
         ];
     }
 }

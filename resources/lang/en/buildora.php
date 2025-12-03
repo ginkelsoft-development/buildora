@@ -166,4 +166,7 @@ return [
     'Create new item' => 'Create new item',
     'Fill in the details below' => 'Fill in the details below',
     'There are issues with your input' => 'There are issues with your input',
+
+    // Inline relation editing
+    'Are you sure you want to delete this record?' => 'Are you sure you want to delete this record?',
 ];

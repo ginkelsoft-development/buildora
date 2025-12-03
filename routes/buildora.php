@@ -8,6 +8,7 @@ use Ginkelsoft\Buildora\Http\Controllers\BuildoraExportController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
 use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
+use Ginkelsoft\Buildora\Http\Controllers\InlineRelationController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 use Ginkelsoft\Buildora\Http\Controllers\ProfileController;
 use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
@@ -123,6 +124,30 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->where('id', '[0-9]+')
                 ->middleware('buildora.can:view')
                 ->name('buildora.relation.index');
+
+            // Inline Relation CRUD Routes
+            Route::get('{resource}/{id}/relation/{relation}/fields/{itemId?}', [InlineRelationController::class, 'fields'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:view')
+                ->name('buildora.relation.fields');
+
+            Route::post('{resource}/{id}/relation/{relation}', [InlineRelationController::class, 'store'])
+                ->where('id', '[0-9]+')
+                ->middleware('buildora.can:create')
+                ->name('buildora.relation.store');
+
+            Route::put('{resource}/{id}/relation/{relation}/{itemId}', [InlineRelationController::class, 'update'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:edit')
+                ->name('buildora.relation.update');
+
+            Route::delete('{resource}/{id}/relation/{relation}/{itemId}', [InlineRelationController::class, 'destroy'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:delete')
+                ->name('buildora.relation.destroy');
 
             Route::put('{resource}/{id}', [BuildoraController::class, 'update'])
                 ->where('id', '[0-9]+')

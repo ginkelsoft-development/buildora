@@ -1,9 +1,14 @@
 @props([
     'endpoint' => request()->url() . '/datatable/json',
-    'componentKey' => Str::random(8)
+    'componentKey' => Str::random(8),
+    'inlineEditing' => false,
+    'inlineDelete' => false
 ])
 
-<div x-data="dataTable({{ json_encode($endpoint) }})" class="mx-auto" :key="{{ json_encode($componentKey) }}">
+<div x-data="dataTable({{ json_encode($endpoint) }}, {{ json_encode($inlineEditing) }}, {{ json_encode($inlineDelete) }}, {{ json_encode($componentKey) }})"
+     @refresh-datatable-{{ $componentKey }}.window="fetchData()"
+     class="mx-auto"
+     :key="{{ json_encode($componentKey) }}">
 
     {{-- Toast Notification --}}
     <template x-teleport="body">
@@ -224,17 +229,40 @@
                             </template>
                             <td class="py-3 px-4 text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <template x-for="(action, actionIndex) in row.actions" :key="actionIndex">
-                                        <button @click="handleAction(action, row)"
-                                                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
-                                                :class="{
-                                                    'hover:bg-black/5 dark:hover:bg-white/5': action.method === 'GET',
-                                                    'hover:bg-red-500/10': action.method === 'DELETE'
-                                                }"
-                                                :style="action.method === 'DELETE' ? 'color: #ef4444;' : 'color: var(--text-muted);'"
-                                                :title="action.label">
-                                            <i :class="action.icon" class="text-sm"></i>
+                                    {{-- Inline Edit Button --}}
+                                    <template x-if="inlineEditing">
+                                        <button @click="openInlineEdit(row)"
+                                                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5"
+                                                style="color: var(--text-muted);"
+                                                title="{{ __buildora('Edit') }}">
+                                            <i class="fas fa-edit text-sm"></i>
                                         </button>
+                                    </template>
+
+                                    {{-- Inline Delete Button --}}
+                                    <template x-if="inlineDelete">
+                                        <button @click="triggerInlineDelete(row)"
+                                                class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-red-500/10"
+                                                style="color: #ef4444;"
+                                                title="{{ __buildora('Delete') }}">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </template>
+
+                                    {{-- Regular Row Actions (only when not inline editing) --}}
+                                    <template x-if="!inlineEditing">
+                                        <template x-for="(action, actionIndex) in row.actions" :key="actionIndex">
+                                            <button @click="handleAction(action, row)"
+                                                    class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200"
+                                                    :class="{
+                                                        'hover:bg-black/5 dark:hover:bg-white/5': action.method === 'GET',
+                                                        'hover:bg-red-500/10': action.method === 'DELETE'
+                                                    }"
+                                                    :style="action.method === 'DELETE' ? 'color: #ef4444;' : 'color: var(--text-muted);'"
+                                                    :title="action.label">
+                                                <i :class="action.icon" class="text-sm"></i>
+                                            </button>
+                                        </template>
                                     </template>
                                 </div>
                             </td>
@@ -288,7 +316,7 @@
 </div>
 
 <script>
-    function dataTable(customEndpoint = null) {
+    function dataTable(customEndpoint = null, inlineEditing = false, inlineDelete = false, componentKey = null) {
         function debounce(func, wait, immediate) {
             let timeout;
             return function () {
@@ -311,8 +339,11 @@
             sortBy: '',
             sortDirection: 'asc',
             pagination: { current_page: 1, per_page: 25, total: 0, last_page: 1 },
-            paginationOptions: [10, 25, 50, 100], // <- ✅ init waarde toegevoegd
+            paginationOptions: [10, 25, 50, 100],
             endpoint: customEndpoint,
+            inlineEditing: inlineEditing,
+            inlineDelete: inlineDelete,
+            componentKey: componentKey,
             debouncedFetchData: null,
             selectedRows: [],
             selectedBulkAction: '',
@@ -335,6 +366,27 @@
                     this.fetchData();
                 }, 300);
                 this.fetchData();
+            },
+
+            // Inline editing: trigger parent panel's openEditModal
+            openInlineEdit(row) {
+                if (this.inlineEditing && row.id) {
+                    // Find parent panel component and call openEditModal
+                    const panel = this.$el.closest('[x-data*="inlineRelationPanel"]');
+                    if (panel && panel.__x) {
+                        panel.__x.$data.openEditModal(row.id);
+                    }
+                }
+            },
+
+            // Inline delete: trigger parent panel's deleteItem
+            triggerInlineDelete(row) {
+                if (this.inlineDelete && row.id) {
+                    const panel = this.$el.closest('[x-data*="inlineRelationPanel"]');
+                    if (panel && panel.__x) {
+                        panel.__x.$data.deleteItem(row.id);
+                    }
+                }
             },
 
             fetchData() {
