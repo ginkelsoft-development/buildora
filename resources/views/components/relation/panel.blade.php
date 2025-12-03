@@ -270,6 +270,7 @@ function inlineRelationPanel(config) {
 
         async loadFields(itemId = null) {
             this.isLoadingFields = true;
+            this.formError = null;
 
             const url = itemId
                 ? `${this.endpoint}/fields/${itemId}`
@@ -283,18 +284,26 @@ function inlineRelationPanel(config) {
                     }
                 });
 
-                if (!response.ok) throw new Error('Failed to load fields');
-
                 const data = await response.json();
-                this.formFields = data.fields;
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.message || 'Failed to load fields');
+                }
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                this.formFields = data.fields || [];
 
                 // Initialize form data with values
                 this.formData = {};
-                data.fields.forEach(field => {
+                (data.fields || []).forEach(field => {
                     this.formData[field.name] = field.value ?? '';
                 });
 
             } catch (error) {
+                console.error('Load fields error:', error);
                 this.formError = error.message;
             } finally {
                 this.isLoadingFields = false;

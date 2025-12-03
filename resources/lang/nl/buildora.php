@@ -167,4 +167,7 @@ return [
     'Create new item' => 'Nieuw item aanmaken',
     'Fill in the details below' => 'Vul de onderstaande gegevens in',
     'There are issues with your input' => 'Er zijn problemen met je invoer',
+
+    // Inline relation editing
+    'Are you sure you want to delete this record?' => 'Weet je zeker dat je dit record wilt verwijderen?',
 ];
