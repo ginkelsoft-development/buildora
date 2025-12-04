@@ -11,7 +11,7 @@ return [
     */
 
     'docs' => [
-        'route' => '/docs',
+        'route' => '/buildora/docs',
         'path' => '/resources/docs',
         'landing' => 'index',
         'middleware' => ['web'],

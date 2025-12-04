@@ -276,6 +276,37 @@ BelongsToManyField::make('tags')
     ->hideFromTable();
 ```
 
+### RelationLinkField
+
+Displays a clickable link to a related record.
+
+```php
+use Ginkelsoft\Buildora\Fields\Types\RelationLinkField;
+
+// Basic usage - link to related record
+RelationLinkField::make('category', 'Category')
+    ->displayUsing('name');
+
+// With explicit model and resource
+RelationLinkField::make('author', 'Author')
+    ->relatedTo(\App\Models\User::class)
+    ->resource(\App\Buildora\Resources\UserBuildora::class)
+    ->displayUsing('name');
+
+// Open in new tab
+RelationLinkField::make('company')
+    ->displayUsing('company_name')
+    ->openInNewTab();
+```
+
+**Methods:**
+- `relatedTo(string $model)` - Set the related model class
+- `resource(string $resourceClass)` - Set the Buildora resource for URL generation
+- `displayUsing(string $column)` - Column to display as link text (default: 'name')
+- `openInNewTab(bool $value)` - Open the link in a new browser tab
+
+> {info} RelationLinkField automatically hides from create/edit forms. It's designed for table and detail views only.
+
 ---
 
 <a name="content-fields"></a>

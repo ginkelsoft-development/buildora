@@ -60,6 +60,17 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
 
         /*
         |--------------------------------------------------------------------------
+        | Documentation
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/docs/{version?}/{page?}', function ($version = null, $page = null) {
+            $version = $version ?? config('larecipe.versions.default', '1.0');
+            $page = $page ?? config('larecipe.docs.landing', 'index');
+            return redirect("/buildora/docs/{$version}/{$page}");
+        })->name('buildora.docs')->where('page', '.*');
+
+        /*
+        |--------------------------------------------------------------------------
         | Permission Management (Legacy)
         |--------------------------------------------------------------------------
         */

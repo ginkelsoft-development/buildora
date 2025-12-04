@@ -325,6 +325,29 @@ The main configuration file `config/buildora.php` contains:
 ### Navigation Structure
 ```php
 'navigation' => [
+    // Link to a Buildora resource
+    [
+        'label' => 'Users',
+        'icon' => 'fas fa-user',
+        'route' => 'buildora.index',
+        'params' => ['resource' => 'user'],
+    ],
+
+    // Link to an external URL
+    [
+        'label' => 'Documentation',
+        'icon' => 'fas fa-book',
+        'url' => 'https://docs.example.com',
+    ],
+
+    // Link to a custom Laravel route
+    [
+        'label' => 'Back to site',
+        'icon' => 'fas fa-home',
+        'url' => '/',
+    ],
+
+    // Nested navigation with children
     [
         'label' => 'Settings',
         'icon' => 'fas fa-cog',
@@ -335,11 +358,23 @@ The main configuration file `config/buildora.php` contains:
                 'route' => 'buildora.index',
                 'params' => ['resource' => 'user'],
             ],
+            [
+                'label' => 'Permissions',
+                'icon' => 'fas fa-lock',
+                'route' => 'buildora.index',
+                'params' => ['resource' => 'permission'],
+            ],
         ],
     ],
-    'include_resources' => true, // Auto-include all resources
+
+    'include_resources' => true, // Auto-include all resources not manually defined
 ],
 ```
+
+Navigation items support:
+- `route` + `params`: Link to a named Laravel route
+- `url`: Direct URL (internal or external)
+- `children`: Nested dropdown menu
 
 ---
 

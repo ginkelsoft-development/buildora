@@ -1,4 +1,6 @@
-<x-buildora-layout>
+@extends('buildora::layouts.buildora')
+
+@section('content')
     <div class="max-w-6xl mx-auto" x-data="buildoraSettings()">
         {{-- Header --}}
         <div class="mb-8">
@@ -28,7 +30,7 @@
                         </div>
                         <span class="px-3 py-1 text-sm font-medium rounded-full"
                               style="background: rgba(102, 126, 234, 0.1); color: var(--accent-color);">
-                            <span x-text="stats.permission_count">{{ $stats['permission_count'] }}</span> {{ __buildora('permissions') }}
+                            <span x-text="stats.permission_count">{{ $stats['permission_count'] ?? 0 }}</span> {{ __buildora('permissions') }}
                         </span>
                     </div>
 
@@ -74,15 +76,15 @@
                         <div class="grid grid-cols-3 gap-4 text-sm">
                             <div>
                                 <span style="color: var(--text-muted);">{{ __buildora('Cache Driver') }}</span>
-                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['cache_driver'] }}</p>
+                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['cache_driver'] ?? 'file' }}</p>
                             </div>
                             <div>
                                 <span style="color: var(--text-muted);">{{ __buildora('Session Driver') }}</span>
-                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['session_driver'] }}</p>
+                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['session_driver'] ?? 'file' }}</p>
                             </div>
                             <div>
                                 <span style="color: var(--text-muted);">{{ __buildora('Queue Driver') }}</span>
-                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['queue_driver'] }}</p>
+                                <p class="font-medium" style="color: var(--text-primary);">{{ $stats['queue_driver'] ?? 'sync' }}</p>
                             </div>
                         </div>
                     </div>
@@ -119,7 +121,7 @@
                     <div class="mt-4 p-4 rounded-xl" style="background: var(--bg-primary);">
                         <div class="flex items-center justify-between">
                             <span style="color: var(--text-secondary);">{{ __buildora('Total Resources') }}</span>
-                            <span class="text-xl font-bold" style="color: var(--text-primary);">{{ $stats['resource_count'] }}</span>
+                            <span class="text-xl font-bold" style="color: var(--text-primary);">{{ $stats['resource_count'] ?? 0 }}</span>
                         </div>
                     </div>
 
@@ -147,32 +149,32 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between py-2" style="border-bottom: 1px solid var(--border-color);">
                             <span class="text-sm" style="color: var(--text-muted);">{{ __buildora('PHP Version') }}</span>
-                            <span class="text-sm font-medium" style="color: var(--text-primary);">{{ $stats['php_version'] }}</span>
+                            <span class="text-sm font-medium" style="color: var(--text-primary);">{{ $stats['php_version'] ?? PHP_VERSION }}</span>
                         </div>
 
                         <div class="flex items-center justify-between py-2" style="border-bottom: 1px solid var(--border-color);">
                             <span class="text-sm" style="color: var(--text-muted);">{{ __buildora('Laravel Version') }}</span>
-                            <span class="text-sm font-medium" style="color: var(--text-primary);">{{ $stats['laravel_version'] }}</span>
+                            <span class="text-sm font-medium" style="color: var(--text-primary);">{{ $stats['laravel_version'] ?? app()->version() }}</span>
                         </div>
 
                         <div class="flex items-center justify-between py-2" style="border-bottom: 1px solid var(--border-color);">
                             <span class="text-sm" style="color: var(--text-muted);">{{ __buildora('Buildora Version') }}</span>
-                            <span class="text-sm font-medium" style="color: var(--accent-color);">{{ $stats['buildora_version'] }}</span>
+                            <span class="text-sm font-medium" style="color: var(--accent-color);">{{ $stats['buildora_version'] ?? config('buildora.version', 'dev') }}</span>
                         </div>
 
                         <div class="flex items-center justify-between py-2" style="border-bottom: 1px solid var(--border-color);">
                             <span class="text-sm" style="color: var(--text-muted);">{{ __buildora('Environment') }}</span>
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full"
-                                  style="background: {{ $stats['environment'] === 'production' ? '#10b981' : '#f59e0b' }}20; color: {{ $stats['environment'] === 'production' ? '#10b981' : '#f59e0b' }};">
-                                {{ $stats['environment'] }}
+                                  style="background: {{ ($stats['environment'] ?? app()->environment()) === 'production' ? '#10b981' : '#f59e0b' }}20; color: {{ ($stats['environment'] ?? app()->environment()) === 'production' ? '#10b981' : '#f59e0b' }};">
+                                {{ $stats['environment'] ?? app()->environment() }}
                             </span>
                         </div>
 
                         <div class="flex items-center justify-between py-2">
                             <span class="text-sm" style="color: var(--text-muted);">{{ __buildora('Debug Mode') }}</span>
                             <span class="px-2 py-0.5 text-xs font-medium rounded-full"
-                                  style="background: {{ $stats['debug_mode'] ? '#ef4444' : '#10b981' }}20; color: {{ $stats['debug_mode'] ? '#ef4444' : '#10b981' }};">
-                                {{ $stats['debug_mode'] ? 'ON' : 'OFF' }}
+                                  style="background: {{ ($stats['debug_mode'] ?? config('app.debug')) ? '#ef4444' : '#10b981' }}20; color: {{ ($stats['debug_mode'] ?? config('app.debug')) ? '#ef4444' : '#10b981' }};">
+                                {{ ($stats['debug_mode'] ?? config('app.debug')) ? 'ON' : 'OFF' }}
                             </span>
                         </div>
                     </div>
@@ -192,7 +194,7 @@
                                     <i class="fas fa-users" style="color: var(--accent-color);"></i>
                                 </div>
                                 <div>
-                                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $stats['user_count'] }}</p>
+                                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $stats['user_count'] ?? 0 }}</p>
                                     <p class="text-xs" style="color: var(--text-muted);">{{ __buildora('Users') }}</p>
                                 </div>
                             </div>
@@ -204,7 +206,7 @@
                                     <i class="fas fa-cubes" style="color: #10b981;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $stats['resource_count'] }}</p>
+                                    <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $stats['resource_count'] ?? 0 }}</p>
                                     <p class="text-xs" style="color: var(--text-muted);">{{ __buildora('Resources') }}</p>
                                 </div>
                             </div>
@@ -216,7 +218,7 @@
                                     <i class="fas fa-shield-alt" style="color: #f59e0b;"></i>
                                 </div>
                                 <div>
-                                    <p class="text-2xl font-bold" style="color: var(--text-primary);" x-text="stats.permission_count">{{ $stats['permission_count'] }}</p>
+                                    <p class="text-2xl font-bold" style="color: var(--text-primary);" x-text="stats.permission_count">{{ $stats['permission_count'] ?? 0 }}</p>
                                     <p class="text-xs" style="color: var(--text-muted);">{{ __buildora('Permissions') }}</p>
                                 </div>
                             </div>
@@ -247,7 +249,7 @@
     function buildoraSettings() {
         return {
             stats: {
-                permission_count: {{ $stats['permission_count'] }}
+                permission_count: {{ $stats['permission_count'] ?? 0 }}
             },
             loading: {
                 permissions: false,
@@ -331,4 +333,4 @@
         };
     }
     </script>
-</x-buildora-layout>
+@endsection

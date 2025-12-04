@@ -171,6 +171,10 @@ class NavigationBuilder
      */
     public static function getNavigationItemUrl(array $item): ?string
     {
+        if (isset($item['url'])) {
+            return $item['url'];
+        }
+
         if (!isset($item['route']) || !Route::has($item['route'])) {
             return null;
         }
