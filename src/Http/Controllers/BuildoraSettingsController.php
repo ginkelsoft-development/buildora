@@ -16,7 +16,23 @@ class BuildoraSettingsController extends Controller
      */
     public function index()
     {
-        $stats = $this->getSystemStats();
+        try {
+            $stats = $this->getSystemStats();
+        } catch (\Exception $e) {
+            $stats = [
+                'php_version' => PHP_VERSION,
+                'laravel_version' => app()->version(),
+                'buildora_version' => config('buildora.version', 'dev'),
+                'environment' => app()->environment(),
+                'debug_mode' => config('app.debug'),
+                'permission_count' => 0,
+                'user_count' => 0,
+                'resource_count' => 0,
+                'cache_driver' => config('cache.default'),
+                'session_driver' => config('session.driver'),
+                'queue_driver' => config('queue.default'),
+            ];
+        }
 
         return view('buildora::settings.index', [
             'stats' => $stats,
