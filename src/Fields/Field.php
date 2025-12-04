@@ -26,6 +26,7 @@ class Field
     public bool $readonly = false;
     public mixed $displayValue = null;
     public mixed $value = null;
+    public string $align = 'left';
 
     protected ?string $helpText = null;
 

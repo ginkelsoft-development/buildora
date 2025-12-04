@@ -22,6 +22,7 @@ class RelationLinkField extends Field
     protected ?string $linkRoute = null;
     protected ?Model $parentModel = null;
     protected bool $openInNewTab = false;
+    protected ?string $icon = null;
 
     /**
      * RelationLinkField constructor.
@@ -37,10 +38,15 @@ class RelationLinkField extends Field
 
     /**
      * Factory method to create a new RelationLinkField instance.
+     *
+     * @param string $name
+     * @param string|null $label
+     * @param string $type
+     * @return static
      */
-    public static function make(string $name, ?string $label = null, string $type = 'relationLink'): self
+    public static function make(string $name, ?string $label = null, string $type = 'relationLink'): static
     {
-        return new self($name, $label);
+        return new static($name, $label);
     }
 
     /**
@@ -85,6 +91,18 @@ class RelationLinkField extends Field
     public function openInNewTab(bool $value = true): self
     {
         $this->openInNewTab = $value;
+        return $this;
+    }
+
+    /**
+     * Set an icon to display before the link text.
+     *
+     * @param string $iconClass Font Awesome or other icon class (e.g., 'fas fa-user')
+     * @return self
+     */
+    public function icon(string $iconClass): self
+    {
+        $this->icon = $iconClass;
         return $this;
     }
 
@@ -181,14 +199,17 @@ class RelationLinkField extends Field
             ]);
 
             $target = $this->openInNewTab ? ' target="_blank"' : '';
+            $iconHtml = $this->icon ? sprintf('<i class="%s mr-1"></i>', e($this->icon)) : '';
             $this->displayValue = sprintf(
-                '<a href="%s" class="text-indigo-600 hover:text-indigo-800 hover:underline"%s>%s</a>',
+                '<a href="%s" class="text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center"%s>%s%s <i class="fas fa-arrow-up-right-from-square ml-2 text-xs opacity-60"></i></a>',
                 $url,
                 $target,
+                $iconHtml,
                 e($displayText)
             );
         } else {
-            $this->displayValue = e($displayText);
+            $iconHtml = $this->icon ? sprintf('<i class="%s mr-1"></i>', e($this->icon)) : '';
+            $this->displayValue = $iconHtml . e($displayText);
         }
 
         return $this;
