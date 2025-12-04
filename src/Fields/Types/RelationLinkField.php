@@ -38,7 +38,7 @@ class RelationLinkField extends Field
     /**
      * Factory method to create a new RelationLinkField instance.
      */
-    public static function make(string $name, ?string $label = null): self
+    public static function make(string $name, ?string $label = null, string $type = 'relationLink'): self
     {
         return new self($name, $label);
     }
