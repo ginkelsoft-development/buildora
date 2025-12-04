@@ -21,10 +21,11 @@
         "livewire/livewire": "^3.0",
         "maatwebsite/excel": "^3.1",
         "pragmarx/google2fa": "^8.0",
-        "spatie/laravel-permission": "^6.16"
+        "spatie/laravel-permission": "^6.16",
+        "binarytorch/larecipe": "^2.0"
     },
     "extra": {
-        "buildora-version": "1.0.36",
+        "buildora-version": "1.0.37",
         "laravel": {
             "providers": [
                 "Ginkelsoft\\Buildora\\Providers\\BuildoraServiceProvider"

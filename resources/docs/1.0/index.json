@@ -1,0 +1,24 @@
+{
+    "Get Started": {
+        "Introduction": "index",
+        "Installation": "installation"
+    },
+    "Core Concepts": {
+        "Resources": "resources",
+        "Fields": "fields",
+        "Validation": "validation"
+    },
+    "Advanced Features": {
+        "Panels & Relations": "panels",
+        "Actions": "actions",
+        "Widgets": "widgets"
+    },
+    "Configuration": {
+        "Configuration": "configuration",
+        "Permissions": "permissions",
+        "Artisan Commands": "commands"
+    },
+    "Customization": {
+        "Theming": "theming"
+    }
+}

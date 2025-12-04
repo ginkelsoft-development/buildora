@@ -106,6 +106,12 @@ return [
             'icon' => 'fas fa-cog',
             'children' => [
                 [
+                    'label' => 'Buildora',
+                    'icon' => 'fas fa-sliders-h',
+                    'route' => 'buildora.settings',
+                    'params' => []
+                ],
+                [
                     'label' => 'Users',
                     'icon' => 'fas fa-user',
                     'route' => 'buildora.index',

@@ -12,6 +12,7 @@ use Ginkelsoft\Buildora\Http\Controllers\InlineRelationController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 use Ginkelsoft\Buildora\Http\Controllers\ProfileController;
 use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
+use Ginkelsoft\Buildora\Http\Controllers\BuildoraSettingsController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
@@ -42,7 +43,24 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
 
         /*
         |--------------------------------------------------------------------------
-        | Permission Management
+        | Settings
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/settings', [BuildoraSettingsController::class, 'index'])
+            ->name('buildora.settings')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/settings/sync-permissions', [BuildoraSettingsController::class, 'syncPermissions'])
+            ->name('buildora.settings.sync-permissions')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/settings/clear-cache', [BuildoraSettingsController::class, 'clearCache'])
+            ->name('buildora.settings.clear-cache')
+            ->middleware(['web', 'auth']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Management (Legacy)
         |--------------------------------------------------------------------------
         */
         Route::post('/permissions/sync', [PermissionSyncController::class, 'sync'])
