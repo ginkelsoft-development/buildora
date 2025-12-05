@@ -64,6 +64,16 @@ class BuildoraServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/buildora.php' => config_path('buildora.php'),
         ], 'buildora-config');
 
+        // Publish LaRecipe configuration
+        $this->publishes([
+            __DIR__ . '/../../config/larecipe.php' => config_path('larecipe.php'),
+        ], 'buildora-docs-config');
+
+        // Publish documentation files
+        $this->publishes([
+            __DIR__ . '/../../resources/docs' => resource_path('docs'),
+        ], 'buildora-docs');
+
         // Publish migrations
         $this->publishes([
             __DIR__ . '/../../database/migrations' => database_path('migrations'),

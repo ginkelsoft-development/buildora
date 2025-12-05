@@ -125,6 +125,18 @@ return [
         ],
 
         'include_resources' => true,
+
+        [
+            'label' => 'Buildora',
+            'icon' => 'fas fa-cog',
+            'children' => [
+                [
+                    'label' => 'Settings',
+                    'icon' => 'fas fa-sliders',
+                    'route' => 'buildora.settings',
+                ],
+            ],
+        ],
     ],
 
     /*

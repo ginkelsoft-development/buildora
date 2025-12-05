@@ -8,9 +8,11 @@ use Ginkelsoft\Buildora\Http\Controllers\BuildoraExportController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraController;
 use Ginkelsoft\Buildora\Http\Controllers\GlobalSearchController;
 use Ginkelsoft\Buildora\Http\Controllers\RelationDatatableController;
+use Ginkelsoft\Buildora\Http\Controllers\InlineRelationController;
 use Ginkelsoft\Buildora\Http\Controllers\PermissionSyncController;
 use Ginkelsoft\Buildora\Http\Controllers\ProfileController;
 use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
+use Ginkelsoft\Buildora\Http\Controllers\BuildoraSettingsController;
 
 Route::prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
@@ -41,7 +43,35 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
 
         /*
         |--------------------------------------------------------------------------
-        | Permission Management
+        | Settings
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/settings', [BuildoraSettingsController::class, 'index'])
+            ->name('buildora.settings')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/settings/sync-permissions', [BuildoraSettingsController::class, 'syncPermissions'])
+            ->name('buildora.settings.sync-permissions')
+            ->middleware(['web', 'auth']);
+
+        Route::post('/settings/clear-cache', [BuildoraSettingsController::class, 'clearCache'])
+            ->name('buildora.settings.clear-cache')
+            ->middleware(['web', 'auth']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Documentation
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/docs/{version?}/{page?}', function ($version = null, $page = null) {
+            $version = $version ?? config('larecipe.versions.default', '1.0');
+            $page = $page ?? config('larecipe.docs.landing', 'index');
+            return redirect("/buildora/docs/{$version}/{$page}");
+        })->name('buildora.docs')->where('page', '.*');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission Management (Legacy)
         |--------------------------------------------------------------------------
         */
         Route::post('/permissions/sync', [PermissionSyncController::class, 'sync'])
@@ -123,6 +153,30 @@ Route::prefix(config('buildora.route_prefix', 'buildora'))
                 ->where('id', '[0-9]+')
                 ->middleware('buildora.can:view')
                 ->name('buildora.relation.index');
+
+            // Inline Relation CRUD Routes
+            Route::get('{resource}/{id}/relation/{relation}/fields/{itemId?}', [InlineRelationController::class, 'fields'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:view')
+                ->name('buildora.relation.fields');
+
+            Route::post('{resource}/{id}/relation/{relation}', [InlineRelationController::class, 'store'])
+                ->where('id', '[0-9]+')
+                ->middleware('buildora.can:create')
+                ->name('buildora.relation.store');
+
+            Route::put('{resource}/{id}/relation/{relation}/{itemId}', [InlineRelationController::class, 'update'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:edit')
+                ->name('buildora.relation.update');
+
+            Route::delete('{resource}/{id}/relation/{relation}/{itemId}', [InlineRelationController::class, 'destroy'])
+                ->where('id', '[0-9]+')
+                ->where('itemId', '[0-9]+')
+                ->middleware('buildora.can:delete')
+                ->name('buildora.relation.destroy');
 
             Route::put('{resource}/{id}', [BuildoraController::class, 'update'])
                 ->where('id', '[0-9]+')
