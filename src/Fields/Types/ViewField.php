@@ -62,7 +62,7 @@ class ViewField extends Field
      * @param string $type
      * @return self
      */
-    public static function make(string $name = '', ?string $label = '', string $type = ''): self
+    public static function make(string $name = '', ?string $label = null, string $type = 'view'): self
     {
         return new self($name, $label, $type);
     }
