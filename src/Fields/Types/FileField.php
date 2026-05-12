@@ -3,6 +3,7 @@
 namespace Ginkelsoft\Buildora\Fields\Types;
 
 use Ginkelsoft\Buildora\Fields\Field;
+use Ginkelsoft\Buildora\Validation\Rules\BlocksExecutableUploads;
 
 /**
  * Represents a file upload field with options for validation, disk storage, and preview.
@@ -18,6 +19,14 @@ class FileField extends Field
     protected string $disk = 'public';
     protected string $path = '/';
     protected bool $showPreview = false;
+
+    /**
+     * Server-side MIME-type whitelist. When set, uploads with any other MIME
+     * type are rejected by Laravel's mimetypes rule.
+     *
+     * @var array<int, string>|null
+     */
+    protected ?array $allowedMimeTypes = null;
 
     /**
      * Create a new FileField instance.
@@ -92,6 +101,60 @@ class FileField extends Field
     {
         $this->path = trim($path, '/');
         return $this;
+    }
+
+    /**
+     * Server-side whitelist of accepted MIME types.
+     *
+     * Note: this is enforced via Laravel's "mimetypes:" rule (real magic-byte
+     * detection). The accept() method only hints to the browser and is not
+     * trustworthy as a security boundary.
+     *
+     * @param array<int, string> $types e.g. ['image/jpeg', 'image/png', 'application/pdf']
+     * @return static
+     */
+    public function allowedMimeTypes(array $types): static
+    {
+        $this->allowedMimeTypes = array_values(array_unique(array_filter($types)));
+        return $this;
+    }
+
+    /**
+     * @return array<int, string>|null
+     */
+    public function getAllowedMimeTypes(): ?array
+    {
+        return $this->allowedMimeTypes;
+    }
+
+    /**
+     * Build the validation rules for this field.
+     *
+     * Combines (in order):
+     *   - any rules a developer registered through ->validation()
+     *   - file rule (so non-uploads short-circuit the others)
+     *   - BlocksExecutableUploads — always active, even without a whitelist
+     *   - mimetypes:<whitelist> when allowedMimeTypes() is set
+     *   - max:<kb> when maxSize() is set
+     *
+     * @return array<int, mixed>
+     */
+    public function getValidationRules(mixed $model = null): array
+    {
+        $rules = parent::getValidationRules($model);
+
+        $rules[] = 'file';
+        $rules[] = new BlocksExecutableUploads();
+
+        if (! empty($this->allowedMimeTypes)) {
+            $rules[] = 'mimetypes:' . implode(',', $this->allowedMimeTypes);
+        }
+
+        if ($this->maxSizeKb !== null) {
+            $rules[] = 'max:' . $this->maxSizeKb;
+        }
+
+        return $rules;
     }
 
     /**
