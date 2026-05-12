@@ -106,7 +106,7 @@ class BuildoraController extends Controller
         }
 
         $createdItem = $modelInstance::create($filteredData);
-        $this->handleRelationships($createdItem, $request->all());
+        $this->handleRelationships($createdItem, $this->relationPayload($resource, $modelInstance, $request));
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('created successfully.'));
@@ -187,10 +187,27 @@ class BuildoraController extends Controller
         $filteredData = array_intersect_key($finalData, array_flip($fields));
 
         $item->update($filteredData);
-        $this->handleRelationships($item, $request->all());
+        $this->handleRelationships($item, $this->relationPayload($resource, $modelInstance, $request));
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('updated successfully.'));
+    }
+
+    /**
+     * Build the payload that handleRelationships() is allowed to process.
+     *
+     * Without this filter, $request->all() would let a caller inject any
+     * relation-method name that exists on the model — even ones the resource
+     * never declared — and pivot/sync them. Restricting the keys to the
+     * names defined in defineFields() closes that mass-assignment hole.
+     */
+    protected function relationPayload(object $resource, object $modelInstance, Request $request): array
+    {
+        $allowedKeys = collect($resource->resolveFields($modelInstance))
+            ->map(fn ($field) => $field->name)
+            ->toArray();
+
+        return $request->only($allowedKeys);
     }
 
     public function show(string $model, int|string $id)
