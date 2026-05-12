@@ -2,6 +2,7 @@
 
 namespace Ginkelsoft\Buildora\Commands;
 
+use Ginkelsoft\Buildora\Authorization\BuildoraAbility;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
@@ -55,8 +56,9 @@ class BuildoraSyncPermissionsCommand extends Command
                 $modelName = str(class_basename($modelClass))->lower();
             }
 
-            foreach (['view', 'create', 'edit', 'delete'] as $action) {
-                $permissionName = "$modelName.$action";
+            foreach (BuildoraAbility::defaults() as $ability) {
+                $action = $ability->value;
+                $permissionName = $ability->permissionString($modelName);
                 $permission = Permission::findOrCreate($permissionName);
 
                 if ($hasLabelColumn && empty($permission->label)) {
