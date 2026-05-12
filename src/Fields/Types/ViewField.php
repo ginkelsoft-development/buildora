@@ -7,7 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 use Closure;
 
 /**
- * Represents a custom field that renders a Blade view with optional dynamic data.
+ * Read-only field that renders a Blade partial.
+ *
+ * Use when a derived value isn't expressible as a single string — charts,
+ * tables, badge layouts, embedded components — and you'd rather hand the
+ * markup to a dedicated Blade view than build it in PHP.
+ *
+ *   ViewField::make('chart')
+ *       ->view('admin.partials.revenue-chart');
+ *
+ * Sibling field types:
+ *   - DisplayField — for simple computed strings; preferable when a Blade
+ *     partial would be overkill.
+ *   - RichTextField — for read-only display of user-stored HTML, with
+ *     automatic sanitisation.
+ *
+ * Performance note: a Blade view is rendered for *every datatable row*
+ * that includes this field. Prefer DisplayField in high-row contexts.
  */
 class ViewField extends Field
 {
