@@ -136,8 +136,7 @@ class DataFetcher
         // ✅ OPTIMIZATION 4: Qualified column names for sorting
         if (!empty($sortBy)) {
             $sortColumn = collect($this->columns)->first(fn ($col) =>
-                (is_array($col) ? ($col['name'] ?? null) : $col) === $sortBy
-            );
+                (is_array($col) ? ($col['name'] ?? null) : $col) === $sortBy);
 
             $sortColumnName = is_array($sortColumn)
                 ? ($sortColumn['search_column'] ?? $sortColumn['name'] ?? null)
