@@ -111,22 +111,16 @@ class BelongsToField extends Field
      */
     public function setValue(mixed $model): self
     {
-        if ($model instanceof Model && method_exists($model, $this->name) && $model->exists) {
-            $relation = $model->{$this->name}();
+        $this->value = null;
 
-            if ($relation instanceof BelongsTo) {
-                $relatedInstance = $relation->getResults();
+        if (! $model instanceof Model) {
+            return $this;
+        }
 
-                if ($relatedInstance) {
-                    $this->value = $relatedInstance->{$this->displayColumn};
-                } else {
-                    $this->value = null;
-                }
-            } else {
-                $this->value = null;
-            }
-        } else {
-            $this->value = null;
+        $related = \Ginkelsoft\Buildora\Support\RelationLoader::oneFor($model, $this->name);
+
+        if ($related !== null) {
+            $this->value = $related->{$this->displayColumn};
         }
 
         return $this;
