@@ -5,6 +5,7 @@ namespace Ginkelsoft\Buildora\Resources;
 use Ginkelsoft\Buildora\Actions\BulkAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceActions;
+use Ginkelsoft\Buildora\Resources\Concerns\HasResourceNavigation;
 use Illuminate\Database\Eloquent\Model;
 use Ginkelsoft\Buildora\Fields\Field;
 use Exception;
@@ -12,13 +13,13 @@ use Exception;
 /**
  * Abstract base class for all Buildora Resources.
  *
- * Decomposition: concerns that have a self-contained surface are pulled
- * out into traits in Resources\Concerns. See #135 for the long-term plan;
- * the action surface is the first concern to move.
+ * Concerns are pulled into traits under Resources\\Concerns as part of #135.
+ * This file should shrink over time; new methods belong in a trait by topic.
  */
 abstract class BuildoraResource
 {
     use HasResourceActions;
+    use HasResourceNavigation;
 
     protected ?Model $parentModel = null;
     protected string $modelClass;
@@ -42,28 +43,8 @@ abstract class BuildoraResource
         FieldValidator::validate($this->fields, $modelInstance);
     }
 
-    public function title(): string
-    {
-        return class_basename($this->modelClass);
-    }
-
-    /**
-     * Configuratie voor zoekresultaten.
-     *
-     * @return array{label: string|array|callable, columns: string[]}
-     */
-    public function searchResultConfig(): array
-    {
-        return [
-            'label' => ['voornaam', 'achternaam'],
-            'columns' => ['voornaam', 'achternaam', 'emailadres'],
-        ];
-    }
-
-    public function showInNavigation(): bool
-    {
-        return true;
-    }
+    // title(), searchResultConfig(), showInNavigation() live in
+    // HasResourceNavigation (Resources\Concerns\HasResourceNavigation).
 
     /**
      * Create a new static instance of the resource.
@@ -213,15 +194,7 @@ abstract class BuildoraResource
         return $this->modelClass;
     }
 
-    /**
-     * Generate a slug for the resource based on its class name.
-     *
-     * @return string
-     */
-    public static function slug(): string
-    {
-        return str_replace('buildora', '', strtolower(class_basename(static::class)));
-    }
+    // slug() lives in HasResourceNavigation.
 
     /**
      * Return the query builder for this resource WITHOUT eager-loading relations.
