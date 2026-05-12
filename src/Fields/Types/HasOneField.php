@@ -37,6 +37,27 @@ class HasOneField extends Field
     }
 
     /**
+     * Static factory for HasOneField.
+     *
+     * Field::make() uses `new self()` (not `new static()`), so the inherited
+     * factory would otherwise return a base Field instance rather than a
+     * HasOneField. We override here to keep callers' chained type-specific
+     * methods (relatedTo, setParentModel) working.
+     *
+     * Signature mirrors the other field factories so callers don't need to
+     * special-case HasOneField; the $type argument is intentionally ignored
+     * (the constructor always sets 'hasOne').
+     *
+     * @param string $name
+     * @param string|null $label
+     * @param string $type Unused; kept for API consistency with other fields.
+     */
+    public static function make(string $name, ?string $label = null, string $type = 'hasOne'): self
+    {
+        return new self($name, $label);
+    }
+
+    /**
      * Set the related model class manually.
      *
      * @param string $model
