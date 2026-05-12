@@ -3,6 +3,7 @@
 namespace Ginkelsoft\Buildora\Http\Controllers;
 
 use Ginkelsoft\Buildora\Datatable\BuildoraDatatable;
+use Ginkelsoft\Buildora\Http\Requests\DatatableRequest;
 use Ginkelsoft\Buildora\Support\ResourceResolver;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -36,16 +37,17 @@ class BuildoraDataTableController extends Controller
      */
     public function json(Request $request, string $resource): JsonResponse
     {
-        $search = (string) $request->input('search', '');
-        $sortBy = (string) $request->input('sortBy', '');
-        $sortDirection = (string) $request->input('sortDirection', 'asc');
-        $perPage = (int) $request->input('per_page', 10);
-        $page = (int) $request->input('page', 1);
-
+        $params = DatatableRequest::fromRequest($request);
         $datatable = new BuildoraDatatable($resource);
 
         return response()->json(
-            $datatable->getJsonResponse($search, $sortBy, $sortDirection, $perPage, $page)
+            $datatable->getJsonResponse(
+                $params->search,
+                $params->sortBy,
+                $params->sortDirection,
+                $params->perPage,
+                $params->page,
+            )
         );
     }
 }
