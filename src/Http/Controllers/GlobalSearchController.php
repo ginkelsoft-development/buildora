@@ -17,7 +17,18 @@ class GlobalSearchController extends Controller
      */
     public function __invoke(Request $request): JsonResponse
     {
-        $term = $request->get('q');
+        $term = trim((string) $request->get('q', ''));
+
+        // Below the minimum length we don't search at all. Without this guard
+        // an empty or single-character term turns the LIKE pattern into '%%'
+        // (or '%a%'), which makes every searchable column on every resource
+        // do a full table scan — N expensive queries per keystroke.
+        $minLength = (int) config('buildora.global_search.min_term_length', 2);
+        if (mb_strlen($term) < max(1, $minLength)) {
+            return response()->json(['results' => []]);
+        }
+
+        $perResourceLimit = (int) config('buildora.global_search.limit_per_resource', 5);
         $results = [];
 
         foreach (ResourceScanner::getResources() as $resourceMeta) {
@@ -55,7 +66,7 @@ class GlobalSearchController extends Controller
                 }
             });
 
-            $query->limit(5)->get()->each(function ($item) use (&$results, $resourceMeta, $resource, $labelConfig) {
+            $query->limit($perResourceLimit)->get()->each(function ($item) use (&$results, $resourceMeta, $resource, $labelConfig) {
                 // Genereer label
                 if (is_callable($labelConfig)) {
                     $label = $labelConfig($item);
