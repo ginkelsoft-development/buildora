@@ -6,45 +6,61 @@ namespace Ginkelsoft\Buildora\Datatable;
  * Class ColumnBuilder
  *
  * Responsible for building column definitions for a Buildora datatable.
+ *
+ * Column definitions are derived purely from a resource's defined fields and
+ * their static visibility metadata — they never change between requests for
+ * the same resource. The build output is therefore memoised per resource
+ * class so subsequent datatable AJAX requests don't re-instantiate every
+ * Field object on each call.
+ *
+ * The previous implementation also called $resource->getFields() N+1 times
+ * per build (once in the outer map, then once per item in isVisibleInTable);
+ * the refactored version walks the field list exactly once.
  */
 class ColumnBuilder
 {
     /**
-     * Builds an array of visible and optionally sortable column definitions.
+     * @var array<class-string, array<int, array{name: string, sortable: bool, label: string}>>
+     */
+    private static array $cache = [];
+
+    /**
+     * Builds an array of visible column definitions for the given resource.
      *
-     * @param object $resource The resource instance (must implement getFields()).
+     * @param object $resource The resource instance (must expose getFields()).
      * @return array<int, array{name: string, sortable: bool, label: string}>
      */
     public static function build(object $resource): array
     {
-        return array_values(array_filter(
-            array_map(
-                fn($field): array => [
-                    'name' => $field->name,
-                    'sortable' => $field->sortable ?? false,
-                    'label' => $field->label,
-                ],
-                $resource->getFields()
-            ),
-            fn(array $field): bool => self::isVisibleInTable($resource, $field['name'])
-        ));
+        $key = get_class($resource);
+
+        if (isset(self::$cache[$key])) {
+            return self::$cache[$key];
+        }
+
+        $columns = [];
+
+        foreach ($resource->getFields() as $field) {
+            if (! ($field->visibility['table'] ?? false)) {
+                continue;
+            }
+
+            $columns[] = [
+                'name'     => $field->name,
+                'sortable' => $field->sortable ?? false,
+                'label'    => $field->label,
+            ];
+        }
+
+        return self::$cache[$key] = $columns;
     }
 
     /**
-     * Checks if a field is marked as visible in the datatable.
-     *
-     * @param object $resource The resource instance.
-     * @param string $fieldName The name of the field to check.
-     * @return bool True if the field should be shown in the table, false otherwise.
+     * Drop the memoised columns. Primarily for tests; in normal operation
+     * the cache is naturally bounded by the number of registered resources.
      */
-    protected static function isVisibleInTable(object $resource, string $fieldName): bool
+    public static function clearCache(): void
     {
-        foreach ($resource->getFields() as $field) {
-            if ($field->name === $fieldName && ($field->visibility['table'] ?? false)) {
-                return true;
-            }
-        }
-
-        return false;
+        self::$cache = [];
     }
 }
