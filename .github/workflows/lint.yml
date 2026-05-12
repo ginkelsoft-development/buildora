@@ -2,59 +2,72 @@ name: Code Quality
 
 on:
   push:
-    branches: [ main, develop, feature/*, fix/* ]
+    branches: [main, develop, "feat/*", "fix/*", "chore/*", "refactor/*"]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: PHP Code Sniffer (PSR-12)
+    name: PSR-12 (phpcs)
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: dom, curl, libxml, mbstring, zip
-          tools: phpcs
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-lint-${{ hashFiles('composer.json') }}
+          restore-keys: composer-lint-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
-      - name: Run PHP_CodeSniffer
-        run: |
-          if [ -f "vendor/bin/phpcs" ]; then
-            vendor/bin/phpcs --standard=PSR12 src/
-          else
-            phpcs --standard=PSR12 src/
-          fi
+      - name: Run phpcs
+        run: composer lint
 
   phpstan:
     runs-on: ubuntu-latest
-    name: PHPStan Static Analysis
+    name: PHPStan static analysis
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: "8.2"
           extensions: dom, curl, libxml, mbstring, zip
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-phpstan-${{ hashFiles('composer.json') }}
+          restore-keys: composer-phpstan-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
+      # PHPStan is currently a soft check while the baseline (#118, #145) is being
+      # cleaned up. Once external-class stubs land, drop continue-on-error.
       - name: Run PHPStan
         continue-on-error: true
-        run: |
-          if [ -f "vendor/bin/phpstan" ]; then
-            vendor/bin/phpstan analyse src/ --level=0 --no-progress || echo "PHPStan has errors - will be fixed incrementally"
-          else
-            echo "PHPStan not installed, skipping..."
-          fi
+        run: composer analyse
