@@ -274,7 +274,7 @@ abstract class BuildoraResource
      */
     public static function query(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
     {
-        return QueryFactory::make(new static(), false);
+        return QueryFactory::forList(new static());
     }
 
     /**
@@ -285,7 +285,7 @@ abstract class BuildoraResource
      */
     public static function queryWithRelations(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
     {
-        return QueryFactory::make(new static(), true);
+        return QueryFactory::forDetail(new static());
     }
 
     public function setDetailView(string $view): static
