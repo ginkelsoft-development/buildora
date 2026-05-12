@@ -44,10 +44,14 @@ class CurrencyField extends Field
     {
         $value = $model->{$this->name} ?? null;
 
-        if (is_null($value)) {
+        // null and empty string both render as a dash. Eloquent often hands
+        // back DECIMAL columns as strings, so we coerce numeric input before
+        // formatting. Non-numeric strings ("n/a", legacy data) also fall
+        // back to the dash rather than crashing number_format().
+        if ($value === null || $value === '' || ! is_numeric($value)) {
             return '-';
         }
 
-        return '€ ' . number_format($value, 2, ',', '.');
+        return '€ ' . number_format((float) $value, 2, ',', '.');
     }
 }
