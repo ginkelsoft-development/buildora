@@ -247,6 +247,31 @@ abstract class BuildoraResource
     }
 
     /**
+     * Hook for scoping every Buildora-built query for this resource.
+     *
+     * The default returns the builder unchanged — Buildora keeps its current
+     * behaviour of surfacing every row a user with the resource's `*.view`
+     * permission has access to. Override in a subclass to enforce row-level
+     * authorization, multi-tenant separation, soft-deleted visibility, etc.
+     *
+     *   public function scopeQuery(Builder $query): Builder
+     *   {
+     *       return $query->where('owner_id', auth()->id());
+     *   }
+     *
+     * The scope is applied by QueryFactory for both list (query()) and
+     * detail (queryWithRelations()) contexts, so a user cannot bypass it by
+     * navigating to /resource/{id} directly — the model never resolves.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<Model> $query
+     * @return \Illuminate\Database\Eloquent\Builder<Model>
+     */
+    public function scopeQuery(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query;
+    }
+
+    /**
      * Return the fully qualified model class name.
      *
      * @return string
