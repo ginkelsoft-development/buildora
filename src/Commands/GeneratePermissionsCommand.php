@@ -2,6 +2,7 @@
 
 namespace Ginkelsoft\Buildora\Commands;
 
+use Ginkelsoft\Buildora\Authorization\BuildoraAbility;
 use Illuminate\Console\Command;
 use Ginkelsoft\Buildora\Resources\BuildoraResource;
 use Spatie\Permission\Models\Permission;
@@ -42,9 +43,10 @@ class GeneratePermissionsCommand extends Command
             $resource = new $resourceClass();
             $resourceName = $resource->uriKey();
 
-            foreach (['view', 'create', 'edit', 'delete'] as $action) {
-                Permission::findOrCreate("{$resourceName}.{$action}");
-                $this->info("Created permission: {$resourceName}.{$action}");
+            foreach (BuildoraAbility::defaults() as $ability) {
+                $permission = $ability->permissionString($resourceName);
+                Permission::findOrCreate($permission);
+                $this->info("Created permission: {$permission}");
             }
         }
 

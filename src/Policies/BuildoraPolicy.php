@@ -3,8 +3,8 @@
 namespace Ginkelsoft\Buildora\Policies;
 
 use App\Models\User;
+use Ginkelsoft\Buildora\Authorization\BuildoraAbility;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Spatie\Permission\Models\Permission;
 
 abstract class BuildoraPolicy
 {
@@ -12,35 +12,33 @@ abstract class BuildoraPolicy
 
     abstract protected function resourceName(): string;
 
-    protected function hasPermission(User $user, string $action): bool
+    protected function hasPermission(User $user, BuildoraAbility $ability): bool
     {
-        $permission = "{$this->resourceName()}.{$action}";
-
-        return $user->hasPermissionTo($permission);
+        return $user->hasPermissionTo($ability->permissionString($this->resourceName()));
     }
 
     public function viewAny(User $user): bool
     {
-        return $this->hasPermission($user, 'view');
+        return $this->hasPermission($user, BuildoraAbility::View);
     }
 
     public function view(User $user, $model): bool
     {
-        return $this->hasPermission($user, 'view');
+        return $this->hasPermission($user, BuildoraAbility::View);
     }
 
     public function create(User $user): bool
     {
-        return $this->hasPermission($user, 'create');
+        return $this->hasPermission($user, BuildoraAbility::Create);
     }
 
     public function update(User $user, $model): bool
     {
-        return $this->hasPermission($user, 'edit');
+        return $this->hasPermission($user, BuildoraAbility::Edit);
     }
 
     public function delete(User $user, $model): bool
     {
-        return $this->hasPermission($user, 'delete');
+        return $this->hasPermission($user, BuildoraAbility::Delete);
     }
 }
