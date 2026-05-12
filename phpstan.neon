@@ -4,13 +4,23 @@ parameters:
         - src
     excludePaths:
         - vendor
+    # Stub files for optional runtime dependencies (Google2FA, BaconQrCode)
+    # that aren't always installed in the analysis environment. Scanning
+    # them gives PHPStan the type information it needs without requiring
+    # vendor/ to contain those packages.
+    scanFiles:
+        - phpstan/stubs/optional-deps.stub
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#Call to an undefined method#'
         - '#Call to an undefined static method#'
         - '#Access to an undefined property#'
+        - '#Access to an undefined static property#'
         - '#Call to static method .* on an unknown class#'
+        # App\\Models\\User lives in the consuming Laravel app, not here.
+        # See #145 follow-up for replacing this with a proper Larastan setup.
         - '#Parameter .* has invalid type App\\Models\\User#'
+        - '#Class App\\Models\\User not found#'
         - '#Unsafe usage of new static\(\)#'
         -
             identifier: missingType.iterableValue

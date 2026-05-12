@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * Stub definitions for optional runtime dependencies that may not be
+ * installed in every PHPStan analysis environment.
+ *
+ * These stubs exist only so PHPStan can resolve the symbols Buildora
+ * references — they are scanned for type information via `scanFiles` in
+ * phpstan.neon, not loaded at runtime. If the consumer app actually
+ * installs the listed packages (composer require pragmarx/google2fa
+ * bacon/bacon-qr-code), the real implementations take precedence.
+ *
+ * Only the surface area Buildora actually uses is stubbed. Adding more of
+ * the real API here is fine when needed, but keep it minimal.
+ */
+
+namespace PragmaRX\Google2FA;
+
+class Google2FA
+{
+    public function __construct() {}
+
+    public function generateSecretKey(): string {}
+
+    public function getQRCodeUrl(string $company, string $holder, string $secret): string {}
+
+    public function verifyKey(string $secret, string $oneTimePassword): bool {}
+}
+
+namespace BaconQrCode\Renderer\Image;
+
+class SvgImageBackEnd
+{
+    public function __construct() {}
+}
+
+namespace BaconQrCode\Renderer\RendererStyle;
+
+class RendererStyle
+{
+    public function __construct(int $size) {}
+}
+
+namespace BaconQrCode\Renderer;
+
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+
+class ImageRenderer
+{
+    public function __construct(RendererStyle $style, SvgImageBackEnd $backend) {}
+}
+
+namespace BaconQrCode;
+
+use BaconQrCode\Renderer\ImageRenderer;
+
+class Writer
+{
+    public function __construct(ImageRenderer $renderer) {}
+
+    public function writeString(string $content): string {}
+}
