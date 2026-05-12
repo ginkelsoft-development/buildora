@@ -174,4 +174,26 @@ return [
     'models_allow_without_buildora_trait' => [
         \Spatie\Permission\Models\Permission::class,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Global Search
+    |--------------------------------------------------------------------------
+    |
+    | Controls the lightweight cross-resource search used by the admin
+    | navbar's quick-find. For large datasets, consider adding a FULLTEXT
+    | index on the columns named in each resource's searchResultConfig(), or
+    | swapping the search backend for Laravel Scout + Meilisearch/Typesense.
+    |
+    */
+    'global_search' => [
+        // Minimum number of characters before the controller fires any
+        // queries. Anything shorter returns an empty result set immediately,
+        // so a fast typer (or an empty input) doesn't trigger N table scans.
+        'min_term_length' => 2,
+
+        // Hard cap on rows returned *per resource*. Total rows surfaced are
+        // bounded by (number of resources) × this limit.
+        'limit_per_resource' => 5,
+    ],
 ];
