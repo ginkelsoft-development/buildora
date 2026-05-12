@@ -6,7 +6,21 @@ use Closure;
 use Ginkelsoft\Buildora\Fields\Field;
 
 /**
- * A non-editable display-only field for rendering raw output or computed content.
+ * Read-only field that surfaces a computed string value.
+ *
+ * Use when you need to show a derived value next to the editable fields —
+ * a running total, a formatted timestamp, a status label. The content
+ * accepts either a plain string or a Closure that receives the current
+ * model and returns a string.
+ *
+ *   DisplayField::make('total')
+ *       ->content(fn (\$order) => '€ ' . number_format(\$order->total, 2));
+ *
+ * Sibling field types:
+ *   - ViewField — when you need a full Blade partial (HTML, charts, etc.)
+ *     rather than a single computed string.
+ *   - RichTextField — for read-only display of WYSIWYG-authored HTML
+ *     (routes through HtmlSanitizer).
  */
 class DisplayField extends Field
 {
