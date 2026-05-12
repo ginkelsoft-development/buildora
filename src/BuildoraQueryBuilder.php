@@ -26,6 +26,24 @@ class BuildoraQueryBuilder
     }
 
     /**
+     * Return the underlying Eloquent builder.
+     *
+     * Most callers should use the resource-aware methods on this wrapper
+     * (find/get/paginate/...), which automatically convert Eloquent models
+     * to filled BuildoraResource instances. This accessor exists for the
+     * narrow case where downstream code needs the raw Eloquent builder —
+     * specifically the chunked-reading export path, which lets
+     * laravel-excel iterate the dataset itself instead of materialising
+     * it via get().
+     *
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     */
+    public function getEloquentBuilder(): Builder
+    {
+        return $this->query;
+    }
+
+    /**
      * Retrieve all models as resources.
      *
      * @return object|null
