@@ -6,6 +6,7 @@ use Ginkelsoft\Buildora\Actions\BulkAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceActions;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceNavigation;
+use Ginkelsoft\Buildora\Resources\Concerns\HasResourceQuery;
 use Illuminate\Database\Eloquent\Model;
 use Ginkelsoft\Buildora\Fields\Field;
 use Exception;
@@ -20,6 +21,7 @@ abstract class BuildoraResource
 {
     use HasResourceActions;
     use HasResourceNavigation;
+    use HasResourceQuery;
 
     protected ?Model $parentModel = null;
     protected string $modelClass;
@@ -196,27 +198,8 @@ abstract class BuildoraResource
 
     // slug() lives in HasResourceNavigation.
 
-    /**
-     * Return the query builder for this resource WITHOUT eager-loading relations.
-     * Use this for index/list views for optimal performance.
-     *
-     * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
-     */
-    public static function query(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
-    {
-        return QueryFactory::forList(new static());
-    }
-
-    /**
-     * Return the query builder for this resource WITH eager-loading of panel relations.
-     * Use this for detail/show views where relations are needed.
-     *
-     * @return \Ginkelsoft\Buildora\BuildoraQueryBuilder
-     */
-    public static function queryWithRelations(): \Ginkelsoft\Buildora\BuildoraQueryBuilder
-    {
-        return QueryFactory::forDetail(new static());
-    }
+    // query() and queryWithRelations() live in HasResourceQuery
+    // (Resources\Concerns\HasResourceQuery).
 
     public function setDetailView(string $view): static
     {
