@@ -107,21 +107,18 @@ class HasManyField extends Field
      */
     public function setValue(mixed $model): self
     {
-        if ($model instanceof Model && method_exists($model, $this->name) && $model->exists) {
-            $relation = $model->{$this->name}();
+        $this->value = [];
 
-            if ($relation instanceof HasMany) {
-                $table = (new ($this->getRelatedModel()))->getTable();
-
-                $this->value = $relation
-                    ->pluck("{$table}.{$this->displayColumn}", "{$table}.{$this->returnColumn}")
-                    ->toArray();
-            } else {
-                $this->value = [];
-            }
-        } else {
-            $this->value = [];
+        if (! $model instanceof Model) {
+            return $this;
         }
+
+        $items = \Ginkelsoft\Buildora\Support\RelationLoader::manyFor($model, $this->name);
+
+        // pluck on a loaded Collection works on attribute names directly,
+        // without the table-qualified column prefix the old implementation
+        // needed for the RelationBuilder pluck() path.
+        $this->value = $items->pluck($this->displayColumn, $this->returnColumn)->toArray();
 
         return $this;
     }
