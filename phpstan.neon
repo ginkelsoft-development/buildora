@@ -9,9 +9,16 @@ parameters:
         - '#Call to an undefined method#'
         - '#Call to an undefined static method#'
         - '#Access to an undefined property#'
+        - '#Access to an undefined static property#'
         - '#Call to static method .* on an unknown class#'
         - '#Parameter .* has invalid type App\\Models\\User#'
+        - '#Class App\\Models\\User not found#'
         - '#Unsafe usage of new static\(\)#'
+        # Optional dependencies that PHPStan can't always resolve at analysis time.
+        # Tracked separately for proper resolution (stubs or excludePaths).
+        - '#Instantiated class PragmaRX\\Google2FA\\Google2FA not found#'
+        - '#has unknown class PragmaRX\\Google2FA\\Google2FA as its type#'
+        - '#Instantiated class BaconQrCode\\.* not found#'
         -
             identifier: missingType.iterableValue
         -

@@ -50,7 +50,7 @@
         "test:coverage": "vendor/bin/phpunit --coverage-html coverage/",
         "lint": "vendor/bin/phpcs --standard=PSR12 src/",
         "lint:fix": "vendor/bin/phpcbf --standard=PSR12 src/",
-        "analyse": "vendor/bin/phpstan analyse src/ --level=5",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress",
         "check": [
             "@lint",
             "@analyse",
