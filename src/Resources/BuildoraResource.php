@@ -5,6 +5,7 @@ namespace Ginkelsoft\Buildora\Resources;
 use Ginkelsoft\Buildora\Actions\BulkAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceActions;
+use Ginkelsoft\Buildora\Resources\Concerns\HasResourceFields;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceNavigation;
 use Ginkelsoft\Buildora\Resources\Concerns\HasResourceQuery;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ use Exception;
 abstract class BuildoraResource
 {
     use HasResourceActions;
+    use HasResourceFields;
     use HasResourceNavigation;
     use HasResourceQuery;
 
@@ -58,50 +60,8 @@ abstract class BuildoraResource
         return new static();
     }
 
-    /**
-     * Fill the resource fields with values from the given model instance.
-     *
-     * @param Model $model
-     * @return $this
-     */
-    public function fill(Model $model): self
-    {
-        $this->parentModel = $model;
-
-        foreach ($this->fields as $field) {
-            if (method_exists($field, 'setParentModel')) {
-                $field->setParentModel($model);
-            }
-
-            if (method_exists($field, 'setValue')) {
-                $field->setValue($model);
-            } else {
-                $field->value = $model->{$field->name} ?? null;
-            }
-
-            if (method_exists($field, 'getDisplayValue')) {
-                $field->displayValue = $field->getDisplayValue($model);
-            } else {
-                $field->displayValue = $field->value;
-            }
-        }
-
-        return $this;
-    }
-
-    public function setFields(array $fields): void
-    {
-        foreach ($fields as $field) {
-            if (! $field instanceof Field) {
-                $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException(
-                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
-                );
-            }
-        }
-
-        $this->fields = $fields;
-    }
+    // fill(), setFields(), getFields(), resolveFields() live in
+    // HasResourceFields (Resources\Concerns\HasResourceFields).
 
     /**
      * Define the widgets for this resource (used on the dashboard).
@@ -124,32 +84,7 @@ abstract class BuildoraResource
      */
     abstract public function defineFields(): array;
 
-    public function getFields(): array
-    {
-        $fields = $this->fields ?? [];
-
-        foreach ($fields as $field) {
-            if (! $field instanceof \Ginkelsoft\Buildora\Fields\Field) {
-                $type = is_object($field) ? get_class($field) : gettype($field);
-                throw new BuildoraException(
-                    "Ongeldig veld in " . static::class . ": verwacht een Field-object, kreeg {$type}"
-                );
-            }
-        }
-
-        return $fields;
-    }
-
-    /**
-     * Prepare the fields with data from a specific model.
-     *
-     * @param Model $model
-     * @return Field[]
-     */
-    public function resolveFields($model): array
-    {
-        return FieldManager::prepare($this->fields, $model);
-    }
+    // (getFields() / resolveFields() moved to HasResourceFields trait.)
 
     /**
      * Return a new instance of the underlying model.
