@@ -208,6 +208,24 @@ class Field
     }
 
     /**
+     * Hook that runs once on each field before a datatable row is built.
+     *
+     * Lets a subclass do any field-type-specific work that has to happen
+     * at format time rather than at construction or value-fill time —
+     * most notably ViewField, which materialises its Blade partial into
+     * \$this->value here.
+     *
+     * Default: no-op. Subclasses override when needed; RowFormatter calls
+     * this on every field regardless of type, so we avoid the
+     * `if (\$field instanceof X) { ... }` chain in the formatter.
+     *
+     * @return void
+     */
+    public function renderForDisplay(): void
+    {
+    }
+
+    /**
      * Convert the field into an array representation.
      *
      * @return array<string, mixed>

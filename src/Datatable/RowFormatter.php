@@ -5,7 +5,6 @@ namespace Ginkelsoft\Buildora\Datatable;
 use Ginkelsoft\Buildora\Actions\RowAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
 use Ginkelsoft\Buildora\Fields\Field;
-use Ginkelsoft\Buildora\Fields\Types\ViewField;
 
 class RowFormatter
 {
@@ -30,13 +29,11 @@ class RowFormatter
                 );
             }
 
-            if ($field instanceof ViewField) {
-                $view = view($field->getView(), [
-                    $field->getVarKey() => $field->value,
-                ])->render();
-
-                $field->value = $view;
-            }
+            // Field-type-specific format-time work goes here. The default
+            // implementation on Field is a no-op; only ViewField actually
+            // overrides this (to materialise its Blade partial). The
+            // formatter doesn't need to know which is which.
+            $field->renderForDisplay();
 
             $rawValue = $field->displayValue ?? $field->value;
 

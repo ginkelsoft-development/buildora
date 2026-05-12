@@ -172,4 +172,19 @@ class ViewField extends Field
             $this->getVarKey() => $this->value,
         ])->render();
     }
+
+    /**
+     * Format-time hook used by RowFormatter. Renders the Blade partial
+     * with the field's current value and stores the resulting HTML back
+     * into ->value, so the rest of the formatter pipeline can treat it as
+     * any other displayable value.
+     *
+     * Overrides the no-op base implementation.
+     */
+    public function renderForDisplay(): void
+    {
+        $this->value = view($this->getView(), [
+            $this->getVarKey() => $this->value,
+        ])->render();
+    }
 }
