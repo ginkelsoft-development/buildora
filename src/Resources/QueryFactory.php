@@ -52,6 +52,11 @@ class QueryFactory
     {
         $query = $resource->getModelInstance()->newQuery();
 
+        // Apply the resource's authorization scope before any further
+        // composition. Defaults to a no-op; consumers override scopeQuery()
+        // to enforce row-level access (per-tenant, owner-only, etc.).
+        $query = $resource->scopeQuery($query);
+
         if ($eagerLoadRelations && method_exists($resource, 'getRelationResources')) {
             $relations = collect($resource->getRelationResources())
                 ->pluck('relationName')
