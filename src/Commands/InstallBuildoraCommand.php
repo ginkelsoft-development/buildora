@@ -64,7 +64,6 @@ class InstallBuildoraCommand extends Command
             $this->showSuccess();
 
             return self::SUCCESS;
-
         } catch (\Exception $e) {
             $this->newLine();
             $this->error("Installation failed: {$e->getMessage()}");

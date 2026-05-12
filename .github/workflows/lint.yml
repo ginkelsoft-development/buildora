@@ -35,8 +35,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction
 
-      - name: Run phpcs
-        run: composer lint
+      - name: Run PHP_CodeSniffer
+        run: vendor/bin/phpcs
 
   phpstan:
     runs-on: ubuntu-latest

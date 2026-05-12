@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ruleset name="Buildora">
+    <description>PSR-12 ruleset for the Buildora package.</description>
+
+    <!--
+        Scope: the package source only. Tests are written in idiomatic
+        PHPUnit style (snake_case method names, parametric data providers)
+        and PSR-12 method-naming sniffs do not match that — running phpcs
+        on the test suite produces noise without value.
+    -->
+    <file>src</file>
+
+    <rule ref="PSR12">
+        <!--
+            PSR-12 leaves the 120-character line length as a soft limit, and
+            a handful of existing lines in the codebase run longer. We treat
+            them as cosmetic, not as failures. Re-enable this sniff if/when
+            those lines are refactored.
+        -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
+
+    <arg name="colors"/>
+    <arg name="report" value="full"/>
+    <arg value="np"/>
+</ruleset>

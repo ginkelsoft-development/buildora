@@ -128,7 +128,6 @@ class InstallController extends Controller
                 'steps' => $steps,
                 'redirect' => route('buildora.login'),
             ]);
-
         } catch (\Exception $e) {
             \Log::error('Buildora installation failed', [
                 'error' => $e->getMessage(),
