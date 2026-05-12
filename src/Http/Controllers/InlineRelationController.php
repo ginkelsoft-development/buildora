@@ -42,7 +42,7 @@ class InlineRelationController extends Controller
 
             $formFields = collect($fields)
                 ->filter(fn($field) => $field->isVisible($visibility))
-                ->map(function($field) use ($relatedModel) {
+                ->map(function ($field) use ($relatedModel) {
                     $data = [
                         'name' => $field->name,
                         'label' => $field->label,

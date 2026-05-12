@@ -55,8 +55,7 @@ class UserBuildora extends BuildoraResource
                 ->help(__buildora('Leave empty to keep the password unchanged.'))
                 ->validation(fn ($model) => $model && $model->exists
                     ? ['nullable', 'string', 'min:8']
-                    : ['required', 'string', 'min:8']
-                ),
+                    : ['required', 'string', 'min:8']),
 
             CheckboxListField::make('permissions', __buildora('Permissions'))
                 ->relatedTo(Permission::class)

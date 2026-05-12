@@ -42,7 +42,6 @@ class UpgradeBuildoraCommand extends Command
             $this->showSuccess();
 
             return self::SUCCESS;
-
         } catch (\Exception $e) {
             $this->newLine();
             $this->error("Upgrade failed: {$e->getMessage()}");
