@@ -3,6 +3,7 @@
 namespace Ginkelsoft\Buildora\Datatable;
 
 use Ginkelsoft\Buildora\Support\SchemaCache;
+use Ginkelsoft\Buildora\Support\SortDirection;
 use Illuminate\Contracts\Pagination\Paginator as PaginatorContract;
 use Ginkelsoft\Buildora\Fields\Field;
 use Ginkelsoft\Buildora\Fields\Types\BelongsToField;
@@ -58,6 +59,11 @@ class DataFetcher
         int $perPage = 25,
         int $page = 1
     ): PaginatorContract {
+        // Defence in depth: even though Eloquent's orderBy() rejects invalid
+        // directions, it does so by throwing — which surfaces as a 500. We
+        // normalise the user-supplied value to a safe asc/desc up front.
+        $sortDirection = SortDirection::normalize($sortDirection);
+
         $query = call_user_func([$this->resourceClass, 'query']);
 
         /** @var Model $modelInstance */
