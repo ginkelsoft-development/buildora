@@ -5,7 +5,16 @@ namespace Ginkelsoft\Buildora\Fields\Types;
 use Ginkelsoft\Buildora\Fields\Field;
 
 /**
- * Represents a WYSIWYG HTML editor field using a rich editor like CKEditor.
+ * Form input for WYSIWYG-authored HTML content.
+ *
+ * Pairs with RichTextField (the read-only display side). Use EditorField on
+ * create/edit forms — the editor blade component renders a textarea wired
+ * up to CKEditor. Use RichTextField wherever the saved HTML is displayed
+ * back to the user.
+ *
+ * Captured input is stored verbatim. Sanitisation happens on the display
+ * path via RichTextField's blade component (#122), not here, so any custom
+ * read-only rendering of editor output must also call HtmlSanitizer::clean.
  */
 class EditorField extends Field
 {

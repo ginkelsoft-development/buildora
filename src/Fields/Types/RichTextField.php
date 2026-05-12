@@ -5,7 +5,16 @@ namespace Ginkelsoft\Buildora\Fields\Types;
 use Ginkelsoft\Buildora\Fields\Field;
 
 /**
- * Represents a field for rendering rich text (HTML) content in views only.
+ * Read-only display field for HTML content stored against a model.
+ *
+ * Pairs with EditorField (the input-side WYSIWYG textarea). Use RichTextField
+ * on detail/show views to render WYSIWYG-authored HTML; use EditorField on
+ * create/edit forms to capture it.
+ *
+ * Output is routed through HtmlSanitizer in the richtext blade component,
+ * which strips script/iframe/event handlers and rejects unsafe URL schemes —
+ * see #122. The sanitiser is the security boundary; don't bypass it by
+ * rendering field->value directly with {!! !!} in custom views.
  */
 class RichTextField extends Field
 {
