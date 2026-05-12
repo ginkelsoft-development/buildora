@@ -4,15 +4,22 @@ namespace Ginkelsoft\Buildora\Resources;
 
 use Ginkelsoft\Buildora\Actions\BulkAction;
 use Ginkelsoft\Buildora\Exceptions\BuildoraException;
+use Ginkelsoft\Buildora\Resources\Concerns\HasResourceActions;
 use Illuminate\Database\Eloquent\Model;
 use Ginkelsoft\Buildora\Fields\Field;
 use Exception;
 
 /**
  * Abstract base class for all Buildora Resources.
+ *
+ * Decomposition: concerns that have a self-contained surface are pulled
+ * out into traits in Resources\Concerns. See #135 for the long-term plan;
+ * the action surface is the first concern to move.
  */
 abstract class BuildoraResource
 {
+    use HasResourceActions;
+
     protected ?Model $parentModel = null;
     protected string $modelClass;
     protected array $fields;
@@ -114,26 +121,6 @@ abstract class BuildoraResource
     }
 
     /**
-     * Define the row actions for this resource.
-     *
-     * @return array
-     */
-    public function defineRowActions(): array
-    {
-        return [];
-    }
-
-    /**
-     * Define the bulk actions for this resource.
-     *
-     * @return array
-     */
-    public function defineBulkActions(): array
-    {
-        return [];
-    }
-
-    /**
      * Define the widgets for this resource (used on the dashboard).
      *
      * @return array
@@ -143,64 +130,9 @@ abstract class BuildoraResource
         return [];
     }
 
-    /**
-     * Define page-level actions for this resource (shown on index page).
-     *
-     * @return array
-     */
-    public function definePageActions(): array
-    {
-        return [];
-    }
-
-    /**
-     * Get the page actions, filtered by permissions.
-     *
-     * @return array
-     */
-    public function getPageActions(): array
-    {
-        $actions = $this->definePageActions();
-
-        return collect($actions)
-            ->filter(function ($action) {
-                $permission = $action->getPermission();
-                if ($permission && auth()->check()) {
-                    return auth()->user()->can($permission);
-                }
-                return true;
-            })
-            ->values()
-            ->toArray();
-    }
-
-    /**
-     * Return the row actions for a specific resource instance.
-     *
-     * @param object $resource
-     * @return array
-     */
-    public function getRowActions(object $resource): array
-    {
-        return ActionManager::resolveRowActions($this->defineRowActions(), $resource);
-    }
-
-    /**
-     * Return the bulk actions, including default export actions.
-     *
-     * @return array
-     */
-    public function getBulkActions(): array
-    {
-        $custom = collect(static::defineBulkActions());
-        $default = collect(\Ginkelsoft\Buildora\Exports\ExportManager::defaultBulkActions(static::slug()));
-
-        return $custom
-            ->keyBy(fn($a) => $a->label)
-            ->union($default->keyBy(fn($a) => $a->getLabel()))
-            ->values()
-            ->toArray();
-    }
+    // Row/bulk/page action methods now live in the HasResourceActions trait
+    // (Resources\Concerns\HasResourceActions). See #135 for the wider
+    // decomposition plan.
 
     /**
      * Define all fields used in this resource.
