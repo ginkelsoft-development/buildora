@@ -52,7 +52,7 @@ class CurrencyFieldTest extends TestCase
     }
 
     /** @test */
-    public function it_formats_a_float_value_correctly(): void
+    public function itFormatsAFloatValueCorrectly(): void
     {
         $field = CurrencyField::make('price');
 
@@ -60,7 +60,7 @@ class CurrencyFieldTest extends TestCase
     }
 
     /** @test */
-    public function it_formats_an_integer_value_correctly(): void
+    public function itFormatsAnIntegerValueCorrectly(): void
     {
         $field = CurrencyField::make('price');
 
@@ -68,7 +68,7 @@ class CurrencyFieldTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_a_dash_for_a_null_value(): void
+    public function itReturnsADashForANullValue(): void
     {
         $field = CurrencyField::make('price');
 
@@ -90,7 +90,7 @@ class CurrencyFieldTest extends TestCase
      * numerieke string is die number_format() weak-typed accepteert.
      */
     /** @test */
-    public function it_does_not_crash_for_a_well_formed_numeric_string_from_a_decimal_column(): void
+    public function itDoesNotCrashForAWellFormedNumericStringFromADecimalColumn(): void
     {
         config([
             'database.connections.testbench.options' => [
@@ -126,7 +126,7 @@ class CurrencyFieldTest extends TestCase
      * lege string is.
      */
     /** @test */
-    public function it_currently_throws_a_type_error_for_an_empty_string_value(): void
+    public function itCurrentlyThrowsATypeErrorForAnEmptyStringValue(): void
     {
         $field = CurrencyField::make('price');
 
@@ -141,7 +141,7 @@ class CurrencyFieldTest extends TestCase
      * niet-numerieke string is.
      */
     /** @test */
-    public function it_currently_throws_a_type_error_for_a_non_numeric_string_value(): void
+    public function itCurrentlyThrowsATypeErrorForANonNumericStringValue(): void
     {
         $field = CurrencyField::make('price');
 
@@ -160,7 +160,7 @@ class CurrencyFieldTest extends TestCase
      * doorvoeren van de fix uit issue #143.
      */
     /** @test */
-    public function it_should_return_a_dash_instead_of_crashing_for_an_empty_string_value(): void
+    public function itShouldReturnADashInsteadOfCrashingForAnEmptyStringValue(): void
     {
         $field = CurrencyField::make('price');
 
@@ -175,7 +175,7 @@ class CurrencyFieldTest extends TestCase
      * Bedoeld voor Noor bij het doorvoeren van de fix uit issue #143.
      */
     /** @test */
-    public function it_should_not_crash_for_a_non_numeric_string_value(): void
+    public function itShouldNotCrashForANonNumericStringValue(): void
     {
         $field = CurrencyField::make('price');
 
