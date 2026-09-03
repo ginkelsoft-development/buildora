@@ -14,7 +14,15 @@ use Ginkelsoft\Buildora\Http\Controllers\ProfileController;
 use Ginkelsoft\Buildora\Http\Controllers\TwoFactorController;
 use Ginkelsoft\Buildora\Http\Controllers\BuildoraSettingsController;
 
-Route::prefix(config('buildora.route_prefix', 'buildora'))
+// De 'web'-middlewaregroep (sessies, CSRF-verificatie, cookie-encryptie)
+// wordt hier hard-coded toegepast, los van config('buildora.middleware').
+// Zo blijft CSRF-bescherming voor alle datatable- en bulk-action-routes
+// (o.a. store/update/destroy en de acties die daarnaar posten) gegarandeerd
+// actief, ook als een consumerende applicatie de gepubliceerde config
+// aanpast en daarbij per ongeluk 'web' uit de middleware-lijst verwijdert.
+// Zie issue #124.
+Route::middleware('web')
+    ->prefix(config('buildora.route_prefix', 'buildora'))
     ->middleware(config('buildora.middleware', ['web', 'buildora.auth', 'buildora.ensure-user-resource']))
     ->group(function () {
 

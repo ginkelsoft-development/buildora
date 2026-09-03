@@ -23,6 +23,9 @@ abstract class TestCase extends Orchestra
 
     protected function getEnvironmentSetUp($app): void
     {
+        // App key is nodig voor sessie-encryptie en CSRF-tokens.
+        $app['config']->set('app.key', 'base64:' . base64_encode(random_bytes(32)));
+
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
