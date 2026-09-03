@@ -134,18 +134,27 @@ class DataFetcher
         }
 
         // ✅ OPTIMIZATION 4: Qualified column names for sorting
+        //
+        // 🔒 Beveiliging: $sortBy komt rechtstreeks van de gebruiker (request
+        // input, zie BuildoraDataTableController::json()). Het mag daarom
+        // NOOIT direct in de query terechtkomen. We whitelisten $sortBy
+        // eerst tegen de door de resource gedefinieerde velden
+        // (defineFields()) en staan alleen sorteren toe op velden die
+        // expliciet met ->sortable() zijn gemarkeerd. Pas daarna wordt de
+        // bijbehorende, ontwikkelaar-gedefinieerde kolomnaam gebruikt, en
+        // enkel als die kolom ook echt in het databaseschema bestaat.
         if (!empty($sortBy)) {
-            $sortColumn = collect($this->columns)->first(fn ($col) =>
-                (is_array($col) ? ($col['name'] ?? null) : $col) === $sortBy
+            $sortField = collect($this->columns)->first(
+                fn ($col) => $col instanceof Field && $col->name === $sortBy
             );
 
-            $sortColumnName = is_array($sortColumn)
-                ? ($sortColumn['search_column'] ?? $sortColumn['name'] ?? null)
-                : $sortBy;
+            if ($sortField instanceof Field && $sortField->sortable) {
+                $sortColumnName = $sortField->getSearchColumn();
 
-            if (in_array($sortColumnName, $databaseColumns)) {
-                // Use qualified column name to avoid ambiguity with joins
-                $query->orderBy("{$modelInstance->getTable()}.{$sortColumnName}", $sortDirection);
+                if (!str_contains($sortColumnName, '.') && in_array($sortColumnName, $databaseColumns, true)) {
+                    // Use qualified column name to avoid ambiguity with joins
+                    $query->orderBy("{$modelInstance->getTable()}.{$sortColumnName}", $sortDirection);
+                }
             }
         }
 
