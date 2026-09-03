@@ -106,7 +106,10 @@ class BuildoraController extends Controller
         }
 
         $createdItem = $modelInstance::create($filteredData);
-        $this->handleRelationships($createdItem, $request->all());
+        // Alleen relaties syncen die expliciet als veld zijn gedefinieerd in
+        // defineFields(); nooit de ruwe request gebruiken, anders kan elke
+        // relatiemethode op het model misbruikt worden (mass assignment).
+        $this->handleRelationships($createdItem, $request->only($fields));
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('created successfully.'));
@@ -187,7 +190,10 @@ class BuildoraController extends Controller
         $filteredData = array_intersect_key($finalData, array_flip($fields));
 
         $item->update($filteredData);
-        $this->handleRelationships($item, $request->all());
+        // Alleen relaties syncen die expliciet als veld zijn gedefinieerd in
+        // defineFields(); nooit de ruwe request gebruiken, anders kan elke
+        // relatiemethode op het model misbruikt worden (mass assignment).
+        $this->handleRelationships($item, $request->only($fields));
 
         return redirect()->route('buildora.index', ['resource' => $model])
             ->with('success', ucfirst($model) . ' ' . __buildora('updated successfully.'));
