@@ -3,12 +3,20 @@
 namespace Ginkelsoft\Buildora\Fields\Types;
 
 use Ginkelsoft\Buildora\Fields\Field;
+use Ginkelsoft\Buildora\Fields\Traits\SanitizesHtml;
 
 /**
  * Represents a WYSIWYG HTML editor field using a rich editor like CKEditor.
+ *
+ * De WYSIWYG-HTML uit deze editor komt rechtstreeks van de gebruiker en
+ * wordt elders ongesanitized gerenderd. Daarom wordt de inkomende waarde
+ * standaard door HTMLPurifier gehaald (zie {@see SanitizesHtml}) vlak vóór
+ * het opslaan, met een configureerbare allow-list van tags/attributen.
  */
 class EditorField extends Field
 {
+    use SanitizesHtml;
+
     /**
      * Create a new EditorField instance.
      *
