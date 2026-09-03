@@ -269,6 +269,12 @@ The `label` can be:
 - An array of column names
 - A callable that receives the record and returns a string
 
+Each resource returns at most 10 matching records for a search term. Results are
+fetched via a `LIKE '%term%'` query, which cannot use a standard B-tree index because
+of the leading wildcard. For large tables (hundreds of thousands of rows or more), it
+is recommended to add a **FULLTEXT index** on the searchable columns (or switch to a
+dedicated search solution such as Laravel Scout) to keep global search performant.
+
 ---
 
 ## 13. Configuration
