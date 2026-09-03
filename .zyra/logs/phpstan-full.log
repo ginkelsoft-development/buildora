@@ -1,0 +1,315 @@
+
+⚠️  You're running an old version of PHPStan.️
+
+The last release in the 1.12.x series with new features
+and bugfixes was released on July 17th 2025,
+that's 413 days ago.
+
+Since then more than 65 new PHPStan versions were released
+with hundreds of new features, bugfixes, and other
+quality of life improvements.
+
+To learn about what you're missing out on, check out
+this blog with articles about the latest major releases:
+https://phpstan.org/blog
+
+Upgrade today to PHPStan 2.2 or newer by using
+"phpstan/phpstan": "^2.2" in your composer.json.
+
+Note: Using configuration file /app/werkplaats/8993c293-a2e7-47ed-8820-9732a9962da1/phpstan.neon.
+  0/97 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%[1G[2K 20/97 [▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░]  20%[1G[2K 40/97 [▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░]  41%[1G[2K 60/97 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░]  61%[1G[2K 80/97 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░]  82%[1G[2K 97/97 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
+
+ ------ --------------------------------------------- 
+  Line   Actions/RowAction.php                        
+ ------ --------------------------------------------- 
+  135    Negated boolean expression is always false.  
+ ------ --------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Buildora.php                                                           
+ ------ ----------------------------------------------------------------------- 
+  23     Method Ginkelsoft\Buildora\Buildora::css() has invalid return type     
+         Ginkelsoft\Buildora\Illuminate\Contracts\Support\Htmlable.             
+  37     Method Ginkelsoft\Buildora\Buildora::css() should return               
+         Ginkelsoft\Buildora\Illuminate\Contracts\Support\Htmlable but returns  
+         Illuminate\Support\HtmlString.                                         
+ ------ ----------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Commands/BuildoraSyncPermissionsCommand.php                          
+ ------ --------------------------------------------------------------------- 
+  39     Strict comparison using === between class-string and                 
+         'App\\Buildora\\Resources\\PermissionBuildora' will always evaluate  
+         to false.                                                            
+ ------ --------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Commands/GrantUserResourcePermissions.php                              
+ ------ ----------------------------------------------------------------------- 
+  26     PHPDoc tag @var for variable $user contains unknown class              
+         App\Models\User.                                                       
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols    
+  42     Call to method hasPermissionTo() on an unknown class App\Models\User.  
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols    
+  43     Call to method givePermissionTo() on an unknown class                  
+         App\Models\User.                                                       
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols    
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------ 
+  Line   Datatable/BuildoraDatatable.php                                   
+ ------ ------------------------------------------------------------------ 
+  66     Deprecated in PHP 8.4: Parameter #4 $perPage (int) is implicitly  
+         nullable via default value null.                                  
+  76     Deprecated in PHP 8.4: Parameter #4 $perPage (int) is implicitly  
+         nullable via default value null.                                  
+  99     Deprecated in PHP 8.4: Parameter #4 $perPage (int) is implicitly  
+         nullable via default value null.                                  
+ ------ ------------------------------------------------------------------ 
+
+ ------ -------------------------------------------------------------------------- 
+  Line   Datatable/DataFetcher.php                                                 
+ ------ -------------------------------------------------------------------------- 
+  139    Call to function is_array() with Ginkelsoft\Buildora\Fields\Field         
+         will always evaluate to false.                                            
+  139    Offset 'name' on *NEVER* on left side of ?? always exists and is not      
+         nullable.                                                                 
+  139    Strict comparison using === between Ginkelsoft\Buildora\Fields\Field      
+         and non-falsy-string will always evaluate to false.                       
+         💡 Because the type is coming from a PHPDoc, you can turn off this        
+            check by setting treatPhpDocTypesAsCertain: false in your              
+            phpstan.neon.                                                          
+  142    Call to function is_array() with                                          
+         Ginkelsoft\Buildora\Fields\Field|null will always evaluate to false.      
+         💡 Because the type is coming from a PHPDoc, you can turn off this        
+            check by setting treatPhpDocTypesAsCertain: false in your              
+            phpstan.neon.                                                          
+  143    Offset 'name' on *NEVER* on left side of ?? always exists and is not      
+         nullable.                                                                 
+  143    Offset 'search_column' on *NEVER* on left side of ?? always exists        
+         and is not nullable.                                                      
+  161    Parameter $query of method                                                
+         Ginkelsoft\Buildora\Datatable\DataFetcher::eagerLoadBelongsToRelations()  
+         has invalid type Ginkelsoft\Buildora\Datatable\Builder.                   
+  173    Call to method with() on an unknown class                                 
+         Ginkelsoft\Buildora\Datatable\Builder.                                    
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols       
+ ------ -------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------ 
+  Line   Fields/Traits/HasSearch.php (in context of class                  
+         Ginkelsoft\Buildora\Fields\Field)                                 
+ ------ ------------------------------------------------------------------ 
+  35     Deprecated in PHP 8.4: Parameter #1 $term (string) is implicitly  
+         nullable via default value null.                                  
+ ------ ------------------------------------------------------------------ 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Fields/Types/CurrencyField.php                                        
+ ------ ---------------------------------------------------------------------- 
+  33     PHPDoc tag @param for parameter $type with type string|null is not    
+         subtype of native type string.                                        
+  35     Method Ginkelsoft\Buildora\Fields\Types\CurrencyField::make() should  
+         return static(Ginkelsoft\Buildora\Fields\Types\CurrencyField) but     
+         returns Ginkelsoft\Buildora\Fields\Types\CurrencyField.               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Fields/Types/RichTextField.php                                        
+ ------ ---------------------------------------------------------------------- 
+  32     PHPDoc tag @param for parameter $type with type string|null is not    
+         subtype of native type string.                                        
+  34     Method Ginkelsoft\Buildora\Fields\Types\RichTextField::make() should  
+         return static(Ginkelsoft\Buildora\Fields\Types\RichTextField) but     
+         returns Ginkelsoft\Buildora\Fields\Types\RichTextField.               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------- 
+  Line   Fields/Types/SelectField.php                                     
+ ------ ----------------------------------------------------------------- 
+  68     Property Ginkelsoft\Buildora\Fields\Types\SelectField::$options  
+         (array|Closure|string) on left side of ?? is not nullable.       
+ ------ ----------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------------------- 
+  Line   Http/Controllers/Auth/ForgotPasswordController.php                                         
+ ------ ------------------------------------------------------------------------------------------- 
+  20     Method                                                                                     
+         Ginkelsoft\Buildora\Http\Controllers\Auth\ForgotPasswordController::showLinkRequestForm()  
+         should return Illuminate\View\View but returns                                             
+         Illuminate\Contracts\View\View.                                                            
+ ------ ------------------------------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------------- 
+  Line   Http/Controllers/Auth/LoginController.php                                   
+ ------ ---------------------------------------------------------------------------- 
+  33     Method                                                                      
+         Ginkelsoft\Buildora\Http\Controllers\Auth\LoginController::showLoginForm()  
+         should return Illuminate\Http\RedirectResponse|Illuminate\View\View         
+         but returns Illuminate\Contracts\View\View.                                 
+  70     Class App\Models\User not found.                                            
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols         
+  89     Left side of && is always true.                                             
+  100    Left side of && is always true.                                             
+ ------ ---------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------------ 
+  Line   Http/Controllers/Auth/ResetPasswordController.php                                   
+ ------ ------------------------------------------------------------------------------------ 
+  23     Deprecated in PHP 8.4: Parameter #2 $token (string) is implicitly                   
+         nullable via default value null.                                                    
+  25     Method                                                                              
+         Ginkelsoft\Buildora\Http\Controllers\Auth\ResetPasswordController::showResetForm()  
+         should return Illuminate\View\View but returns                                      
+         Illuminate\Contracts\View\View.                                                     
+ ------ ------------------------------------------------------------------------------------ 
+
+ ------ ------------------------------------------------------------------- 
+  Line   Http/Controllers/BuildoraController.php                            
+ ------ ------------------------------------------------------------------- 
+  43     Method                                                             
+         Ginkelsoft\Buildora\Http\Controllers\BuildoraController::create()  
+         should return Illuminate\View\View but returns                     
+         Illuminate\Contracts\View\View.                                    
+  79     Expression on left side of ?? is not nullable.                     
+  80     Expression on left side of ?? is not nullable.                     
+  129    Method                                                             
+         Ginkelsoft\Buildora\Http\Controllers\BuildoraController::edit()    
+         should return Illuminate\View\View but returns                     
+         Illuminate\Contracts\View\View.                                    
+  168    Expression on left side of ?? is not nullable.                     
+  169    Expression on left side of ?? is not nullable.                     
+ ------ ------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------ 
+  Line   Http/Controllers/BuildoraDashboardController.php                              
+ ------ ------------------------------------------------------------------------------ 
+  28     Method                                                                        
+         Ginkelsoft\Buildora\Http\Controllers\BuildoraDashboardController::__invoke()  
+         should return Illuminate\View\View but returns                                
+         Illuminate\Contracts\View\View.                                               
+ ------ ------------------------------------------------------------------------------ 
+
+ ------ --------------------------------------------------------------------------- 
+  Line   Http/Controllers/BuildoraDataTableController.php                           
+ ------ --------------------------------------------------------------------------- 
+  27     Method                                                                     
+         Ginkelsoft\Buildora\Http\Controllers\BuildoraDataTableController::index()  
+         should return Illuminate\View\View but returns                             
+         Illuminate\Contracts\View\View.                                            
+ ------ --------------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Http/Controllers/GlobalSearchController.php                            
+ ------ ----------------------------------------------------------------------- 
+  24     Offset 'name' on array{name: string, resource: string, route: string,  
+         label: string} in isset() always exists and is not nullable.           
+  43     Offset 'columns' on array{label: array|(callable(): mixed)|string,     
+         columns: array<string>} on left side of ?? always exists and is not    
+         nullable.                                                              
+  44     Offset 'label' on array{label: array|(callable(): mixed)|string,       
+         columns: array<string>} on left side of ?? always exists and is not    
+         nullable.                                                              
+ ------ ----------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Http/Controllers/InstallController.php                               
+ ------ --------------------------------------------------------------------- 
+  377    Class App\Models\User not found.                                     
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols  
+  446    Class App\Models\User not found.                                     
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols  
+  465    Left side of && is always true.                                      
+  472    Left side of && is always true.                                      
+ ------ --------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Http/Controllers/TwoFactorController.php                             
+ ------ --------------------------------------------------------------------- 
+  128    Class App\Models\User not found.                                     
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols  
+ ------ --------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Policies/BuildoraPolicy.php                                            
+ ------ ----------------------------------------------------------------------- 
+  19     Call to method hasPermissionTo() on an unknown class App\Models\User.  
+         💡 Learn more at https://phpstan.org/user-guide/discovering-symbols    
+ ------ ----------------------------------------------------------------------- 
+
+ ------ -------------------------------------------------------------- 
+  Line   Resources/BuildoraResource.php                                
+ ------ -------------------------------------------------------------- 
+  93     Cannot access property $displayValue on class-string|object.  
+ ------ -------------------------------------------------------------- 
+
+ ------ -------------------------------------------------------------- 
+  Line   Resources/ModelResource.php                                   
+ ------ -------------------------------------------------------------- 
+  324    Access to an undefined static property                        
+         static(Ginkelsoft\Buildora\Resources\ModelResource)::$model.  
+ ------ -------------------------------------------------------------- 
+
+ ------ -------------------------------------------------------------------------------- 
+  Line   Support/NavigationBuilder.php                                                   
+ ------ -------------------------------------------------------------------------------- 
+  163    Parameter #1 $items of static method                                            
+         Ginkelsoft\Buildora\Support\NavigationBuilder::filterNavigationByPermissions()  
+         expects array<string, mixed>, array<int<0, max>, mixed> given.                  
+  226    Method                                                                          
+         Ginkelsoft\Buildora\Support\NavigationBuilder::filterNavigationByPermissions()  
+         should return array<string, mixed> but returns array<int, mixed>.               
+ ------ -------------------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------ 
+  Line   Support/UrlBuilder.php                                            
+ ------ ------------------------------------------------------------------ 
+  33     Deprecated in PHP 8.4: Parameter #3 $item (object) is implicitly  
+         nullable via default value null.                                  
+  57     Deprecated in PHP 8.4: Parameter #2 $item (object) is implicitly  
+         nullable via default value null.                                  
+ ------ ------------------------------------------------------------------ 
+
+ ------ ------------------------------------------------------------------- 
+  Line   View/Components/BuildoraGuestLayout.php                            
+ ------ ------------------------------------------------------------------- 
+  34     Method                                                             
+         Ginkelsoft\Buildora\View\Components\BuildoraGuestLayout::render()  
+         should return Illuminate\View\View but returns                     
+         Illuminate\Contracts\View\View.                                    
+ ------ ------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   View/Components/BuildoraLayout.php                                   
+ ------ --------------------------------------------------------------------- 
+  34     Method Ginkelsoft\Buildora\View\Components\BuildoraLayout::render()  
+         should return Illuminate\View\View but returns                       
+         Illuminate\Contracts\View\View.                                      
+ ------ --------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------ 
+  Line   View/Components/Button/Back.php                                   
+ ------ ------------------------------------------------------------------ 
+  17     Method Ginkelsoft\Buildora\View\Components\Button\Back::render()  
+         should return Illuminate\View\View but returns                    
+         Illuminate\Contracts\View\View.                                   
+ ------ ------------------------------------------------------------------ 
+
+ ------ ------------------------------------------------------------------ 
+  Line   View/Components/Button/Save.php                                   
+ ------ ------------------------------------------------------------------ 
+  34     Method Ginkelsoft\Buildora\View\Components\Button\Save::render()  
+         should return Illuminate\View\View but returns                    
+         Illuminate\Contracts\View\View.                                   
+ ------ ------------------------------------------------------------------ 
+
+ ------ ------------------------------------------------------------------ 
+  Line   Widgets/BuildoraWidget.php                                        
+ ------ ------------------------------------------------------------------ 
+  53     Method Ginkelsoft\Buildora\Widgets\BuildoraWidget::view() should  
+         return Illuminate\View\View but returns                           
+         Illuminate\Contracts\View\View.                                   
+ ------ ------------------------------------------------------------------ 
+
+ [ERROR] Found 59 errors                                                        
+
