@@ -1,41 +1,43 @@
 #!/usr/bin/env bash
 #
-# Proefdraaien van Buildora.
+# Proefscript voor Buildora (Laravel-package, geen eigen host-app).
 #
-# Buildora is een Laravel-package (composer library): geen artisan, geen
-# public/index.php en geen .env. Dit script installeert de dependencies
-# en draait de automatische testsuite, en serveert het testrapport op
-# poort $PORT zodat je in de browser kunt zien wat er groen en rood is.
+# Buildora heeft zelf geen artisan/.env/routes/serve-entrypoint, omdat het
+# een package is dat je in een consumerende Laravel-app installeert. Voor
+# lokaal proefdraaien gebruiken we daarom Orchestra Testbench: dat start
+# een minimale Laravel-skeleton-app met deze package erin geladen (inclusief
+# de eigen migraties en routes onder /buildora), zodat je zonder aparte
+# host-app kunt rondkijken.
 #
+# Gebruik:
+#   PORT=8080 .zyra/proef.sh
+#
+# Standaard poort is 8000 als $PORT niet gezet is.
+
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-cd "$REPO_DIR"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 PORT="${PORT:-8000}"
 
-echo "-> composer install"
-if ! composer install --no-interaction --prefer-dist; then
-    echo "composer install is mislukt, nieuwe poging zonder platform-checks..."
-    composer install --no-interaction --prefer-dist --ignore-platform-reqs
+echo "==> Composer-dependencies installeren"
+if ! composer install --no-interaction; then
+    echo "==> Normale composer install faalde, opnieuw met --ignore-platform-req=ext-gd"
+    composer install --no-interaction --ignore-platform-req=ext-gd
 fi
 
-REPORT_DIR="$(mktemp -d)"
+echo "==> Testbench-database (sqlite) klaarzetten"
+vendor/bin/testbench workbench:create-sqlite-db --no-interaction
 
-echo "-> vendor/bin/phpunit --testdox"
-set +e
-vendor/bin/phpunit --testdox >"$REPORT_DIR/phpunit.txt" 2>&1
-PHPUNIT_EXIT=$?
-set -e
+echo "==> Migraties draaien (inclusief Buildora's eigen migraties)"
+vendor/bin/testbench migrate --no-interaction
+# Let op: dit package levert geen eigen DatabaseSeeder, dus er is niets om
+# te seeden. Wil je een admin-gebruiker, gebruik dan na het opstarten in een
+# tweede terminal:
+#   vendor/bin/testbench buildora:install
+# of
+#   vendor/bin/testbench buildora:user:create
 
-cat "$REPORT_DIR/phpunit.txt"
-echo "phpunit exitcode: ${PHPUNIT_EXIT}"
-
-printf '<!doctype html><meta charset="utf-8"><title>Buildora - testrapport</title><pre>%s</pre>' \
-    "$(sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' "$REPORT_DIR/phpunit.txt")" \
-    >"$REPORT_DIR/index.html"
-
-echo
-echo "== Testrapport wordt geserveerd op http://0.0.0.0:${PORT}/ (Ctrl+C om te stoppen) =="
-exec php -S 0.0.0.0:"${PORT}" -t "$REPORT_DIR"
+echo "==> Server starten op 0.0.0.0:${PORT}"
+echo "    Open na het starten: http://localhost:${PORT}/buildora/install"
+exec vendor/bin/testbench serve --host=0.0.0.0 --port="${PORT}" --no-interaction
