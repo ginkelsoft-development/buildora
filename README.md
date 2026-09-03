@@ -1,5 +1,7 @@
 # Buildora
 
+[![Tests](https://github.com/ginkelsoft-development/buildora/actions/workflows/tests.yml/badge.svg)](https://github.com/ginkelsoft-development/buildora/actions/workflows/tests.yml)
+
 Buildora is a Laravel package for building admin panels, resources, forms, datatables, widgets and actions — fully based on Eloquent models and a minimal amount of configuration.
 
 ---
