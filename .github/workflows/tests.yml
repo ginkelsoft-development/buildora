@@ -16,10 +16,10 @@ jobs:
         php: ['8.1', '8.2', '8.3', '8.4']
         laravel: ['10.*', '11.*', '12.*']
         exclude:
-          # Laravel 11 requires PHP 8.2+
+          # Laravel 11 vereist PHP 8.2+
           - php: '8.1'
             laravel: '11.*'
-          # Laravel 12 requires PHP 8.2+
+          # Laravel 12 vereist PHP 8.2+
           - php: '8.1'
             laravel: '12.*'
 
@@ -41,17 +41,32 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      - name: Bepaal composer-cachemap
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer-dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ matrix.php }}-${{ matrix.laravel }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ matrix.php }}-${{ matrix.laravel }}-
+
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
           composer update --prefer-stable --prefer-dist --no-interaction
 
-      - name: Execute tests
-        run: vendor/bin/phpunit --testdox
+      - name: Lint (PHP_CodeSniffer, PSR-12)
+        run: vendor/bin/phpcs --standard=PSR12 src/
 
-      - name: Upload coverage reports (PHP 8.2 + Laravel 11 only)
-        if: matrix.php == '8.2' && matrix.laravel == '11.*'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/
+      - name: Statische analyse (PHPStan)
+        run: vendor/bin/phpstan analyse --no-progress
+        # Nog niet blokkerend: er staat bekende, pre-existente technische schuld
+        # open (zie PR-beschrijving issue #117). Zet dit op verplicht zodra die
+        # is opgeruimd, anders blokkeert elke PR onterecht.
+        continue-on-error: true
+
+      - name: Testen (PHPUnit)
+        run: vendor/bin/phpunit --testdox
