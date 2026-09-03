@@ -48,7 +48,9 @@ class ViewField extends Field
         ?Closure $closure = null,
         string $view = ''
     ) {
-        parent::__construct($name, $label ?? ucfirst($name), $type);
+        // Label = null: laat Field::__construct() het label afleiden uit de
+        // naam (spaties i.p.v. underscores + ucfirst), net als bij TextField.
+        parent::__construct($name, $label, $type);
         $this->closure = $closure;
         $this->view = $view;
         $this->var_key = $name;
@@ -57,12 +59,16 @@ class ViewField extends Field
     /**
      * Factory method to create a ViewField.
      *
+     * Standaardwaarde voor $label is null (niet '') zodat het label, als
+     * er geen expliciete waarde is opgegeven, automatisch afgeleid wordt
+     * uit de naam in plaats van leeg te blijven.
+     *
      * @param string $name
      * @param string|null $label
      * @param string $type
      * @return self
      */
-    public static function make(string $name = '', ?string $label = '', string $type = ''): self
+    public static function make(string $name = '', ?string $label = null, string $type = 'view'): self
     {
         return new self($name, $label, $type);
     }

@@ -37,6 +37,24 @@ class HasOneField extends Field
     }
 
     /**
+     * Factory method to create a new HasOneField instance.
+     *
+     * Overschrijft Field::make() expliciet (net als de andere relatievelden,
+     * zoals BelongsToField en HasManyField) zodat HasOneField::make() altijd
+     * een HasOneField teruggeeft, onafhankelijk van late static binding in
+     * de basisklasse.
+     *
+     * @param string $name
+     * @param string|null $label
+     * @param string $type
+     * @return self
+     */
+    public static function make(string $name, ?string $label = null, string $type = 'hasOne'): self
+    {
+        return new self($name, $label);
+    }
+
+    /**
      * Set the related model class manually.
      *
      * @param string $model
