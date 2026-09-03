@@ -10,7 +10,21 @@ use Ginkelsoft\Buildora\Support\ResourceScanner;
 class GlobalSearchController extends Controller
 {
     /**
+     * Maximaal aantal resultaten dat per resource wordt opgehaald.
+     */
+    private const RESULT_LIMIT_PER_RESOURCE = 10;
+
+    /**
      * Handle the global search query and return matching results across all Buildora resources.
+     *
+     * Elke resource-query is begrensd tot maximaal RESULT_LIMIT_PER_RESOURCE records via
+     * ->limit(), zodat een breed zoekterm op een grote tabel geen onbegrensde LIKE-scan
+     * en resultaatlijst oplevert.
+     *
+     * Let op: dit is een LIKE '%term%' query zonder index-ondersteuning. Voor grote tabellen
+     * (honderdduizenden+ rijen) wordt aanbevolen om een FULLTEXT-index op de doorzoekbare
+     * kolommen te overwegen (of een dedicated zoekoplossing zoals Laravel Scout), omdat een
+     * LIKE-query met leidend wildcard geen gebruik kan maken van een standaard B-tree index.
      *
      * @param Request $request
      * @return JsonResponse
@@ -55,7 +69,9 @@ class GlobalSearchController extends Controller
                 }
             });
 
-            $query->limit(5)->get()->each(function ($item) use (&$results, $resourceMeta, $resource, $labelConfig) {
+            $items = $query->limit(self::RESULT_LIMIT_PER_RESOURCE)->get();
+
+            $items->each(function ($item) use (&$results, $resourceMeta, $resource, $labelConfig) {
                 // Genereer label
                 if (is_callable($labelConfig)) {
                     $label = $labelConfig($item);
