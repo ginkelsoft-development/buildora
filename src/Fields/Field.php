@@ -212,6 +212,29 @@ class Field
     }
 
     /**
+     * Transform a raw incoming request value before it is persisted.
+     *
+     * Let op: dit is bewust een andere hook dan `setValue()`, dat in dit
+     * package al een gevestigde betekenis heeft (het vullen van
+     * `$field->value` vanuit een model/record voor weergave, zie o.a.
+     * FieldManager en de meeste Field-subklassen). `prepareForStorage()`
+     * doet het omgekeerde: het krijgt de ruwe waarde uit het request en
+     * geeft de waarde terug die opgeslagen mag worden.
+     *
+     * De basisimplementatie is de identity-functie. Fieldtypes die
+     * inkomende waarden vóór het opslaan moeten transformeren/saniteren
+     * (bv. RichTextField/EditorField die onveilige HTML strippen om stored
+     * XSS te voorkomen) overschrijven deze methode.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public function prepareForStorage(mixed $value): mixed
+    {
+        return $value;
+    }
+
+    /**
      * Convert the field into an array representation.
      *
      * @return array<string, mixed>

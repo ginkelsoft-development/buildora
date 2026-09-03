@@ -74,6 +74,15 @@ class BuildoraController extends Controller
         $finalData = array_merge($allowedRequestData, $validatedData);
 
         foreach ($resource->resolveFields($modelInstance) as $field) {
+            if (array_key_exists($field->name, $finalData)) {
+                // Geeft elk fieldtype de kans om de ruwe request-waarde te
+                // transformeren vóór het opslaan (bv. RichTextField en
+                // EditorField saniteren hier hun WYSIWYG-HTML om stored XSS
+                // te voorkomen). Field::prepareForStorage() is voor de
+                // meeste fieldtypes de identity-functie.
+                $finalData[$field->name] = $field->prepareForStorage($finalData[$field->name]);
+            }
+
             if ($field instanceof FileField && $request->hasFile($field->name)) {
                 $uploadedFile = $request->file($field->name);
                 $disk = $field->getDisk() ?? 'public';
@@ -163,6 +172,13 @@ class BuildoraController extends Controller
         $finalData = array_merge($allowedRequestData, $validatedData);
 
         foreach ($resource->resolveFields($modelInstance) as $field) {
+            if (array_key_exists($field->name, $finalData)) {
+                // Zie store(): transformeert/saniteert de ruwe request-waarde
+                // vóór het opslaan (o.a. stored-XSS-preventie voor
+                // RichTextField/EditorField).
+                $finalData[$field->name] = $field->prepareForStorage($finalData[$field->name]);
+            }
+
             if ($field instanceof FileField && $request->hasFile($field->name)) {
                 $uploadedFile = $request->file($field->name);
                 $disk = $field->getDisk() ?? 'public';
