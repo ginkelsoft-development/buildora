@@ -47,6 +47,10 @@ class Field
     /**
      * Static factory method to create a new field instance.
      *
+     * Uses `new static()` (late static binding) so that subclasses which do
+     * not override make() still get an instance of the subclass itself,
+     * instead of a bare Field instance.
+     *
      * @param string $name
      * @param string|null $label
      * @param string $type
@@ -54,7 +58,7 @@ class Field
      */
     public static function make(string $name, ?string $label = null, string $type = 'text'): self
     {
-        return new self($name, $label, $type);
+        return new static($name, $label, $type);
     }
 
     /**
