@@ -8,30 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use PDO;
-use TypeError;
 
 /**
- * Reproductie van issue #143.
+ * Regressietests voor issue #143.
  *
- * CurrencyField::getDisplayValue() geeft de waarde ongewijzigd door aan
- * number_format() (zie src/Fields/Types/CurrencyField.php, regel ~51).
- * number_format() heeft de signatuur number_format(int|float $num, ...).
- * PHP coerceert in "weak mode" een well-formed numerieke string (zoals
- * '12.50') automatisch naar float, maar gooit een TypeError zodra de
- * string niet (volledig) numeriek is — bijvoorbeeld een lege string ''
- * of een niet-numerieke waarde als 'abc'.
+ * CurrencyField::getDisplayValue() gaf de waarde ongewijzigd door aan
+ * number_format() (zie src/Fields/Types/CurrencyField.php). number_format()
+ * heeft de signatuur number_format(int|float $num, ...). PHP coerceert in
+ * "weak mode" een well-formed numerieke string (zoals '12.50') automatisch
+ * naar float, maar gooide een TypeError zodra de string niet (volledig)
+ * numeriek was — bijvoorbeeld een lege string '' of een niet-numerieke
+ * waarde als 'abc'.
  *
- * Bevindingen van deze reproductie:
- * - Het letterlijke voorbeeld uit het issue ('12.50' uit een DECIMAL-kolom)
- *   crasht NIET op PHP 8.4: het is een well-formed numerieke string en
- *   wordt door PHP automatisch gecoerced. Dit is vastgelegd als groene
- *   controletest hieronder.
- * - Wel reproduceerbaar met exact dezelfde TypeError als in het issue:
- *   een lege string '' (bijv. een leeg ingevuld formulierveld dat nog
- *   niet naar null is gecast) en een niet-numerieke string 'abc'
- *   (bijv. corrupte data of een verkeerd gekoppeld veld). Dit zijn
- *   plausibele varianten van "de waarde is een string" uit een
- *   DECIMAL-kolom of formulierinvoer.
+ * CurrencyField::getDisplayValue() cast nu defensief: null, lege strings en
+ * niet-numerieke strings leveren een '-' op in plaats van een crash.
  *
  * @see https://github.com/ginkelsoft-development/buildora/issues/143
  */
@@ -122,42 +112,9 @@ class CurrencyFieldTest extends TestCase
     }
 
     /**
-     * Reproductie: number_format() gooit een TypeError zodra de waarde een
-     * lege string is.
-     */
-    /** @test */
-    public function itCurrentlyThrowsATypeErrorForAnEmptyStringValue(): void
-    {
-        $field = CurrencyField::make('price');
-
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('/number_format\(\).*must be of type int\|float, string given/');
-
-        $field->getDisplayValue($this->makeRecord(''));
-    }
-
-    /**
-     * Reproductie: number_format() gooit een TypeError zodra de waarde een
-     * niet-numerieke string is.
-     */
-    /** @test */
-    public function itCurrentlyThrowsATypeErrorForANonNumericStringValue(): void
-    {
-        $field = CurrencyField::make('price');
-
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('/number_format\(\).*must be of type int\|float, string given/');
-
-        $field->getDisplayValue($this->makeRecord('abc'));
-    }
-
-    /**
-     * Grensgeval vastgelegd voor ná de fix van issue #143: een lege string
-     * zou net als null een '-' moeten opleveren in plaats van een crash.
-     *
-     * Deze test faalt bewust (rood) zolang CurrencyField::getDisplayValue()
-     * geen defensieve cast/validatie heeft. Bedoeld voor Noor bij het
-     * doorvoeren van de fix uit issue #143.
+     * Fix van issue #143: een lege string wordt net als null defensief
+     * afgevangen en levert een '-' op in plaats van een TypeError uit
+     * number_format().
      */
     /** @test */
     public function itShouldReturnADashInsteadOfCrashingForAnEmptyStringValue(): void
@@ -168,11 +125,8 @@ class CurrencyFieldTest extends TestCase
     }
 
     /**
-     * Grensgeval vastgelegd voor ná de fix van issue #143: een
-     * niet-numerieke string mag niet crashen.
-     *
-     * Deze test faalt bewust (rood) zolang de fix niet is doorgevoerd.
-     * Bedoeld voor Noor bij het doorvoeren van de fix uit issue #143.
+     * Fix van issue #143: een niet-numerieke string mag niet crashen op
+     * number_format() en levert een '-' op.
      */
     /** @test */
     public function itShouldNotCrashForANonNumericStringValue(): void
@@ -181,6 +135,6 @@ class CurrencyFieldTest extends TestCase
 
         $result = $field->getDisplayValue($this->makeRecord('abc'));
 
-        $this->assertIsString($result);
+        $this->assertSame('-', $result);
     }
 }

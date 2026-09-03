@@ -44,10 +44,13 @@ class CurrencyField extends Field
     {
         $value = $model->{$this->name} ?? null;
 
-        if (is_null($value)) {
+        // Defensief casten: null, lege string en niet-numerieke waarden
+        // (bijv. corrupte data of een leeg formulierveld) mogen niet
+        // crashen op number_format() (zie issue #143).
+        if (is_null($value) || $value === '' || ! is_numeric($value)) {
             return '-';
         }
 
-        return '€ ' . number_format($value, 2, ',', '.');
+        return '€ ' . number_format((float) $value, 2, ',', '.');
     }
 }
