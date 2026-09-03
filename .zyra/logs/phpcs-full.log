@@ -1,0 +1,98 @@
+
+FILE: ...93c293-a2e7-47ed-8820-9732a9962da1/src/Resources/Defaults/UserBuildora.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 59 | ERROR | [x] Expected 0 spaces before closing parenthesis; newline found
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+
+FILE: ...993c293-a2e7-47ed-8820-9732a9962da1/src/Fields/Types/RelationLinkField.php
+--------------------------------------------------------------------------------
+FOUND 0 ERRORS AND 1 WARNING AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 204 | WARNING | Line exceeds 120 characters; contains 203 characters
+--------------------------------------------------------------------------------
+
+
+FILE: ...293-a2e7-47ed-8820-9732a9962da1/src/Http/Controllers/InstallController.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AND 1 WARNING AFFECTING 2 LINES
+--------------------------------------------------------------------------------
+  49 | WARNING | [ ] Line exceeds 120 characters; contains 127 characters
+ 131 | ERROR   | [x] Blank line found at end of control structure
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+
+FILE: ...7-47ed-8820-9732a9962da1/src/Http/Controllers/InlineRelationController.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AND 1 WARNING AFFECTING 2 LINES
+--------------------------------------------------------------------------------
+  45 | ERROR   | [x] Expected 1 space after FUNCTION keyword; 0 found
+ 148 | WARNING | [ ] Line exceeds 120 characters; contains 123 characters
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+
+FILE: ...3-a2e7-47ed-8820-9732a9962da1/src/Http/Controllers/TwoFactorController.php
+--------------------------------------------------------------------------------
+FOUND 0 ERRORS AND 1 WARNING AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 160 | WARNING | Line exceeds 120 characters; contains 126 characters
+--------------------------------------------------------------------------------
+
+
+FILE: ...93c293-a2e7-47ed-8820-9732a9962da1/src/Commands/UpgradeBuildoraCommand.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 45 | ERROR | [x] Blank line found at end of control structure
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+
+FILE: ...93c293-a2e7-47ed-8820-9732a9962da1/src/Commands/InstallBuildoraCommand.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 67 | ERROR | [x] Blank line found at end of control structure
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+
+FILE: ...werkplaats/8993c293-a2e7-47ed-8820-9732a9962da1/src/Support/UrlBuilder.php
+--------------------------------------------------------------------------------
+FOUND 0 ERRORS AND 1 WARNING AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 33 | WARNING | Line exceeds 120 characters; contains 130 characters
+--------------------------------------------------------------------------------
+
+
+FILE: ...s/8993c293-a2e7-47ed-8820-9732a9962da1/src/Datatable/BuildoraDatatable.php
+--------------------------------------------------------------------------------
+FOUND 0 ERRORS AND 3 WARNINGS AFFECTING 3 LINES
+--------------------------------------------------------------------------------
+ 66 | WARNING | Line exceeds 120 characters; contains 148 characters
+ 76 | WARNING | Line exceeds 120 characters; contains 147 characters
+ 99 | WARNING | Line exceeds 120 characters; contains 151 characters
+--------------------------------------------------------------------------------
+
+
+FILE: ...kplaats/8993c293-a2e7-47ed-8820-9732a9962da1/src/Datatable/DataFetcher.php
+--------------------------------------------------------------------------------
+FOUND 1 ERROR AFFECTING 1 LINE
+--------------------------------------------------------------------------------
+ 140 | ERROR | [x] Expected 0 spaces before closing parenthesis; newline found
+--------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 1 MARKED SNIFF VIOLATIONS AUTOMATICALLY
+--------------------------------------------------------------------------------
+
+Time: 439ms; Memory: 16MB
+

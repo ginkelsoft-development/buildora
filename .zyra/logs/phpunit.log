@@ -1,0 +1,58 @@
+PHPUnit 11.5.56 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.24
+Configuration: /app/werkplaats/8993c293-a2e7-47ed-8820-9732a9962da1/phpunit.xml.dist
+
+.......................................                           39 / 39 (100%)
+
+Time: 00:00.182, Memory: 38.00 MB
+
+Column Builder (Ginkelsoft\Buildora\Tests\Unit\Datatable\ColumnBuilder)
+ ✔ Het bouwt alleen de zichtbare kolommen op
+ ✔ Een tweede build voor dezelfde resource class roept definefields niet opnieuw aan
+ ✔ Verschillende resource classes hebben hun eigen cache entry
+
+Currency Field (Ginkelsoft\Buildora\Tests\Unit\Fields\CurrencyField)
+ ✔ It formats a float value correctly
+ ✔ It formats an integer value correctly
+ ✔ It returns a dash for a null value
+ ✔ It does not crash for a well formed numeric string from a decimal column
+ ✔ It should return a dash instead of crashing for an empty string value
+ ✔ It should not crash for a non numeric string value
+
+Field Contract (Ginkelsoft\Buildora\Tests\Unit\Fields\FieldContract)
+ ✔ Has one field make geeft een has one field instance terug
+ ✔ View field make leidt label af uit de naam als geen label is opgegeven
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\AsyncBelongsToField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\BelongsToField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\BelongsToManyField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\BooleanField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\CheckboxListField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\CurrencyField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\DateField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\DateTimeField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\DisplayField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\EditorField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\EmailField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\FileField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\HasManyField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\HasOneField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\IDField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\JsonField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\NumberField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\PasswordField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\RelationLinkField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\RichTextField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\SelectField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\TextField"
+ ✔ Elk fieldtype geeft zijn eigen klasse terug via make with data set "Ginkelsoft\Buildora\Fields\Types\ViewField"
+
+Text Field (Ginkelsoft\Buildora\Tests\Unit\Fields\TextField)
+ ✔ It can create a text field
+ ✔ It can mark field as sortable
+ ✔ It can mark field as readonly
+ ✔ It can set help text
+ ✔ It generates label from field name when not provided
+
+OK, but there were issues!
+Tests: 39, Assertions: 48, PHPUnit Deprecations: 17.
