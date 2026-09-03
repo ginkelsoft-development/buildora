@@ -20,7 +20,7 @@ class ResetPasswordController extends Controller
      * @param string|null $token
      * @return View
      */
-    public function showResetForm(Request $request, string $token = null): View
+    public function showResetForm(Request $request, ?string $token = null): View
     {
         return view('buildora::auth.passwords.reset', [
             'token' => $token,

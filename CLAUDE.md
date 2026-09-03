@@ -24,6 +24,13 @@ npm run build
 npm run dev
 ```
 
+### Static Analysis (PHPStan)
+`phpstan.neon` is the single source of truth for the analysis level (currently
+level 1). Run it via `composer analyse` — the script no longer hardcodes a
+`--level` flag, so it always follows whatever level is set in `phpstan.neon`.
+When bumping the level, update `phpstan.neon` only; do not reintroduce a
+`--level` override in `composer.json`.
+
 ### Testing Buildora in a Laravel Application
 Since this is a package, it's typically developed using a local path repository setup. To install in a consuming Laravel app:
 

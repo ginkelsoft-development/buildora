@@ -1,5 +1,5 @@
 parameters:
-    level: 0
+    level: 1
     paths:
         - src
     excludePaths:
@@ -10,7 +10,10 @@ parameters:
         - '#Call to an undefined static method#'
         - '#Access to an undefined property#'
         - '#Call to static method .* on an unknown class#'
+        # App\Models\User is the *consuming* Laravel app's model, not this
+        # package's own — it never exists during static analysis here.
         - '#Parameter .* has invalid type App\\Models\\User#'
+        - '#Class App\\Models\\User not found#'
         - '#Unsafe usage of new static\(\)#'
         -
             identifier: missingType.iterableValue

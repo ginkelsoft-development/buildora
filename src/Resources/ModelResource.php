@@ -26,6 +26,14 @@ use Throwable;
 abstract class ModelResource extends BuildoraResource
 {
     /**
+     * Explicit model class for this resource. Subclasses may override this
+     * to bypass the naming-convention lookup in modelClass().
+     *
+     * @var class-string<Model>|null
+     */
+    protected static ?string $model = null;
+
+    /**
      * Fields that should be excluded from the auto-generated form.
      *
      * @var array<int, string>

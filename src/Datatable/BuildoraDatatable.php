@@ -63,7 +63,7 @@ class BuildoraDatatable
         $this->pagination = $this->buildPaginationMeta($paginator, $perPage, $page);
     }
 
-    protected function initialize(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
+    protected function initialize(string $search = '', string $sortBy = '', string $sortDirection = 'asc', ?int $perPage = null, int $page = 1): void
     {
         if ($this->initialized || $this->isRelationMode) {
             return;
@@ -73,7 +73,7 @@ class BuildoraDatatable
         $this->initialized = true;
     }
 
-    protected function fetchData(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): void
+    protected function fetchData(string $search = '', string $sortBy = '', string $sortDirection = 'asc', ?int $perPage = null, int $page = 1): void
     {
         $perPage = (int) ($perPage ?? Request::input('per_page', Config::get('buildora.datatable.default_per_page')));
         if ($perPage < 1) {
@@ -96,7 +96,7 @@ class BuildoraDatatable
         return $this->columns;
     }
 
-    public function getJsonResponse(string $search = '', string $sortBy = '', string $sortDirection = 'asc', int $perPage = null, int $page = 1): array
+    public function getJsonResponse(string $search = '', string $sortBy = '', string $sortDirection = 'asc', ?int $perPage = null, int $page = 1): array
     {
         $page = Request::input('page', $page);
         $perPage = Request::input('per_page', Config::get('buildora.datatable.default_per_page'));

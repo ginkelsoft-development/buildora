@@ -54,7 +54,7 @@ jobs:
         continue-on-error: true
         run: |
           if [ -f "vendor/bin/phpstan" ]; then
-            vendor/bin/phpstan analyse src/ --level=0 --no-progress || echo "PHPStan has errors - will be fixed incrementally"
+            composer analyse || echo "PHPStan has errors - will be fixed incrementally"
           else
             echo "PHPStan not installed, skipping..."
           fi

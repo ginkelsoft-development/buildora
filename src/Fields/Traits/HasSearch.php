@@ -32,7 +32,7 @@ trait HasSearch
      * @return static
      * @throws \LogicException If the field does not support searching.
      */
-    public function searchable(string $term = null): static
+    public function searchable(?string $term = null): static
     {
         if (! $this->supportsSearch()) {
             throw new BuildoraException(static::class . " does not support searchable().");
